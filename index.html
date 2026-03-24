@@ -35,7 +35,7 @@
         /* Botón de menú hamburguesa (siempre visible) */
 	    .btn-hamburguesa {
 	    position: absolute;
-	    bottom: 30px; /* ¡CAMBIO! Ahora está pegado a la parte de abajo */
+	    bottom: 60px; /* ¡CAMBIO! Ahora está pegado a la parte de abajo */
 	    left: 20px; /* ¡CAMBIO! Pegado a la izquierda (ajusta este número si lo quieres más o menos pegado) */
 	    top: auto; /* ¡IMPORTANTE! Quitamos la posición de arriba */
 	    width: 50px;
@@ -420,7 +420,7 @@ function agregarBotonesControl() {
     botonCentrar.className = "boton-mapa";
     // Usamos rotateX en lugar de scaleX para el volteo
     botonCentrar.innerHTML = '<span style="display: inline-block; transform: rotateX(180deg); font-size: 24px; filter: hue-rotate(240deg) saturate(150%) brightness(60%);">🩸</span>';
-    botonCentrar.style.bottom = "95px";
+    botonCentrar.style.bottom = "125px";
     botonCentrar.style.left = "15px";
     botonCentrar.title = "Centrar en mi ubicación";
     botonCentrar.addEventListener("click", centrarYSeguirUbicacion);
@@ -430,7 +430,7 @@ function agregarBotonesControl() {
     const botonRutaSiguiente = document.createElement("button");
     botonRutaSiguiente.className = "boton-mapa";
     botonRutaSiguiente.innerHTML = '<i class="fas fa-location-arrow" style="color: #007bff; font-size: 24px;"></i>';
-    botonRutaSiguiente.style.bottom = "155px";
+    botonRutaSiguiente.style.bottom = "185px";
     botonRutaSiguiente.style.left= "15px";
     botonRutaSiguiente.title = "Ruta al punto seleccionado";
     botonRutaSiguiente.id = "btnRutaSiguiente";
