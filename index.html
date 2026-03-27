@@ -23,14 +23,118 @@
         }
 
         /* Contenedor del mapa */
-        #mapa {
-            width: 100%;
-            height: 100vh; /* Ocupa toda la pantalla */
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1; /* Mapa detrás de menú y botones */
-        }
+/* CONTENEDOR DEL MAPA - QUEDA TOTALMENTE FIJO Y COMPLETO */
+#mapa {
+    margin-top: 0 !important; /* NUNCA SE MUEVE HACIA ABAJO */
+    transition: none !important; /* NO HAY MOVIMIENTO */
+    height: 100vh !important; /* OCUPA TODO EL PANTALLA */
+    width: 100% !important;
+}
+
+/* QUITAMOS ESTA REGLA POR COMPLETO (ya no la necesitamos) */
+/* body.contenedor-info-visible #mapa { ... } */
+
+
+/* CONTENEDOR FIJO - ENCIMA DEL MAPA */
+#contenedorInfoFijo {
+    display: none;
+    position: fixed;
+    top: 0 !important; /* SE COLOCA ARRIBA DEL TODO */
+    left: 0;
+    width: 100%;
+    background: #2b2b2b;
+    color: white;
+    z-index: 1001; /* POR ENCIMA DEL MAPA */
+    padding: 10px 15px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.8); /* Sombra para que se distinga del mapa */
+}
+
+/* BOTONES DENTRO DEL PANEL - SIN CORTAR */
+#infoFijoBotones {
+    display: flex;
+    gap: 10px;
+    padding-top: 5px;
+}
+
+/* CONTROLES DEL MAPA - SE AJUSTAN SOLO UN POCO */
+.gm-style-mtc, 
+.gm-svpc, 
+.gm-control-active,
+.gm-fullscreen-control {
+    margin-top: 5px !important; /* Solo un poquito de espacio arriba para no taparse con el panel */
+    z-index: 1000 !important;
+}
+
+
+#contenedorInfoFijo {
+    display: none;
+    position: fixed;
+    top: 80px; /* CAMBIA DE 0 A 80px */
+    left: 0;
+    width: 100%;
+    background: #2b2b2b;
+    color: white;
+    z-index: 1001;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+/* Estilos para el contenedor fijo (ya tiene estilos inline, pero puedes personalizarlos) */
+#contenedorInfoFijo .btn-cerrar {
+    background: #4a4a4a !important; /* MANTÉN EL !important QUE YA TIENES */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 14px;
+    padding: 0;
+}
+
+#infoFijoBotones button, #infoFijoBotones a {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#infoFijoBotones .btn-llamar {
+    color: #007bff;
+    background: transparent;
+    font-size: 30px;
+}
+
+#infoFijoBotones .btn-entregado {
+    background: #28a745;
+    color: white;
+}
+
+#infoFijoBotones .btn-visitado {
+    background: #ffc107;
+    color: #212529;
+}
+
+#infoFijoBotones .btn-tarjeta {
+    background: #6c757d;
+    color: white;
+}
+
+#infoFijoBotones .btn-whatsapp {
+    color: #25d366;
+    background: transparent;
+    font-size: 30px;
+}
+
+#infoFijoTitulo .guia-texto {
+    margin-right: 35px; /* Ajusta el número de pixeles para más o menos espacio */
+    color: #2da42d; /* Mantén el color que ya tienes */
+}
 
         /* Botón de menú hamburguesa (siempre visible) */
 	    .btn-hamburguesa {
@@ -344,6 +448,26 @@
     }
 }
 
+/* Estilo normal del marcador */
+.marcador-normal {
+    background-color: #2196F3; /* Color azul por defecto */
+    border-radius: 50%;
+    border: 2px solid white;
+    width: 15px;
+    height: 15px;
+}
+
+/* Estilo del marcador SELECCIONADO */
+.marcador-seleccionado {
+    background-color: #F44336; /* Color rojo para resaltar */
+    border-radius: 50%;
+    border: 3px solid #004d00; /* Borde amarillo para que destaque más */
+    width: 20px;
+    height: 20px;
+    z-index: 1002; /* Por encima de otros marcadores */
+}
+
+
     </style>
     <!-- Iconos de Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -391,6 +515,17 @@
     <!-- Contenedor específico para el contenido dinámico -->
     <div id="contenidoEntregados"></div>
 </div>
+
+<!-- Contenedor fijo para la información del punto seleccionado -->
+<div id="contenedorInfoFijo" style="display: none; position: fixed; top: 0; left: 0; width: 100%; background: #2b2b2b; color: white; z-index: 1001; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); box-sizing: border-box;">
+    <div class="contenedor-titulo-panel" style="margin-bottom: 10px;">
+        <h3 id="infoFijoTitulo" style="color: #2da42d; font-size: 20px; margin: 0;"></h3>
+        <button class="btn-cerrar" onclick="ocultarContenedorInfoFijo()" style="background: #4a4a4a;">X</button>
+    </div>
+    <div id="infoFijoContenido" style="font-size: 16px; line-height: 1.5;"></div>
+    <div id="infoFijoBotones" style="display: flex; gap: 10px; justify-content: space-around; margin-top: 15px;"></div>
+</div>
+
 
     <!-- Script de Google Maps -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjwIYlkQQCbqguGflc3tQifzE2onneqco&callback=initMap" async defer></script>
@@ -798,7 +933,9 @@ function centrarYSeguirUbicacion() {
             });
         }
 
-// Cargar direcciones por ruta (POST)
+// ******************************
+// MISMA FUNCIÓN, MISMO NOMBRE, SOLO CAMBIOS EN EL INFO WINDOW
+// ******************************
 async function cargarDireccionesPorRuta(numeroRuta) {
     if (!numeroRuta) {
         document.getElementById('listaDirecciones').innerHTML = '';
@@ -816,7 +953,7 @@ async function cargarDireccionesPorRuta(numeroRuta) {
             body: `action=obtenerDirecciones&ruta=${encodeURIComponent(numeroRuta)}`
         });
         const resultado = await respuesta.json();
-        resultadoDatos = resultado; // Guardar datos para usar en otras funciones
+        resultadoDatos = resultado;
 
         if (resultado.success) {
             // Limpiar marcadores anteriores
@@ -829,7 +966,7 @@ async function cargarDireccionesPorRuta(numeroRuta) {
             lista.innerHTML = '';
 
             resultado.datos.forEach((dato, index) => {
-                // Agregar a la lista
+                // Agregar a lista
                 const li = document.createElement('li');
                 li.className = 'direccion-item';
                 li.innerHTML = `
@@ -844,98 +981,123 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                     const [lat, lng] = dato.ruta1.split(',').map(coord => parseFloat(coord.trim()));
                     posicion = { lat, lng };
                 } else {
-                    posicion = { lat: 25.4383, lng: -100.9764 }; // Saltillo por defecto
+                    posicion = { lat: 25.4383, lng: -100.9764 };
                 }
 
-                // Definir color según el estado
-                let colorMarcador;
-                if (dato.estado === "ENTREGADO") {
-                    colorMarcador = "green";
-                } else if (dato.estado === "VISITADO") {
-                    colorMarcador = "yellow";
-                } else {
-                    colorMarcador = "red"; // Por defecto: EN RUTA (Pendiente)
-                }
+                // Color marcador base
+                let colorMarcador = "red";
+                if (dato.estado === "ENTREGADO") colorMarcador = "green";
+                if (dato.estado === "VISITADO") colorMarcador = "yellow";
 
-                // Crear marcador con el color correspondiente
+                // Crear marcador con estilo base
                 const marcador = new google.maps.Marker({
                     position: posicion,
                     map: mapa,
-                    title: `Guía ${dato.nguia} - ${dato.recibe}`,
+                    title: `Guía ${dato.nguia} - ${dato.envia}`,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
                         fillColor: colorMarcador,
                         fillOpacity: 1,
                         strokeWeight: 0,
-                        scale: 8 // Tamaño del marcador
+                        scale: 8
                     }
                 });
-                marcador.nguia = dato.nguia; // Guardar NGUIA para identificarlo luego
-                marcador.recibe = dato.recibe; // Guardar nombre para el título
+                marcador.nguia = dato.nguia;
+                marcador.datoCompleto = dato;
+                marcador.colorBase = colorMarcador; // Guardamos el color original del marcador
 
-                // Para depuración
-                console.log(`Marcador creado con NGUIA: ${dato.nguia}, Título: ${marcador.title}`);
+                // Evento de clic en el marcador
+                marcador.addListener('click', function() {
+                    // Cerrar paneles abiertos
+                    cerrarPanelDirecciones(); 
+                    cerrarPanelEntregados(); 
 
-                // Contenido del globo
-                        const contenido = `
-                            <div style="width: 300px; padding: 15px; font-size: 18px;">
-                                <h4 style="margin: 0 0 10px 0; color: #2c710B; font-size: 26px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);"> ${dato.nguia}</h4>
-                                <p style="margin: 5px 0;"><strong>Env: ${dato.envia}</strong></p>
-                                <p style="margin: 5px 0;"><strong>Rec: ${dato.recibe}</strong></p>
-                                <p style="margin: 5px 0;"><strong>Dir: ${dato.direccion}</strong></p>
-                                <p style="margin: 5px 0;"><strong>Ref: ${dato.referencia}</strong></p>
-                                <p style="margin: 5px 0;"><strong>Cont: ${dato.contenido}</strong></p>
-                                <p style="margin: 5px 0;"><strong>Cobrar: $${dato.acobrar}</strong></p>
-                           <!--     <p style="margin: 10px 0;"><span style="color: ${dato.estado === 'ENTREGADO' ? '#28a745' : dato.estado === 'VISITADO' ? '#ffc107' : '#dc3545'};">${dato.estado}</span></p> -->
-                                
-                                <div style="display: flex; gap: 10px; justify-content: space-around; margin-top: 15px;">
-                                    <a href="tel:${dato.telefono}" style="color: #007bff; font-size: 30px;" title="Llamar">
-                                        <i class="fas fa-phone"></i>
-                                    </a>
+                    // Restaurar estilo del marcador seleccionado anteriormente (si existe)
+                    if (marcadorSeleccionado) {
+                        marcadorSeleccionado.setIcon({
+                            path: google.maps.SymbolPath.CIRCLE,
+                            fillColor: marcadorSeleccionado.colorBase,
+                            fillOpacity: 1,
+                            strokeWeight: 0,
+                            scale: 8
+                        });
+                    }
+
+                    // Establecer este marcador como seleccionado y cambiar su estilo (VERDE OSCURO)
+                    marcadorSeleccionado = this;
+                    marcadorSeleccionado.setIcon({
+                        path: google.maps.SymbolPath.CIRCLE,
+                        fillColor: this.colorBase,
+                        fillOpacity: 1,
+                        strokeColor: "#004d00", // Verde oscuro oscuro
+                        strokeWeight: 4, // Borde un poco más grueso para que se vea mejor
+                        scale: 10 // Tamaño mayor para resaltar
+                    });
+
+                    // Mostrar contenedor fijo con datos completos
+                    const contenedor = document.getElementById('contenedorInfoFijo');
+                    const titulo = contenedor.querySelector('#infoFijoTitulo');
+                    const contenido = contenedor.querySelector('#infoFijoContenido');
+                    const botones = contenedor.querySelector('#infoFijoBotones');
+
+                    titulo.innerHTML = `<span class="guia-texto">${dato.nguia}</span><span class="envia-texto">${dato.envia}</span>`;
+                    
+                    // Contenido del panel con etiquetas completas
+                    contenido.innerHTML = `
+                        <p><strong>🙎‍♀️</strong> ${dato.recibe}</p>
+                        <p><strong>📌</strong> ${dato.direccion}</p>
+                        <p><strong>⤴️</strong> ${dato.referencia}</p>
+                        <p><strong>🫙</strong> ${dato.contenido} | <strong>💰</strong> $${dato.acobrar}</p>
+                    `;
+
+                    botones.innerHTML = `
+                        <a href="tel:${dato.telefono}" style="color: #007bff; font-size: 30px;" title="Llamar">
+                            <i class="fas fa-phone"></i>
+                        </a>
+
 
                                     <button id="btnEntregado_${dato.nguia}" onclick="actualizarEstado('${dato.nguia}', 'ENTREGADO')" style="background: #28a745; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px; position: relative;" title="Marcar como entregado">
     <span class="spinner-icono" id="spinnerEntregado_${dato.nguia}" style="display: none;"></span>
     <i class="fas fa-check" id="iconoEntregado_${dato.nguia}"></i> 
 </button>
 
-                                    <button onclick="actualizarEstado('${dato.nguia}', 'VISITADO')" style="background: #ffc107; color: #212529; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px;" title="Marcar como visitado">
-                                        <i class="fas fa-eye"></i> 
-                                    </button>
-
-                                    <!-- Nuevo botón de tarjeta de banco -->
+               <!--          <button id="btnEntregado_${dato.nguia}" onclick="actualizarEstado('${dato.nguia}', 'ENTREGADO')" style="background: #28a745; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer;">
+                            <span id="spinnerEntregado_${dato.nguia}" style="display: none;"></span>
+                            <i class="fas fa-check"></i>
+                        </button>   -->
+                        <button onclick="actualizarEstado('${dato.nguia}', 'VISITADO')" style="background: #ffc107; color: #212529; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer;">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                                   
                                     <button id="btnTarjeta_${dato.nguia}" onclick="actualizarEstadoConCero('${dato.nguia}')" style="background: #6c757d; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px; position: relative;" title="Pagado al Vendedor">
     <span class="spinner-icono" id="spinnerTarjeta_${dato.nguia}" style="display: none;"></span>
     <i class="fas fa-credit-card" id="iconoTarjeta_${dato.nguia}"></i> 
 </button>
 
-<a href="https://wa.me/${dato.telefono}?text=${encodeURIComponent(`${dato.recibe} Su Compra Que Realizo Con ${dato.envia} De ${dato.contenido} Por La Cantidad De $${dato.acobrar}.00 Esta Por llegar a su domicilio en unos cuantos minutos para que este el pendiente de nuestra llegada`)}" target="_blank" style="color: #25d366; font-size: 30px;" title="Enviar WhatsApp">
-    <i class="fab fa-whatsapp"></i>
-</a>
-                                </div>
-                            </div>
-                        `;
+			<!-- Nuevo botón de tarjeta de banco 
+                        <button id="btnTarjeta_${dato.nguia}" onclick="actualizarEstadoConCero('${dato.nguia}')" style="background: #6c757d; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer;">
+                            <span id="spinnerTarjeta_${dato.nguia}" style="display: none;"></span>
+                            <i class="fas fa-credit-card"></i>
+                        </button>  -->
 
-              const infowindow = new google.maps.InfoWindow({ content: contenido });
-                marcador.addListener('click', function() {
-                    // Cerrar el infowindow anterior si está abierto
-                    if (infowindowActual) {
-                        infowindowActual.close();
-                    }
-                    // Abrir el nuevo infowindow y guardarlo como actual
-                    infowindow.open(mapa, this);
-                    infowindowActual = infowindow;
-                    // Guardar el marcador que se acaba de abrir
-                    marcadorSeleccionado = this;
+
+                        <a href="https://wa.me/${dato.telefono}?text=${encodeURIComponent(`${dato.recibe} Su Compra Que Realizo Con ${dato.envia} De ${dato.contenido} Por La Cantidad De $${dato.acobrar}.00 Esta Por llegar a su domicilio`)}" target="_blank" style="color: #25d366; font-size: 30px;" title="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    `;
+
+                    contenedor.style.display = 'block';
+                    mapa.panTo(marcador.getPosition());
                 });
 
-                marcadores.push(marcador); // <-- ESTA LÍNEA ES NECESARIA
-            }); // <-- ESTA LLAVE ES NECESARIA PARA CERRAR EL forEach
+                marcadores.push(marcador);
+            });
 
-            // Volver a inicializar Sortable para que la lista sea arrastrable
+            // Inicializar Sortable
             new Sortable(lista, {
                 animation: 150,
                 ghostClass: 'arrastrando',
-                handle: '.icono-arrastre' // Solo se puede arrastrar desde el icono de las 3 rayitas
+                handle: '.icono-arrastre'
             });
 
         } else {
@@ -946,11 +1108,72 @@ async function cargarDireccionesPorRuta(numeroRuta) {
         alert("No se pudo conectar con la base de datos.");
     }
 }
+
+
+// ************************ ELIMINA UNA DE LAS FUNCIONES DUPLICADAS Y USA ESTA SOLO ************************
+function ocultarContenedorInfoFijo() {
+    const contenedor = document.getElementById('contenedorInfoFijo');
+    contenedor.style.display = 'none';
+
+    // Si había un marcador seleccionado, lo regresamos a su estilo normal
+    if (marcadorSeleccionado) {
+        marcadorSeleccionado.setIcon({
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="7.5" cy="7.5" r="6.5" fill="#ffc107" stroke="white" stroke-width="2"/>
+                </svg>
+            `),
+            scaledSize: new google.maps.Size(15, 15)
+        });
+        marcadorSeleccionado = null;
+    }
+}
+
+// ************************ FUNCIÓN PARA SELECCIONAR UN MARCADOR (CON EL CÍRCULO VERDE) ************************
+// Asegúrate de tener esta función para cuando seleccionas un punto (ejemplo):
+function seleccionarMarcador(marcador) {
+    if (marcadorSeleccionado) {
+        // Restaurar el marcador anterior primero
+        ocultarContenedorInfoFijo();
+    }
+
+    marcadorSeleccionado = marcador;
+    // Estilo verde cuando está seleccionado
+    marcador.setIcon({
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: marcador.colorBase || '#F44336',
+        fillOpacity: 1,
+        strokeColor: '#4CAF50', // Borde verde
+        strokeWeight: 2,
+        scale: 8
+    });
+
+    // Mostrar el panel de información (aquí va tu código para mostrar el contenedor)
+    const contenedor = document.getElementById('contenedorInfoFijo');
+    contenedor.style.display = 'block';
+}
+
+// ************************ FUNCIÓN PARA MARCAR UN PUNTO COMO VISITADO ************************
+// Cuando marques un punto como visitado, asigna la propiedad y cambia el color:
+function marcarComoVisitado(marcador) {
+    marcador.visitado = true;
+    marcador.setIcon({
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: '#FFC107', // Amarillo para visitado
+        fillOpacity: 1,
+        strokeWeight: 0,
+        scale: 8
+    });
+}
+
+//  *****************************************************************************************
+
+
         // Actualizar estado (llamada POST)
         // Agregamos el HTML de la ventana emergente al final del body (solo una vez)
         if (!document.getElementById('ventanaRazonEntrega')) {
             const ventanaHTML = `
-                <div id="ventanaRazonEntrega" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;">
+                <div id="ventanaRazonEntrega" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;">
                     <div style="background: #2b2b2b; padding: 20px; border-radius: 8px; width: 100%; max-width: 450px; border: 1px solid #2da42d; box-shadow: 0 2px 10px rgba(0,0,0,0.5);">
                         <h3 style="margin-top: 0; margin-bottom: 15px; color: #2da42d; text-align: center; font-size: 20px;">¿Por qué no se entregó el envío?</h3>
                         
@@ -972,7 +1195,7 @@ async function cargarDireccionesPorRuta(numeroRuta) {
 
 if (!document.getElementById('ventanaConfirmacionPago')) {
              const ventanaConfirmacionHTML = `
-                 <div id="ventanaConfirmacionPago" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;">
+                 <div id="ventanaConfirmacionPago" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;">
                      <div style="background: #2b2b2b; padding: 20px; border-radius: 8px; width: 100%; max-width: 450px; border: 1px solid #2da42d; box-shadow: 0 2px 10px rgba(0,0,0,0.5);">
                          <h3 style="margin-top: 0; margin-bottom: 15px; color: #2da42d; text-align: center; font-size: 20px;">Confirmar pago del paquete</h3>
                          
@@ -1094,10 +1317,12 @@ async function actualizarEstadoConCero(nguia) {
                     });
 
                     // Cerrar el infowindow si está abierto
+			
                     if (infowindowActual) {
-                        infowindowActual.close();
+			infowindowActual.close();
                         infowindowActual = null;
                     }
+		    ocultarContenedorInfoFijo();
 
                     // Eliminar el marcador y el elemento de la lista después de un breve retraso
                     setTimeout(() => {
@@ -1167,6 +1392,7 @@ async function actualizarEstado(nguia, nuevoEstado) {
         spinner.style.display = 'inline-block';
         btn.disabled = true;
     }
+	
 
 
     // --------------------------
@@ -1389,7 +1615,8 @@ async function actualizarEstado(nguia, nuevoEstado) {
                             infowindowActual.close();
                             infowindowActual = null;
                         }
-
+			ocultarContenedorInfoFijo();
+			
                         // Si es entregado, eliminar marcador
                         if (nuevoEstado === "ENTREGADO") {
                             setTimeout(() => {
@@ -1437,69 +1664,65 @@ async function actualizarEstado(nguia, nuevoEstado) {
 }
 
 // ************************ FUNCIÓN PARA BORRAR RUTA CONFORME SE AVANZA ************************
+// Umbral de distancia (en metros) para considerar que se ha alcanzado un punto
+// Ajusta este valor si es necesario: 20-50m para zonas urbanas, 100m para carreteras
+const UMBRAL_DISTANCIA = 50; 
+
 function actualizarRutaRecorrida(ubicacionActual) {
+    // Si no hay ruta definida o no tiene puntos, no hacemos nada
     if (!rutaCompleta || rutaCompleta.length === 0) return;
 
-    // Encontrar el punto más cercano a la ubicación actual
     let indiceMasCercano = -1;
     let distanciaMinima = Infinity;
+    const posicionActual = new google.maps.LatLng(ubicacionActual.lat, ubicacionActual.lng);
 
+    // Buscar el punto de la ruta más cercano a nuestra ubicación
     rutaCompleta.forEach((punto, indice) => {
-        const distancia = google.maps.geometry.spherical.computeDistanceBetween(
-            new google.maps.LatLng(ubicacionActual.lat, ubicacionActual.lng),
-            new google.maps.LatLng(punto.lat, punto.lng)
-        );
-
+        const posicionPunto = new google.maps.LatLng(punto.lat, punto.lng);
+        const distancia = google.maps.geometry.spherical.computeDistanceBetween(posicionActual, posicionPunto);
+        
         if (distancia < distanciaMinima) {
             distanciaMinima = distancia;
             indiceMasCercano = indice;
         }
     });
 
-    // Si encontramos un punto más cercano y es posterior al que ya tenemos, actualizamos
-    if (indiceMasCercano !== -1 && indiceMasCercano > indicePuntoActual) {
+    // Solo avanzamos si el punto está más adelante Y estamos cerca suficiente (dentro del umbral)
+    if (indiceMasCercano !== -1 && indiceMasCercano > indicePuntoActual && distanciaMinima <= UMBRAL_DISTANCIA) {
         indicePuntoActual = indiceMasCercano;
-
-        // Tomar solo los puntos que faltan por recorrer
-        const puntosRestantes = rutaCompleta.slice(indicePuntoActual);
+        const puntosRestantes = rutaCompleta.slice(indicePuntoActual + 1); // Excluimos el punto ya alcanzado
 
         if (puntosRestantes.length > 0) {
             const directionsService = new google.maps.DirectionsService();
-            let origen, destino, waypoints;
+            const origen = posicionActual;
+            const destino = new google.maps.LatLng(puntosRestantes[puntosRestantes.length - 1].lat, puntosRestantes[puntosRestantes.length - 1].lng);
+            const waypoints = puntosRestantes.slice(0, -1).map(punto => ({
+                location: new google.maps.LatLng(punto.lat, punto.lng),
+                stopover: true
+            }));
 
-            if (puntosRestantes.length === 1) {
-                origen = new google.maps.LatLng(ubicacionActual.lat, ubicacionActual.lng);
-                destino = new google.maps.LatLng(puntosRestantes[0].lat, puntosRestantes[0].lng);
-                waypoints = [];
-            } else {
-                origen = new google.maps.LatLng(ubicacionActual.lat, ubicacionActual.lng);
-                destino = new google.maps.LatLng(puntosRestantes[puntosRestantes.length - 1].lat, puntosRestantes[puntosRestantes.length - 1].lng);
-                waypoints = puntosRestantes.slice(1, -1).map(punto => ({
-                    location: new google.maps.LatLng(punto.lat, punto.lng),
-                    stopover: true
-                }));
-            }
-
+            // Calcular y mostrar la ruta restante
             directionsService.route({
                 origin: origen,
                 destination: destino,
                 waypoints: waypoints,
                 travelMode: google.maps.TravelMode.DRIVING
-            }, function(resultado, status) {
+            }, (resultado, status) => {
                 if (status === google.maps.DirectionsStatus.OK) {
                     directionsRenderer.setDirections(resultado);
-                    // Actualizar la ruta completa con la nueva ruta calculada
+                    // Actualizar la ruta con los nuevos puntos restantes
                     rutaCompleta = resultado.routes[0].overview_path.map(punto => ({
                         lat: punto.lat(),
                         lng: punto.lng()
                     }));
-                    // Reiniciar el índice desde el inicio de la nueva ruta
-                    indicePuntoActual = 0;
+                    indicePuntoActual = 0; // Ahora empezamos desde el inicio de la ruta restante
                 }
             });
         } else {
-            // Si ya no hay puntos restantes, ocultar la ruta
+            // Si no quedan puntos, ocultamos la ruta y reiniciamos variables
             directionsRenderer.setMap(null);
+            rutaCompleta = [];
+            indicePuntoActual = -1;
         }
     }
 }
@@ -1663,6 +1886,9 @@ if (navigator.geolocation) {
                 calcularRutaConOrigen(miUbicacion);
                 rutaCalculada = true;
             }
+	    
+	    actualizarRutaRecorrida(miUbicacion);
+
         },
         function(error) {
             alert("No se pudo obtener tu ubicación en tiempo real. Se usará el primer punto de la ruta como origen.");
@@ -1724,6 +1950,7 @@ let cargandoEntregados = false;
 function togglePanelDirecciones() {
     const panelDirecciones = document.querySelector('.contenedor-lista');
     const panelEntregados = document.getElementById('panelEntregados');
+	
 
     // Si se va a mostrar direcciones, oculta entregados
     if (panelDirecciones.style.display === 'none' || panelDirecciones.style.display === '') {
@@ -1732,6 +1959,7 @@ function togglePanelDirecciones() {
     } else {
         panelDirecciones.style.display = 'none'; // Ocultar
     }
+cerrarMenuHamburguesa();
 }
 
 
@@ -1745,6 +1973,7 @@ async function togglePanelEntregados() {
 
     if (panelEntregados.style.display === 'none' || panelEntregados.style.display === '') {
         panelDirecciones.style.display = 'none';
+        cerrarMenuHamburguesa();
 
         const rutaSeleccionada = document.getElementById("selectorRuta").value;
         if (!rutaSeleccionada) {
@@ -1813,6 +2042,18 @@ async function togglePanelEntregados() {
 }
 
 
+// Función para cerrar SOLO el panel de Direcciones de la Ruta
+function cerrarPanelDirecciones() {
+    const panel = document.querySelector('.contenedor-lista'); // El primero, o ponle un ID
+    cerrarVentana(panel); // Usamos la función que ya tienes
+}
+
+// Función para cerrar SOLO el panel de Entregados del Día
+function cerrarPanelEntregados() {
+    const panel = document.getElementById('panelEntregados'); // Usamos su ID
+    cerrarVentana(panel); // Usamos la función que ya tienes
+}
+
 // Función para cerrar la ventana (panel)
 function cerrarVentana(ventana) {
     ventana.style.display = 'none';
@@ -1823,6 +2064,7 @@ function cerrarVentana(ventana) {
 
 // Función para mostrar u ocultar el menú hamburguesa
 function toggleMenu() {
+ocultarContenedorInfoFijo(); 
 const menu = document.getElementById('menuHamburguesa');
 if (menu.style.display === 'none' || menu.style.display === '') {
     menu.style.display = 'block';
@@ -1831,22 +2073,28 @@ if (menu.style.display === 'none' || menu.style.display === '') {
 }
 }
 
-// Cargar mapa cuando se cargue la página
-window.onload = initMap;
 
-// Cerrar el menú hamburguesa al hacer clic fuera de él
+// *************  FUNCIÓN REUTILIZABLE PARA CERRAR EL MENÚ *************************************
+function cerrarMenuHamburguesa() {
+    const menu = document.getElementById('menuHamburguesa');
+    if (menu && menu.style.display === 'block') {
+        menu.style.display = 'none';
+    }
+}
+
+// ************* cierra el menu de hamburguesa al hacer clic fuera de él *************************************
 document.addEventListener('click', function(event) {
     const menu = document.getElementById('menuHamburguesa');
     const botonMenu = document.querySelector('.btn-hamburguesa');
     
     // Verificar si el clic no fue ni en el menú ni en el botón de abrirlo
     if (!menu.contains(event.target) && !botonMenu.contains(event.target)) {
-        // Si el menú está abierto, cerrarlo
-        if (menu.style.display === 'block') {
-            menu.style.display = 'none';
-        }
+        cerrarMenuHamburguesa(); // Llamamos a la función reutilizable
     }
 });
+
+// *************  carga el mapa al inicio *****************************************
+window.onload = initMap;
 
 </script>
 </body>
