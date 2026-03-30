@@ -377,13 +377,15 @@ padding-right: 10px;
 
 <!-- CONTENEDOR DE GOOGLE MAPS NATIVO -->
 <div id="mapaGoogle" style="width: 100% !important; height: 100vh !important; position: fixed !important; top: 0 !important; left: 0 !important; z-index: 1 !important;">
-  <iframe 
-    src="https://www.google.com/maps/embed/v1/directions?key=AIzaSyAjwIYlkQQCbqguGflc3tQifzE2onneqco&origin=Saltillo,Coahuila,Mexico&destination=SANTA+ELENA+1331+ESPINOZA+MIRELES+Saltillo,Coahuila,Mexico&mode=driving"
-    width="100%" 
-    height="100%" 
-    style="border: none !important;"
-    allowfullscreen>
-  </iframe>
+<iframe
+  width="100%"
+  height="100%"
+  style="border:0;"
+  loading="lazy"
+  allowfullscreen
+  referrerpolicy="no-referrer-when-downgrade"
+  src="https://www.google.com/maps/embed/v1/view?key=AIzaSyAjwIYlkQQCbqguGflc3tQifzE2onneqco&center=25.428428,-100.966068&zoom=12&maptype=roadmap">
+</iframe>
 </div>
 
 <!-- Panel de direcciones -->
