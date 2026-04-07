@@ -645,13 +645,24 @@ async function cargarRutas() {
                                 travelMode: google.maps.TravelMode.DRIVING
                             };
 
-                            directionsService.route(request, (result, status) => {
-                                if (status === google.maps.DirectionsStatus.OK) {
-                                    directionsRenderer.setDirections(result);
-                                } else {
-                                    alert("Error al calcular la ruta: " + status);
-                                }
-                            });
+directionsService.route(request, (result, status) => {
+    if (status === google.maps.DirectionsStatus.OK) {
+        directionsRenderer.setDirections(result);
+
+        // ✅ GUARDAR LOS PUNTOS DE LA RUTA EN rutaCompleta
+        rutaCompleta = result.routes.overview_path.map(punto => ({
+            lat: punto.lat(),
+            lng: punto.lng()
+        }));
+        
+        // ✅ REINICIAR EL INDICE
+        indicePuntoActual = 0;
+        
+        console.log("Ruta guardada con", rutaCompleta.length, "puntos");
+    } else {
+        alert("Error al calcular la ruta: " + status);
+    }
+});
                         },
                         (error) => {
                             alert("No se pudo obtener tu ubicación: " + error.message);
