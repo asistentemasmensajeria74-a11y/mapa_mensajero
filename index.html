@@ -1,992 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa de Rutas</title>
-    <!-- Estilos CSS -->
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Contenedor del mapa */
-        #mapa {
-            height: 100vh;
-            width: 100%;
-        }
-
-        /* Contenedor fijo - encima del mapa */
-        #contenedorInfoFijo {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: #2b2b2b;
-            color: white;
-            z-index: 1001;
-            padding: 15px;
-            box-sizing: border-box;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.8);
-        }
-
-        #infoFijoTitulo {
-            font-size: 20px;
-            color: #f77b0f;
-            margin: 0;
-        }
-
-	#infoFijoTitulo .guia-texto {
-    	margin-right: 25px; /* Ajusta el número de pixeles para más o menos espacio */
-    	color: #f29d00; /* Mantén el color que ya tienes */
-	font-size: 25px;
-	}
-
-        #infoFijoContenido {
-            font-size: 16px;
-            line-height: 1.5;
-        }
-
-        #infoFijoBotones {
-            display: flex;
-            gap: 10px;
-            justify-content: space-around;
-            margin-top: 15px;
-        }
-
-        #infoFijoBotones button, #infoFijoBotones a {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-llamar {
-            color: #007bff;
-            background: transparent;
-            font-size: 30px;
-        }
-
-        .btn-entregado {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-visitado {
-            background: #ffc107;
-            color: #212529;
-        }
-
-        .btn-tarjeta {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-whatsapp {
-            color: #25d366;
-            background: transparent;
-            font-size: 30px;
-        }
-
-        .btn-cerrar {
-            background: #4a4a4a;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            font-size: 14px;
-            padding: 0;
-        }
-
-        /* Botón de menú hamburguesa */
-        .btn-hamburguesa {
-            position: absolute;
-            bottom: 40px;
-            left: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #ffffff;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            z-index: 1002;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s ease;
-        }
-
-        .btn-hamburguesa:hover {
-            background: #f8f9fa;
-        }
-
-        /* Menú hamburguesa */
-        .menu-hamburguesa {
-            position: absolute;
-            top: 25px;
-            left: 65px;
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            padding: 15px;
-            z-index: 1001;
-            display: none;
-            min-width: 200px;
-        }
-
-        .controles-superiores {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        #selectorRuta {
-            padding: 8px 12px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 14px;
-            width: 100%;
-        }
-
-        /* Botones generales */
-        button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            width: 100%;
-        }
-
-        .btn-cargar {
-            background: #007bff;
-            color: white;
-        }
-
-        .btn-cargar:hover {
-            background: #0056b3;
-        }
-
-        .btn-generar {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-generar:hover {
-            background: #218838;
-        }
-
-        .btn-recargar {
-            background: #ffc107;
-            color: #212529;
-        }
-
-        .btn-recargar:hover {
-            background: #e0a800;
-        }
-
-        .btn-ruta {
-            background: #17a2b8;
-            color: white;
-        }
-
-        .btn-ruta:hover {
-            background: #138496;
-        }
-
-        .btn-direcciones {
-            background: #6f42c1;
-            color: white;
-        }
-
-        .btn-direcciones:hover {
-            background: #5a32a3;
-        }
-
-
-/* Contenedor de la lista de direcciones */
-.contenedor-lista {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    width: 350px;
-    max-height: calc(100vh - 120px);
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    padding: 15px;
-    z-index: 999;
-    display: none;
-    box-sizing: border-box;
-    overflow-y: auto;  /* ✅ AGREGAR ESTO */
-    overflow-x: hidden; /* ✅ AGREGAR ESTO */
-}
-      
-
-        @media (max-width: 768px) {
-            .contenedor-lista {
-                right: auto;
-                left: 50%;
-                transform: translateX(-50%);
-                top: 80px;
-                width: 90%;
-                max-width: 350px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .contenedor-lista {
-                width: 90%;
-            }
-        }
-
-        #listaDirecciones {
-            list-style: none;
-            margin-top: 10px;
-        }
-
-        .direccion-item {
-            padding: 12px;
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: grab;
-            transition: background 0.2s ease;
-        }
-
-        .direccion-item:hover {
-            background: #e9ecef;
-        }
-
-        .direccion-item.arrastrando {
-            opacity: 0.5;
-            background: #f1f3f5;
-        }
-
-        .icono-arrastre {
-            color: #6c757d;
-            font-size: 18px;
-            cursor: grab;
-        }
-
-        .texto-direccion {
-            flex: 1;
-            font-size: 14px;
-            color: #212529;
-        }
-
-        /* Estilos para el botón de ruta al siguiente punto */
-        #btnRutaSiguiente {
-            bottom: 275px;
-            right: 10px;
-        }
-
-        /* Spinner que reemplaza al icono */
-        .spinner-icono {
-            position: absolute;
-            top: 20%;
-            left: 40%;
-            transform: translate(-50%, -50%);
-            width: 16px;
-            height: 16px;
-            border: 2px solid #ccc;
-            border-top: 4px solid #ff0000;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            background: transparent;
-            margin: 0;
-            padding: 0;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Ajuste para el contenedor fijo */
-        .contenedor-titulo-panel {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 0 5px;
-        }
-
-        .contenedor-titulo-panel h3 {
-            margin: 0;
-            font-size: 18px;
-        }
-
-        .btn-cerrar {
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        .btn-cerrar:hover {
-            background: #bb2d3b;
-        }
-
-        /* Ajuste extra para el contenido de las direcciones */
-        #listaDirecciones, #contenidoEntregados {
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-
-        /* Para que el panel no se superponga con el menú en móviles */
-        @media (max-width: 768px) {
-            .contenedor-lista {
-                top: 80px;
-            }
-        }
-
-        /* Estilo normal del marcador */
-        .marcador-normal {
-            background-color: #2196F3;
-            border-radius: 50%;
-            border: 2px solid white;
-            width: 15px;
-            height: 15px;
-        }
-
-        /* Estilo del marcador SELECCIONADO */
-        .marcador-seleccionado {
-            background-color: #F44336;
-            border-radius: 50%;
-            border: 3px solid #004d00;
-            width: 20px;
-            height: 20px;
-            z-index: 1002;
-        }
-    </style>
-    <!-- Iconos de Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Librería SortableJS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-</head>
-<body>
-    <!-- Botón de menú hamburguesa -->
-    <button class="btn-hamburguesa" onclick="toggleMenu()">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <!-- Menú hamburguesa -->
-    <div class="menu-hamburguesa" id="menuHamburguesa">
-        <div class="controles-superiores">
-            <select id="selectorRuta">
-                <option value="">Ruta</option>
-                <option value="1">Ruta 1</option>
-                <option value="2">Ruta 2</option>
-            </select>
-            <button class="btn-generar" onclick="togglePanelEntregados()">Entregados</button>
-            <button class="btn-recargar" onclick="recargarRutaCompleta()">Recargar</button>
-            <button class="btn-direcciones" onclick="togglePanelDirecciones()">Direcciones</button>
-        </div>
-    </div>
-
-    <!-- Contenedor del mapa -->
-    <div id="mapa"></div>
-
-    <!-- Contenedor fijo para la información del punto seleccionado -->
-    <div id="contenedorInfoFijo" style="display: none; position: fixed; top: 0; left: 0; width: 100%; background: #2b2b2b; color: white; z-index: 1001; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); box-sizing: border-box;">
-        <div class="contenedor-titulo-panel">
-            <h3 id="infoFijoTitulo" style="color: #f29d00; font-size: 20px; margin: 0;"></h3>
-            <button class="btn-cerrar" onclick="ocultarContenedorInfoFijo()" style="background: #4a4a4a;">X</button>
-        </div>
-        <div id="infoFijoContenido" style="font-size: 16px; line-height: 1.5;"></div>
-        <div id="infoFijoBotones" style="display: flex; gap: 10px; justify-content: space-around; margin-top: 15px;"></div>
-    </div>
-
-    <!-- Contenedor de direcciones -->
-    <div class="contenedor-lista" id="panelDirecciones">
-
-        <div class="contenedor-titulo-panel">
-            <h3>Direcciones de la Ruta</h3>
-            <button class="btn-cerrar" onclick="cerrarVentana(this.closest('.contenedor-lista'))">X</button>
-        </div>
-        <ul id="listaDirecciones"></ul>
-    </div>
-
-    <!-- Contenedor de entregados -->
-    <div class="contenedor-lista" id="panelEntregados" style="display: none;">
-        <div class="contenedor-titulo-panel">
-            <h3>Entregados Del Dia</h3>
-            <button class="btn-cerrar" onclick="cerrarVentana(this.closest('.contenedor-lista'))">X</button>
-        </div>
-        <div id="contenidoEntregados"></div>
-    </div>
-
-    <!-- ✅ CAMBIO 1: Script de Google Maps CON librería de Geometry agregada -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjwIYlkQQCbqguGflc3tQifzE2onneqco&libraries=geometry&callback=initMap" async defer></script>
-
-    <!-- Código JavaScript -->
-    <script>
-        let rutaCompleta = [];
-        let indicePuntoActual = 0;
-        let mapa;
-        let marcadores = [];
-        let infowindowActual;
-        let directionsRenderer;
-        let resultadoDatos;
-        let marcadorSeleccionado = null;
-        let watchId = null;
-        let marcadorMiUbicacion = null;
-        let indiceSiguientePunto = 0;
-        const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbx_aBWgPzdKEWqiEFSuzyYZ95Lvc23ijU8dNqy8eckShQfL1oryFGKx1fIOThhFlXEs/exec";
-
-        const MENSAJE_WHATSAPP = "{RECIBE} Su Compra Que Realizo Con {ENVIA} De {CONTENIDO} Por La Cantidad De $ {ACOBRAR}.00 Esta Por llegar a su domicilio";
-
-        // ✅ CAMBIO 2: Variable para el umbral de distancia (para la función actualizarRutaRecorrida)
-        const UMBRAL_DISTANCIA = 50; // Distancia en metros para considerar que se alcanzó un punto
-
-        function initMap() {
-            const saltillo = { lat: 25.4383, lng: -100.9764 };
-            mapa = new google.maps.Map(document.getElementById("mapa"), {
-                zoom: 12,
-                center: saltillo,
-                mapTypeControl: false,
-                streetViewControl: true,
-                fullscreenControl: false
-            });
-
-            directionsRenderer = new google.maps.DirectionsRenderer({
-                map: mapa,
-                draggable: false,
-                suppressMarkers: true,
-                suppressInfoWindows: true
-            });
-
-            cargarRutas();
-
-            document.getElementById("selectorRuta").addEventListener("change", function() {
-                const rutaSeleccionada = this.value;
-                if (rutaSeleccionada) {
-                    generarCoordenadasRuta();
-                    cargarDireccionesPorRuta(rutaSeleccionada);
-                } else {
-                    document.getElementById('listaDirecciones').innerHTML = '';
-                    marcadores.forEach(m => m.setMap(null));
-                    marcadores = [];
-                    if (directionsRenderer) directionsRenderer.setMap(null);
-                    resultadoDatos = null;
-                }
-            });
-
-            google.maps.event.addListenerOnce(mapa, 'idle', function() {
-                agregarBotonesControl();
-            });
-        }
-
-async function cargarRutas() {
-    const selector = document.getElementById("selectorRuta"); // ✅ DEFINIR AQUÍ AL INICIO
-    
-    try {
-        console.log("Intentando conectar a:", URL_APPS_SCRIPT + "?action=obtenerDirecciones");
-        
-        const respuesta = await fetch(URL_APPS_SCRIPT + "?action=obtenerDirecciones");
-        
-        console.log("Respuesta recibida:", respuesta.status, respuesta.statusText);
-        
-        const resultado = await respuesta.json();
-        
-        console.log("Datos del Apps Script:", resultado);
-
-        if (resultado.success) {
-            selector.innerHTML = '<option value="">Selecciona una ruta</option><option value="1">Ruta 1 (Por defecto)</option>';
-            
-            resultado.rutas.forEach(ruta => {
-                const option = document.createElement("option");
-                option.value = ruta.id;
-                option.textContent = `Ruta ${ruta.id}`;
-                selector.appendChild(option);
-            });
-
-            selector.value = "1";
-            generarCoordenadasRuta();
-            cargarDireccionesPorRuta("1");
-        } else {
-            console.error("Error en resultado:", resultado.message);
-            selector.value = "1";
-            generarCoordenadasRuta();
-            cargarDireccionesPorRuta("1");
-        }
-    } catch (error) {
-        console.error("Error en cargarRutas:", error);
-        console.error("Stack:", error.stack);
-        
-        alert("No se pudo conectar con la base de datos. Se mostrará la ruta por defecto.\n\nError: " + error.message);
-        
-        selector.value = "1";
-        generarCoordenadasRuta();
-        cargarDireccionesPorRuta("1");
-    }
-}
-
-        function agregarBotonesControl() {
-            // Botón para centrar en mi ubicación
-            const botonCentrar = document.createElement("button");
-            botonCentrar.className = "boton-mapa";
-            botonCentrar.innerHTML = '<span style="display: inline-block; transform: rotateX(180deg); font-size: 24px; filter: hue-rotate(240deg) saturate(150%) brightness(60%);">🩸</span>';
-            botonCentrar.style.position = "absolute";
-            botonCentrar.style.bottom = "100px";
-            botonCentrar.style.left = "15px";
-            botonCentrar.style.width = "50px";
-            botonCentrar.style.height = "50px";
-            botonCentrar.style.borderRadius = "50%";
-            botonCentrar.style.background = "#ffffff";
-            botonCentrar.style.border = "none";
-            botonCentrar.style.fontSize = "24px";
-            botonCentrar.style.cursor = "pointer";
-            botonCentrar.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
-            botonCentrar.style.zIndex = "1000";
-            botonCentrar.style.display = "flex";
-            botonCentrar.style.alignItems = "center";
-            botonCentrar.style.justifyContent = "center";
-            botonCentrar.title = "Centrar en mi ubicación";
-            botonCentrar.addEventListener("click", centrarYSeguirUbicacion);
-            mapa.getDiv().appendChild(botonCentrar);
-
-            // Botón para ruta al siguiente punto
-            const botonRutaSiguiente = document.createElement("button");
-            botonRutaSiguiente.className = "boton-mapa";
-            botonRutaSiguiente.innerHTML = '<i class="fas fa-location-arrow" style="color: #007bff; font-size: 24px;"></i>';
-            botonRutaSiguiente.style.position = "absolute";
-            botonRutaSiguiente.style.bottom = "160px";
-            botonRutaSiguiente.style.left = "15px";
-            botonRutaSiguiente.style.width = "50px";
-            botonRutaSiguiente.style.height = "50px";
-            botonRutaSiguiente.style.borderRadius = "50%";
-            botonRutaSiguiente.style.background = "#ffffff";
-            botonRutaSiguiente.style.border = "none";
-            botonRutaSiguiente.style.fontSize = "24px";
-            botonRutaSiguiente.style.cursor = "pointer";
-            botonRutaSiguiente.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
-            botonRutaSiguiente.style.zIndex = "1000";
-            botonRutaSiguiente.style.display = "flex";
-            botonRutaSiguiente.style.alignItems = "center";
-            botonRutaSiguiente.style.justifyContent = "center";
-            botonRutaSiguiente.title = "Ruta al punto seleccionado";
-            botonRutaSiguiente.id = "btnRutaSiguiente";
-            mapa.getDiv().appendChild(botonRutaSiguiente);
-
-            botonRutaSiguiente.addEventListener("click", () => {
-                if (!marcadorSeleccionado) {
-                    alert("Primero abre un marcador (globo) de una dirección para saber a dónde ir.");
-                    return;
-                }
-
-                const envio = resultadoDatos.datos.find(d => String(d.nguia).trim() === String(marcadorSeleccionado.nguia).trim());
-
-                if (!envio || !envio.ruta1 || !envio.ruta1.includes(',')) {
-                    alert("El marcador seleccionado no tiene coordenadas válidas.");
-                    return;
-                }
-
-                const [latDestino, lngDestino] = envio.ruta1.split(',').map(coord => parseFloat(coord.trim()));
-                const destino = new google.maps.LatLng(latDestino, lngDestino);
-
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (posicion) => {
-                            const miUbicacion = new google.maps.LatLng(posicion.coords.latitude, posicion.coords.longitude);
-
-                            const directionsService = new google.maps.DirectionsService();
-                            
-                            directionsRenderer.setOptions({
-                                polylineOptions: {
-                                    strokeColor: "#4285F4",
-                                    strokeWeight: 5,
-                                    strokeOpacity: 0.8
-                                }
-                            });
-                            directionsRenderer.setMap(mapa);
-
-                            const request = {
-                                origin: miUbicacion,
-                                destination: destino,
-                                travelMode: google.maps.TravelMode.DRIVING
-                            };
-
-directionsService.route(request, (result, status) => {
-    if (status === google.maps.DirectionsStatus.OK) {
-        directionsRenderer.setDirections(result);
-
-        // ✅ GUARDAR LOS PUNTOS DE LA RUTA EN rutaCompleta
-        rutaCompleta = result.routes.overview_path.map(punto => ({
-            lat: punto.lat(),
-            lng: punto.lng()
-        }));
-        
-        // ✅ REINICIAR EL INDICE
-        indicePuntoActual = 0;
-        
-        console.log("Ruta guardada con", rutaCompleta.length, "puntos");
-    } else {
-        alert("Error al calcular la ruta: " + status);
-    }
-});
-                        },
-                        (error) => {
-                            alert("No se pudo obtener tu ubicación: " + error.message);
-                        },
-                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                    );
-                } else {
-                    alert("Tu navegador no soporta geolocalización.");
-                }
-            });
-        }
-
-        function centrarYSeguirUbicacion() {
-            if (navigator.geolocation) {
-                if (watchId) {
-                    navigator.geolocation.clearWatch(watchId);
-                    watchId = null;
-                }
-
-                navigator.geolocation.getCurrentPosition(
-                    (posicion) => {
-                        const miUbicacion = {
-                            lat: posicion.coords.latitude,
-                            lng: posicion.coords.longitude
-                        };
-
-                        mapa.setCenter(miUbicacion);
-                        mapa.setZoom(15);
-
-                        if (marcadorMiUbicacion) {
-                            marcadorMiUbicacion.setPosition(miUbicacion);
-                        } else {
-                            marcadorMiUbicacion = new google.maps.Marker({
-                                position: miUbicacion,
-                                map: mapa,
-                                title: "Mi ubicación",
-                                icon: {
-                                    path: google.maps.SymbolPath.CIRCLE,
-                                    fillColor: "blue",
-                                    fillOpacity: 1,
-                                    strokeWeight: 0,
-                                    scale: 8
-                                }
-                            });
-                        }
-
-                        // ✅ CAMBIO 3: watchPosition que llama a actualizarRutaRecorrida
-                        watchId = navigator.geolocation.watchPosition(
-                            (posicionSeguimiento) => {
-                                const ubicacionActual = {
-                                    lat: posicionSeguimiento.coords.latitude,
-                                    lng: posicionSeguimiento.coords.longitude
-                                };
-
-                                if (marcadorMiUbicacion) {
-                                    marcadorMiUbicacion.setPosition(ubicacionActual);
-                                }
-
-                                // ✅ LLAMAR A LA FUNCIÓN PARA ACTUALIZAR LA RUTA RECORRIDA
-                                actualizarRutaRecorrida(ubicacionActual);
-                            },
-                            (error) => {
-                                console.error("Error en el seguimiento:", error);
-                                let mensaje = "Error en el seguimiento de ubicación: ";
-                                switch(error.code) {
-                                    case error.PERMISSION_DENIED:
-                                        mensaje += "Debes dar permiso de ubicación en tu navegador.";
-                                        break;
-                                    case error.POSITION_UNAVAILABLE:
-                                        mensaje += "La ubicación no está disponible.";
-                                        break;
-                                    case error.TIMEOUT:
-                                        mensaje += "Se agotó el tiempo de espera.";
-                                        break;
-                                }
-                                alert(mensaje);
-                                navigator.geolocation.clearWatch(watchId);
-                                watchId = null;
-                            },
-                            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                        );
-                    },
-                    (error) => {
-                        let mensaje = "No se pudo obtener tu ubicación. ";
-                        switch(error.code) {
-                            case error.PERMISSION_DENIED:
-                                mensaje += "Debes dar permiso de ubicación en tu navegador.";
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                mensaje += "La ubicación no está disponible.";
-                                break;
-                            case error.TIMEOUT:
-                                mensaje += "Se agotó el tiempo de espera.";
-                                break;
-                        }
-                        alert(mensaje);
-                    },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-            } else {
-                alert("Tu navegador no soporta geolocalización.");
-            }
-        }
-
-        // ✅ CAMBIO 4: FUNCIÓN PARA BORRAR LA RUTA CONFORME SE AVANZA
-        // Esta función actualiza la ruta eliminando los tramos ya recorridos
-        function actualizarRutaRecorrida(ubicacionActual) {
-            // Si no hay ruta definida o no tiene puntos, no hacemos nada
-            if (!rutaCompleta || rutaCompleta.length === 0) return;
-
-            let indiceMasCercano = -1;
-            let distanciaMinima = Infinity;
-            const posicionActual = new google.maps.LatLng(ubicacionActual.lat, ubicacionActual.lng);
-
-            // Buscar el punto de la ruta más cercano a nuestra ubicación
-            rutaCompleta.forEach((punto, indice) => {
-                const posicionPunto = new google.maps.LatLng(punto.lat, punto.lng);
-                const distancia = google.maps.geometry.spherical.computeDistanceBetween(posicionActual, posicionPunto);
-                
-                if (distancia < distanciaMinima) {
-                    distanciaMinima = distancia;
-                    indiceMasCercano = indice;
-                }
-            });
-
-            // Solo avanzamos si el punto está más adelante Y estamos cerca suficiente (dentro del umbral)
-            if (indiceMasCercano !== -1 && indiceMasCercano > indicePuntoActual && distanciaMinima <= UMBRAL_DISTANCIA) {
-                indicePuntoActual = indiceMasCercano;
-                const puntosRestantes = rutaCompleta.slice(indicePuntoActual + 1);
-
-                if (puntosRestantes.length > 0) {
-                    const directionsService = new google.maps.DirectionsService();
-                    const origen = posicionActual;
-                    const destino = new google.maps.LatLng(puntosRestantes[puntosRestantes.length - 1].lat, puntosRestantes[puntosRestantes.length - 1].lng);
-                    const waypoints = puntosRestantes.slice(0, -1).map(punto => ({
-                        location: new google.maps.LatLng(punto.lat, punto.lng),
-                        stopover: true
-                    }));
-
-                    directionsService.route({
-                        origin: origen,
-                        destination: destino,
-                        waypoints: waypoints,
-                        travelMode: google.maps.TravelMode.DRIVING
-                    }, (resultado, status) => {
-                        if (status === google.maps.DirectionsStatus.OK) {
-                            directionsRenderer.setDirections(resultado);
-                            rutaCompleta = resultado.routes.overview_path.map(punto => ({
-                                lat: punto.lat(),
-                                lng: punto.lng()
-                            }));
-                            indicePuntoActual = 0;
-                        }
-                    });
-                } else {
-                    // Si no quedan puntos, ocultamos la ruta
-                    directionsRenderer.setMap(null);
-                    rutaCompleta = [];
-                    indicePuntoActual = -1;
-                }
-            }
-        }
-
-async function cargarDireccionesPorRuta(numeroRuta) {
-    if (!numeroRuta) {
-        document.getElementById('listaDirecciones').innerHTML = '';
-        marcadores.forEach(m => m.setMap(null));
-        marcadores = [];
-        if (directionsRenderer) directionsRenderer.setMap(null);
-        resultadoDatos = null;
-        return;
-    }
-
-    try {
-        const respuesta = await fetch(URL_APPS_SCRIPT, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `action=obtenerDirecciones&ruta=${encodeURIComponent(numeroRuta)}`
-        });
-        const resultado = await respuesta.json();
-        resultadoDatos = resultado;
-
-        if (resultado.success) {
-            marcadores.forEach(m => m.setMap(null));
-            marcadores = [];
-            if (directionsRenderer) directionsRenderer.setMap(null);
-
-            const lista = document.getElementById('listaDirecciones');
-            lista.innerHTML = '';
-
-            resultado.datos.forEach((dato, index) => {
-                // ✅ AGREGAR ELEMENTO A LA LISTA DE DIRECCIONES
-                const li = document.createElement('li');
-                li.className = 'direccion-item';
-                li.innerHTML = `
-                    <span class="icono-arrastre">☰</span>
-                    <span class="texto-direccion">${index + 1}. Guía ${dato.nguia} - ${dato.recibe} - ${dato.direccion}</span>
-                `;
-                lista.appendChild(li);
-
-                // Obtener coordenadas
-                let posicion;
-                if (dato.ruta1 && dato.ruta1.includes(',')) {
-                    const [lat, lng] = dato.ruta1.split(',').map(coord => parseFloat(coord.trim()));
-                    posicion = { lat, lng };
-                } else {
-                    posicion = { lat: 25.4383, lng: -100.9764 };
-                }
-
-                let colorMarcador = "red";
-                if (dato.estado === "ENTREGADO") colorMarcador = "green";
-                if (dato.estado === "VISITADO") colorMarcador = "yellow";
-
-                const marcador = new google.maps.Marker({
-                    position: posicion,
-                    map: mapa,
-                    title: `Guía ${dato.nguia} - ${dato.envia}`,
-                    icon: {
-                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="10" fill="${colorMarcador}" stroke="white" stroke-width="2"/>
-                                <text x="12" y="16" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">${index + 1}</text>
-                            </svg>
-                        `),
-                        scaledSize: new google.maps.Size(24, 24)
-                    }
-                });
-                marcador.nguia = dato.nguia;
-                marcador.datoCompleto = dato;
-                marcador.colorBase = colorMarcador;
-                marcador.index = index; // ✅ GUARDAR EL INDEX TAMBIÉN
-
-                marcador.addListener('click', function() {
-                    cerrarPanelDirecciones();
-                    cerrarPanelEntregados();
-
-                    if (marcadorSeleccionado) {
-                        marcadorSeleccionado.setMap(null);
-                    }
-
-                    // Crear pin rojo clásico de Google Maps
-                    marcadorSeleccionado = new google.maps.Marker({
-                        position: this.getPosition(),
-                        map: mapa,
-                        icon: {
-                            url: 'https://maps.gstatic.com/mapfiles/markers2/marker.png',
-                            scaledSize: new google.maps.Size(18, 32),
-                            origin: new google.maps.Point(0, 0),
-                            anchor: new google.maps.Point(10, 42)
-                        },
-                        zIndex: 1000
-                    });
-
-                    // ✅ Guardar referencia al marcador original y al nguia
-                    marcadorSeleccionado.marcadorOriginal = this;
-                    marcadorSeleccionado.nguia = dato.nguia;
-
-                    const contenedor = document.getElementById('contenedorInfoFijo');
-                    const titulo = contenedor.querySelector('#infoFijoTitulo');
-                    const contenido = contenedor.querySelector('#infoFijoContenido');
-                    const botones = contenedor.querySelector('#infoFijoBotones');
-
-                    titulo.innerHTML = `<span class="guia-texto">${dato.nguia}</span><span class="envia-texto">${dato.envia}</span>`;
-                    
-                    contenido.innerHTML = `
-                        <p><strong>🙎‍♀️ </strong> ${dato.recibe}</p>
-                        <p><strong>📌 </strong> ${dato.direccion}</p>
-                        <p><strong>⤴️ </strong> ${dato.referencia}</p>
-                        <p><strong>🫙 </strong> ${dato.contenido} | <strong>💰 </strong> $${dato.acobrar}</p>
-                    `;
-
-                    botones.innerHTML = `
-                        <a href="tel:${dato.telefono}" style="color: #007bff; font-size: 30px;" title="Llamar">
-                            <i class="fas fa-phone"></i>
-                        </a>
-                        <button id="btnEntregado_${dato.nguia}" onclick="actualizarEstado('${dato.nguia}', 'ENTREGADO')" style="background: #28a745; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px; position: relative;" title="Marcar como entregado">
-                            <span class="spinner-icono" id="spinnerEntregado_${dato.nguia}" style="display: none;"></span>
-                            <i class="fas fa-check" id="iconoEntregado_${dato.nguia}"></i> 
-                        </button>
-                        <button onclick="actualizarEstado('${dato.nguia}', 'VISITADO')" style="background: #ffc107; color: #212529; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer;">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button id="btnTarjeta_${dato.nguia}" onclick="actualizarEstadoConCero('${dato.nguia}')" style="background: #6c757d; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px; position: relative;" title="Pagado al Vendedor">
-                            <span class="spinner-icono" id="spinnerTarjeta_${dato.nguia}" style="display: none;"></span>
-                            <i class="fas fa-credit-card" id="iconoTarjeta_${dato.nguia}"></i> 
-                        </button>
-                        <a href="https://wa.me/${dato.telefono}?text=${encodeURIComponent(`${dato.recibe} Su Compra Que Realizo Con ${dato.envia} De ${dato.contenido} Por La Cantidad De $${dato.acobrar}.00 Esta Por llegar a su domicilio`)}" target="_blank" style="color: #25d366; font-size: 30px;" title="WhatsApp">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
-                    `;
-
-                    contenedor.style.display = 'block';
-                    mapa.panTo(this.getPosition());
-                });
-
-                marcadores.push(marcador);
-            });
-
-            // ✅ Inicializar Sortable para arrastrar elementos
-            new Sortable(lista, {
-                animation: 150,
-                ghostClass: 'arrastrando',
-                handle: '.icono-arrastre'
-            });
-
-        } else {
-            alert("Error al cargar direcciones: " + resultado.message);
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("No se pudo conectar con la base de datos.");
-    }
-}
-
-        function ocultarContenedorInfoFijo() {
-            const contenedor = document.getElementById('contenedorInfoFijo');
-            contenedor.style.display = 'none';
-
-            if (marcadorSeleccionado) {
-                marcadorSeleccionado.setMap(null);
-                marcadorSeleccionado = null;
-            }
-        }
-
+// ✅ FUNCIÓN CORREGIDA: AHORA SÍ BORRA LOS MARCADORES DESPUÉS DEL 3RO
         async function actualizarEstado(nguia, nuevoEstado) {
             let btn, spinner, icono;
             if (nuevoEstado === 'ENTREGADO') {
@@ -995,9 +7,7 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                 icono = document.getElementById(`iconoEntregado_${nguia}`);
             }
 
-            if (nuevoEstado === 'ENTREGADO' && btn?.dataset.cargando === "true") {
-                return;
-            }
+            if (nuevoEstado === 'ENTREGADO' && btn?.dataset.cargando === "true") return;
 
             if (nuevoEstado === 'ENTREGADO' && btn) {
                 btn.dataset.cargando = "true";
@@ -1008,38 +18,23 @@ async function cargarDireccionesPorRuta(numeroRuta) {
 
             try {
                 const envio = resultadoDatos.datos.find(d => String(d.nguia).trim() === String(nguia).trim());
-
                 if (!envio) {
                     alert("No se encontró el envío con NGUIA: " + nguia);
-                    if (nuevoEstado === 'ENTREGADO' && btn) {
-                        btn.dataset.cargando = "false";
-                        spinner.style.display = 'none';
-                        icono.style.display = 'inline-block';
-                        btn.disabled = false;
-                    }
                     return;
                 }
 
                 let total = 0;
                 const tipoPago = "EFECTIVO";
-                let fechaFormato = "";
-                let horaFormato = "";
+                let fechaFormato = new Date().toLocaleDateString('es-ES');
+                let horaFormato = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
                 let localizacionEnt = "";
-
-                const fechaActual = new Date();
-                fechaFormato = fechaActual.toLocaleDateString('es-ES');
-                horaFormato = fechaActual.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 
                 function obtenerUbicacion() {
                     return new Promise((resolve, reject) => {
                         if (navigator.geolocation) {
                             navigator.geolocation.getCurrentPosition(
-                                (position) => {
-                                    resolve(`${position.coords.latitude}, ${position.coords.longitude}`);
-                                },
-                                (error) => {
-                                    reject(error);
-                                },
+                                (position) => resolve(`${position.coords.latitude}, ${position.coords.longitude}`),
+                                (error) => reject(error),
                                 { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
                             );
                         } else {
@@ -1061,61 +56,32 @@ async function cargarDireccionesPorRuta(numeroRuta) {
 
                     const manejarEnvio = async () => {
                         const razon = campoRazon.value.trim();
-
-                        if (!razon) {
-                            mensajeError.textContent = "Por favor, escribe una razón.";
+                        if (!razon || razon.length < 8 || razon.split('').every(c => c === razon) ||!/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(razon)) {
+                            mensajeError.textContent = "Escribe una razón válida de al menos 8 caracteres.";
                             return;
                         }
-
-                        if (razon.length < 8) {
-                            mensajeError.textContent = "La razón debe tener al menos 8 caracteres.";
-                            return;
-                        }
-
-                        const todosIguales = razon.split('').every(c => c === razon);
-                        const tieneLetras = /[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(razon);
-
-                        if (todosIguales || !tieneLetras) {
-                            mensajeError.textContent = "Por favor, escribe una razón válida (no solo caracteres repetidos o símbolos).";
-                            return;
-                        }
-
                         ventana.style.display = 'none';
                         btnEnviar.removeEventListener('click', manejarEnvio);
                         btnCancelar.removeEventListener('click', manejarCancelacion);
-
-                        try {
-                            localizacionEnt = await obtenerUbicacion();
-                        } catch (error) {
-                            alert("No se pudo obtener tu ubicación: " + error.message);
-                        }
-
+                        try { localizacionEnt = await obtenerUbicacion(); } catch (error) { alert("No se pudo obtener tu ubicación: " + error.message); }
                         await procesarActualizacion(razon);
                     };
-
                     const manejarCancelacion = () => {
                         ventana.style.display = 'none';
                         btnEnviar.removeEventListener('click', manejarEnvio);
                         btnCancelar.removeEventListener('click', manejarCancelacion);
                     };
-
                     btnEnviar.addEventListener('click', manejarEnvio);
                     btnCancelar.addEventListener('click', manejarCancelacion);
                     return;
                 }
 
-                try {
-                    localizacionEnt = await obtenerUbicacion();
-                } catch (error) {
-                    alert("No se pudo obtener tu ubicación: " + error.message);
-                }
-
+                try { localizacionEnt = await obtenerUbicacion(); } catch (error) { alert("No se pudo obtener tu ubicación: " + error.message); }
                 await procesarActualizacion();
 
                 async function procesarActualizacion(razonEntrega = null) {
                     try {
                         let bodyParams = "";
-
                         if (nuevoEstado === "VISITADO") {
                             const notaFinal = razonEntrega || "¿Por qué no se realizó la entrega?";
                             bodyParams = `action=actualizarEstado&nguia=${encodeURIComponent(nguia)}&estado=${encodeURIComponent(nuevoEstado)}&nota_1=${encodeURIComponent(notaFinal)}&localizacion_1=${encodeURIComponent(localizacionEnt)}&fecha_hora_1=${encodeURIComponent(horaFormato + ', ' + fechaFormato)}`;
@@ -1123,7 +89,6 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                             const acobrar = parseFloat(envio.acobrar) || 0;
                             const extra = parseFloat(envio.extra) || 0;
                             total = acobrar - extra;
-
                             bodyParams = `action=actualizarEstado&nguia=${encodeURIComponent(nguia)}&estado=${encodeURIComponent(nuevoEstado)}&total=${encodeURIComponent(total)}&tipo_pago=${encodeURIComponent(tipoPago)}&fecha_ent=${encodeURIComponent(fechaFormato)}&hora_ent=${encodeURIComponent(horaFormato)}&localizacion_ent=${encodeURIComponent(localizacionEnt)}`;
                         }
 
@@ -1135,14 +100,16 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                         const resultado = await respuesta.json();
 
                         if (resultado.success) {
-                            const marcador = marcadores.find(m => m.nguia?.toString().trim() === nguia.toString().trim());
-                            if (marcador) {
+                            // ✅ CORRECCIÓN CLAVE: BUSCAR Y BORRAR EL MARCADOR ORIGINAL DEL ARRAY
+                            const indiceMarcador = marcadores.findIndex(m => String(m.nguia).trim() === String(nguia).trim());
+                            if (indiceMarcador!== -1) {
+                                const marcadorABorrar = marcadores[indiceMarcador];
+
                                 if (nuevoEstado === "ENTREGADO") {
-                                    // Eliminar marcador
-                                    marcador.setMap(null);
-                                    marcadores.splice(marcadores.indexOf(marcador), 1);
-                                    
-                                    // Eliminar de la lista
+                                    marcadorABorrar.setMap(null); // Quita del mapa
+                                    marcadores.splice(indiceMarcador, 1); // Quita del array
+
+                                    // Quitar de la lista lateral
                                     const lista = document.getElementById('listaDirecciones');
                                     const items = lista.getElementsByClassName('direccion-item');
                                     for (let i = 0; i < items.length; i++) {
@@ -1152,49 +119,37 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                                         }
                                     }
                                 } else if (nuevoEstado === "VISITADO") {
-                                    // Cambiar a amarillo
-                                    marcador.setIcon({
+                                    marcadorABorrar.setIcon({
                                         url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                                             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                 <circle cx="12" cy="12" r="10" fill="#ffc107" stroke="white" stroke-width="2"/>
-                                                <text x="12" y="16" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">${marcador.datoCompleto.index + 1}</text>
+                                                <text x="12" y="16" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">${marcadorABorrar.index + 1}</text>
                                             </svg>
                                         `),
                                         scaledSize: new google.maps.Size(24, 24)
                                     });
                                 }
-
-                                if (infowindowActual) {
-                                    infowindowActual.close();
-                                    infowindowActual = null;
-                                }
-                                ocultarContenedorInfoFijo();
-
-                                if (nuevoEstado === "ENTREGADO") {
-                                    setTimeout(() => {
-                                        marcador.setMap(null);
-                                        marcadores.splice(marcadores.indexOf(marcador), 1);
-                                    }, 800);
-                                }
                             }
+
+                            // ✅ LIMPIAR TODO LO SELECCIONADO
+                            if (infowindowActual) {
+                                infowindowActual.close();
+                                infowindowActual = null;
+                            }
+                            ocultarContenedorInfoFijo();
+
                         } else {
                             alert("Error al actualizar: " + resultado.message);
                         }
                     } catch (error) {
                         console.error("Error en envío de datos:", error);
                         alert("No se pudo actualizar el estado. Error: " + error.message);
-                    } finally {
-                        if (nuevoEstado === 'ENTREGADO' && btn) {
-                            btn.dataset.cargando = "false";
-                            spinner.style.display = 'none';
-                            icono.style.display = 'inline-block';
-                            btn.disabled = false;
-                        }
                     }
                 }
             } catch (error) {
                 console.error("Error general:", error);
                 alert("Error: " + error.message);
+            } finally {
                 if (nuevoEstado === 'ENTREGADO' && btn) {
                     btn.dataset.cargando = "false";
                     spinner.style.display = 'none';
@@ -1218,9 +173,7 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                 const spinnerTarjeta = document.getElementById(`spinnerTarjeta_${nguia}`);
                 const iconoTarjeta = document.getElementById(`iconoTarjeta_${nguia}`);
 
-                if (btnTarjeta.dataset.cargando === "true") {
-                    return;
-                }
+                if (btnTarjeta.dataset.cargando === "true") return;
 
                 btnTarjeta.dataset.cargando = "true";
                 iconoTarjeta.style.display = 'none';
@@ -1229,30 +182,21 @@ async function cargarDireccionesPorRuta(numeroRuta) {
 
                 try {
                     const envio = resultadoDatos.datos.find(d => String(d.nguia).trim() === String(nguia).trim());
-
                     if (!envio) {
                         alert("No se encontró el envío con NGUIA: " + nguia);
                         return;
                     }
 
-                    let fechaFormato = "";
-                    let horaFormato = "";
+                    let fechaFormato = new Date().toLocaleDateString('es-ES');
+                    let horaFormato = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
                     let localizacionEnt = "";
-
-                    const fechaActual = new Date();
-                    fechaFormato = fechaActual.toLocaleDateString('es-ES');
-                    horaFormato = fechaActual.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 
                     function obtenerUbicacion() {
                         return new Promise((resolve, reject) => {
                             if (navigator.geolocation) {
                                 navigator.geolocation.getCurrentPosition(
-                                    (position) => {
-                                        resolve(`${position.coords.latitude}, ${position.coords.longitude}`);
-                                    },
-                                    (error) => {
-                                        reject(error);
-                                    },
+                                    (position) => resolve(`${position.coords.latitude}, ${position.coords.longitude}`),
+                                    (error) => reject(error),
                                     { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
                                 );
                             } else {
@@ -1261,11 +205,7 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                         });
                     }
 
-                    try {
-                        localizacionEnt = await obtenerUbicacion();
-                    } catch (error) {
-                        alert("No se pudo obtener tu ubicación: " + error.message);
-                    }
+                    try { localizacionEnt = await obtenerUbicacion(); } catch (error) { alert("No se pudo obtener tu ubicación: " + error.message); }
 
                     const bodyParams = `action=actualizarEstadoPagoVendedor&nguia=${encodeURIComponent(nguia)}&estado=${encodeURIComponent('ENTREGADO')}&fecha_ent=${encodeURIComponent(fechaFormato)}&hora_ent=${encodeURIComponent(horaFormato)}&localizacion_ent=${encodeURIComponent(localizacionEnt)}`;
 
@@ -1277,11 +217,11 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                     const resultado = await respuesta.json();
 
                     if (resultado.success) {
-                        const marcador = marcadores.find(m => m.nguia?.toString().trim() === nguia.toString().trim());
-                        if (marcador) {
-                            marcador.setMap(null);
-                            marcadores.splice(marcadores.indexOf(marcador), 1);
-                            
+                        const indiceMarcador = marcadores.findIndex(m => String(m.nguia).trim() === String(nguia).trim());
+                        if (indiceMarcador!== -1) {
+                            marcadores[indiceMarcador].setMap(null);
+                            marcadores.splice(indiceMarcador, 1);
+
                             if (infowindowActual) {
                                 infowindowActual.close();
                                 infowindowActual = null;
@@ -1315,15 +255,8 @@ async function cargarDireccionesPorRuta(numeroRuta) {
             }
 
             btnAceptar.onclick = ejecutarProceso;
-            btnCancelar.onclick = () => {
-                modal.style.display = 'none';
-            };
-
-            modal.onclick = (e) => {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
-                }
-            };
+            btnCancelar.onclick = () => { modal.style.display = 'none'; };
+            modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
         }
 
         async function generarCoordenadasRuta() {
@@ -1362,7 +295,6 @@ async function cargarDireccionesPorRuta(numeroRuta) {
         }
 
 function togglePanelDirecciones() {
-    // ✅ CAMBIO: Usar el ID específico en lugar de querySelector
     const panelDirecciones = document.getElementById('panelDirecciones');
     const panelEntregados = document.getElementById('panelEntregados');
 
@@ -1449,7 +381,6 @@ function togglePanelDirecciones() {
         }
 
 function cerrarPanelDirecciones() {
-    // ✅ CAMBIO: Usar el ID específico
     const panel = document.getElementById('panelDirecciones');
     cerrarVentana(panel);
 }
@@ -1483,25 +414,24 @@ function cerrarPanelDirecciones() {
         document.addEventListener('click', function(event) {
             const menu = document.getElementById('menuHamburguesa');
             const botonMenu = document.querySelector('.btn-hamburguesa');
-            
-            if (!menu.contains(event.target) && !botonMenu.contains(event.target)) {
+
+            if (!menu.contains(event.target) &&!botonMenu.contains(event.target)) {
                 cerrarMenuHamburguesa();
             }
         });
 
-        // Agregar las ventanas emergentes al cargar la página
         if (!document.getElementById('ventanaRazonEntrega')) {
             const ventanaHTML = `
                 <div id="ventanaRazonEntrega" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;">
                     <div style="background: #2b2b2b; padding: 20px; border-radius: 8px; width: 100%; max-width: 450px; border: 1px solid #2da42d; box-shadow: 0 2px 10px rgba(0,0,0,0.5);">
                         <h3 style="margin-top: 0; margin-bottom: 15px; color: #2da42d; text-align: center; font-size: 20px;">¿Por qué no se entregó el envío?</h3>
-                        
+
                         <div class="campo" style="margin-bottom: 15px;">
                             <textarea id="campoRazon" rows="4" style="width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #2da42d; border-radius: 4px; color: white; font-size: 16px; resize: none; box-sizing: border-box; outline: none;"></textarea>
                         </div>
-                        
+
                         <div id="mensajeError" style="color: #ff4444; font-size: 12px; margin-bottom: 15px; display: block;"></div>
-                        
+
                         <div style="display: flex; gap: 10px; margin-top: 20px;">
                             <button id="btnCancelarRazon" style="background: #4a4a4a; width: 50%; padding: 10px; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 16px;">Cancelar</button>
                             <button id="btnEnviarRazon" style="background: #2da42d; width: 50%; padding: 10px; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 16px; font-weight: bold;">Enviar</button>
@@ -1517,11 +447,11 @@ function cerrarPanelDirecciones() {
                 <div id="ventanaConfirmacionPago" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;">
                     <div style="background: #2b2b2b; padding: 20px; border-radius: 8px; width: 100%; max-width: 450px; border: 1px solid #2da42d; box-shadow: 0 2px 10px rgba(0,0,0,0.5);">
                         <h3 style="margin-top: 0; margin-bottom: 15px; color: #2da42d; text-align: center; font-size: 20px;">Confirmar pago del paquete</h3>
-                        
+
                         <div style="margin-bottom: 15px; color: white; font-size: 16px; text-align: center;">
                             ¿El paquete fue pagado en su totalidad al vendedor?
                         </div>
-                        
+
                         <div style="display: flex; gap: 10px; margin-top: 20px;">
                             <button id="btnCancelarConfirmacion" style="background: #4a4a4a; width: 50%; padding: 10px; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 16px;">No</button>
                             <button id="btnAceptarConfirmacion" style="background: #2da42d; width: 50%; padding: 10px; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 16px; font-weight: bold;">Sí</button>
@@ -1530,6 +460,74 @@ function cerrarPanelDirecciones() {
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', ventanaConfirmacionHTML);
+        }
+
+        // ✅ NUEVAS FUNCIONES PARA PEDIDOS EN TIEMPO REAL
+        function iniciarEscuchaDePedidos() {
+            if (intervaloChequeoPedidos) clearInterval(intervaloChequeoPedidos);
+
+            intervaloChequeoPedidos = setInterval(async () => {
+                try {
+                    const resp = await fetch(URL_APPS_SCRIPT + "?action=obtenerPedidosPendientes");
+                    const data = await resp.json();
+
+                    if (data.success && data.pedidos.length > 0) {
+                        data.pedidos.forEach(pedido => {
+                            if (!idsPedidosYaMostrados.includes(pedido.id)) {
+                                mostrarAlertaNuevoPedido(pedido);
+                                idsPedidosYaMostrados.push(pedido.id);
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.log("Buscando pedidos...", error);
+                }
+            }, 10000);
+        }
+
+        function mostrarAlertaNuevoPedido(pedido) {
+            new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_5cfcff5b37.mp3').play();
+
+            const marcadorOrigen = new google.maps.Marker({
+                position: { lat: parseFloat(pedido.origenLat), lng: parseFloat(pedido.origenLng) },
+                map: mapa,
+                title: `NUEVO ORIGEN: ${pedido.origenCalle}`,
+                icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+                zIndex: 9999
+            });
+
+            const marcadorDestino = new google.maps.Marker({
+                position: { lat: parseFloat(pedido.destinoLat), lng: parseFloat(pedido.destinoLng) },
+                map: mapa,
+                title: `NUEVO DESTINO: ${pedido.destinoCalle}`,
+                icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                zIndex: 9999
+            });
+
+            mapa.setCenter({ lat: parseFloat(pedido.origenLat), lng: parseFloat(pedido.origenLng) });
+            mapa.setZoom(15);
+
+            if (confirm(`🔔 NUEVO PEDIDO\n\nDe: ${pedido.origenCalle}, ${pedido.origenColonia}\nA: ${pedido.destinoCalle}, ${pedido.destinoColonia}\n\nDistancia: ${pedido.distancia} km | $${pedido.precio}\nRápido: ${pedido.servicioRapido == 'true'? 'Sí' : 'No'}\n\n¿ACEPTAR PEDIDO?`)) {
+                aceptarPedido(pedido.id, marcadorOrigen, marcadorDestino);
+            } else {
+                marcadorOrigen.setMap(null);
+                marcadorDestino.setMap(null);
+            }
+        }
+
+        async function aceptarPedido(idPedido, marcadorO, marcadorD) {
+            try {
+                await fetch(URL_APPS_SCRIPT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `action=aceptarPedido&id=${idPedido}`
+                });
+                alert("¡Pedido aceptado! Ya lo tienes marcado en tu mapa.");
+            } catch (error) {
+                alert("Error al aceptar. Intenta de nuevo.");
+                marcadorO.setMap(null);
+                marcadorD.setMap(null);
+            }
         }
 
         window.onload = initMap;
