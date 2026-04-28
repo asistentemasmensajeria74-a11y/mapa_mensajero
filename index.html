@@ -271,7 +271,7 @@
     <!-- Librería SortableJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
-<body>
+
     <!-- Botón de menú hamburguesa -->
     <button class="btn-hamburguesa" onclick="toggleMenu()">
         <i class="fas fa-bars"></i>
@@ -295,7 +295,7 @@
     <div id="mapa"></div>
 
     <!-- Contenedor fijo para la información del punto seleccionado -->
-    <div id="contenedorInfoFijo" style="display: none; position: fixed; top: 0; left: 0; width: 100%; background: #2b2b2b; color: white; z-index: 1001; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); box-sizing: border-box;">
+    <div id="contenedorInfoFijo" style="display: none; position: fixed; top: 0; left: 0; width: 100%; background: #2b2b2b; color: white; z-index: 999; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); box-sizing: border-box;">
         <div class="contenedor-titulo-panel">
             <h3 id="infoFijoTitulo" style="color: #f29d00; font-size: 20px; margin: 0;"></h3>
             <button class="btn-cerrar" onclick="ocultarContenedorInfoFijo()" style="background: #4a4a4a;">X</button>
@@ -886,8 +886,10 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                 marcador.index = index;
 
                 marcador.addListener('click', function() {
+                    // ✅ Cerrar todo antes de abrir panel fijo
                     cerrarPanelDirecciones();
                     cerrarPanelEntregados();
+                    cerrarTodosInfowindows();
 
                     if (marcadorSeleccionado) {
                         marcadorSeleccionado.setMap(null);
@@ -1361,12 +1363,12 @@ function togglePanelDirecciones() {
 
 function cerrarPanelDirecciones() {
     const panel = document.getElementById('panelDirecciones');
-    cerrarVentana(panel);
+    if (panel) panel.style.display = 'none';
 }
 
         function cerrarPanelEntregados() {
-            const panel = document.getElementById('panelEntregados');
-            cerrarVentana(panel);
+    const panel = document.getElementById('panelEntregados');
+    if (panel) panel.style.display = 'none';
         }
 
         function cerrarVentana(ventana) {
@@ -1542,11 +1544,39 @@ function cerrarPanelDirecciones() {
             });
 
             marcadorOrigen.addListener('click', function() {
+                console.log("🖱️ Click en marcador ORIGEN (mostrarAlertaNuevoPedido) - cerrando panel...");
+                
+                // ✅ Cerrar panel fijo
+                const contenedor = document.getElementById('contenedorInfoFijo');
+                if (contenedor) {
+                    contenedor.style.display = 'none';
+                }
+                
+                // ✅ Borrar marcadorSeleccionado (globo azul)
+                if (marcadorSeleccionado) {
+                    marcadorSeleccionado.setMap(null);
+                    marcadorSeleccionado = null;
+                }
+                
                 cerrarTodosInfowindowsExcepto(infowindowOrigen);
                 infowindowOrigen.open(mapa, marcadorOrigen);
             });
 
             marcadorDestino.addListener('click', function() {
+                console.log("🖱️ Click en marcador DESTINO (mostrarAlertaNuevoPedido) - cerrando panel...");
+                
+                // ✅ Cerrar panel fijo
+                const contenedor = document.getElementById('contenedorInfoFijo');
+                if (contenedor) {
+                    contenedor.style.display = 'none';
+                }
+                
+                // ✅ Borrar marcadorSeleccionado (globo azul)
+                if (marcadorSeleccionado) {
+                    marcadorSeleccionado.setMap(null);
+                    marcadorSeleccionado = null;
+                }
+                
                 cerrarTodosInfowindowsExcepto(infowindowDestino);
                 infowindowDestino.open(mapa, marcadorDestino);
             });
@@ -1573,6 +1603,18 @@ function cerrarPanelDirecciones() {
                 // ✅ Pedido ya tiene estado (ACEPTADO, RECOLECTADO, etc.), solo mostrar marcadores
                 console.log(`📍 Pedido ${pedido.id} con estado "${pedido.estado}", mostrando marcadores sin confirmación`);
             }
+        }
+
+        // ✅ FUNCIÓN PARA CERRAR TODOS LOS INFOWINDOWS
+        function cerrarTodosInfowindows() {
+            marcadoresPedidos.forEach((marcadorInfo) => {
+                if (marcadorInfo.infowindowOrigen) {
+                    marcadorInfo.infowindowOrigen.close();
+                }
+                if (marcadorInfo.infowindowDestino) {
+                    marcadorInfo.infowindowDestino.close();
+                }
+            });
         }
 
         // ✅ FUNCIÓN PARA CERRAR TODOS LOS INFOWINDOWS EXCEPTO UNO
@@ -1658,11 +1700,53 @@ function cerrarPanelDirecciones() {
 
             // Eventos click
             marcadorOrigen.addListener('click', function() {
+                console.log("🖱️ Click en marcador ORIGEN - Iniciando proceso de cierre...");
+                alert("🔴 CLICK EN ORIGEN - Si ves esto, el evento click funciona");
+                
+                // ✅ Forzar cierre directo del panel (sin función)
+                const contenedor = document.getElementById('contenedorInfoFijo');
+                console.log("🔍 Buscando contenedor contenedorInfoFijo...");
+                console.log("🔍 Contenedor encontrado:", contenedor);
+                
+                if (contenedor) {
+                    console.log("✅ Contenedor encontrado, estado actual:", contenedor.style.display);
+                    console.log("🔄 Aplicando display = 'none'...");
+                    contenedor.style.display = 'none';
+                    console.log("✅ Estado después del cambio:", contenedor.style.display);
+                    
+                    // 🔴 CAMBIO VISIBLE DE PRUEBA
+                    contenedor.style.backgroundColor = 'red';
+                    console.log("🔴 Color cambiado a rojo para prueba visual");
+                } else {
+                    console.log("❌ ERROR: No se encontró el contenedor contenedorInfoFijo");
+                }
+                
+                console.log("🔄 Cerrando otros infowindows...");
                 cerrarTodosInfowindowsExcepto(infowindowOrigen);
+                
+                console.log("🔄 Abriendo infowindow actual...");
                 infowindowOrigen.open(mapa, marcadorOrigen);
+                
+                console.log("✅ Proceso completado");
             });
 
+            // 🔴 PRUEBA: Cambiar color del marcador para confirmar que es el correcto
+            marcadorOrigen.setIcon({
+                url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                scaledSize: new google.maps.Size(32, 32)
+            });
+            console.log("🔴 Marcador origen cambiado a AZUL para prueba visual");
+
             marcadorDestino.addListener('click', function() {
+                console.log("🖱️ Click en marcador DESTINO - cerrando panel directamente...");
+                
+                // ✅ Forzar cierre directo del panel (sin función)
+                const contenedor = document.getElementById('contenedorInfoFijo');
+                if (contenedor) {
+                    console.log("✅ Forzando cierre directo del panel");
+                    contenedor.style.display = 'none';
+                }
+                
                 cerrarTodosInfowindowsExcepto(infowindowDestino);
                 infowindowDestino.open(mapa, marcadorDestino);
             });
@@ -1712,10 +1796,15 @@ function cerrarPanelDirecciones() {
                 if (marcadoresPedidos.size === 0) return; // No actualizar si no hay pedidos activos
 
                 try {
-                    const respuesta = await fetch(URL_APPS_SCRIPT + "?action=obtenerTodosPedidosActivos");
+                    console.log("🔄 Buscando actualización de pedidos...");
+                    // Usar endpoint existente que sabemos funciona
+                    const respuesta = await fetch(URL_APPS_SCRIPT + "?action=obtenerPedidosPendientes");
                     const data = await respuesta.json();
+                    
+                    console.log("📊 Respuesta de actualización:", data);
 
                     if (data.success && data.pedidos) {
+                        console.log(`✅ Encontrados ${data.pedidos.length} pedidos para actualizar`);
                         data.pedidos.forEach(pedidoActualizado => {
                             const marcadorInfo = marcadoresPedidos.get(pedidoActualizado.id);
                             if (marcadorInfo) {
@@ -1746,11 +1835,27 @@ function cerrarPanelDirecciones() {
                                 console.log(`🗑️ Pedido ${idPedido} eliminado del mapa`);
                             }
                         });
+                    } else {
+                        console.log("❌ Error en respuesta de actualización:", data);
+                        console.log("🔍 Posibles causas:");
+                        console.log("   - El endpoint 'obtenerTodosPedidosActivos' no existe");
+                        console.log("   - La hoja de cálculo no está sincronizada");
+                        console.log("   - No hay pedidos activos");
                     }
                 } catch (error) {
-                    console.log("Error en actualización inteligente:", error);
+                    console.error("❌ Error en actualización inteligente:", error);
+                    console.log("🔍 Verificando conexión con Apps Script...");
+                    
+                    // Intentar con un endpoint básico para verificar conexión
+                    try {
+                        const testRespuesta = await fetch(URL_APPS_SCRIPT + "?action=obtenerPedidosPendientes");
+                        const testData = await testRespuesta.json();
+                        console.log("✅ Conexión básica funciona:", testData.success);
+                    } catch (testError) {
+                        console.error("❌ Error de conexión básica:", testError);
+                    }
                 }
-            }, 15000); // Actualizar cada 15 segundos (menos frecuente que nuevos pedidos)
+            }, 3000); // Actualizar cada 3 segundos (más rápido para datos en tiempo real)
         }
 
         function marcarRecolectado(idPedido) {
@@ -1830,8 +1935,11 @@ function cerrarPanelDirecciones() {
                                 Por favor, ingresa el PIN del destinatario para confirmar la entrega:
                             </div>
 
-                            <div class="campo" style="margin-bottom: 15px;">
-                                <input type="password" id="campoPin" maxlength="10" style="width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #e74c3c; border-radius: 4px; color: white; font-size: 18px; text-align: center; box-sizing: border-box; outline: none; letter-spacing: 2px;" placeholder="PIN">
+                            <div class="campo" style="margin-bottom: 15px; display: flex; gap: 8px; justify-content: center;">
+                                <input type="text" id="campoPin1" maxlength="1" style="width: 80px; height: 80px; padding: 15px; background: #1a1a1a; border: 2px solid #e74c3c; border-radius: 8px; color: white; font-size: 36px; text-align: center; box-sizing: border-box; outline: none; font-weight: bold;" autocomplete="off">
+                                <input type="text" id="campoPin2" maxlength="1" style="width: 80px; height: 80px; padding: 15px; background: #1a1a1a; border: 2px solid #e74c3c; border-radius: 8px; color: white; font-size: 36px; text-align: center; box-sizing: border-box; outline: none; font-weight: bold;" autocomplete="off">
+                                <input type="text" id="campoPin3" maxlength="1" style="width: 80px; height: 80px; padding: 15px; background: #1a1a1a; border: 2px solid #e74c3c; border-radius: 8px; color: white; font-size: 36px; text-align: center; box-sizing: border-box; outline: none; font-weight: bold;" autocomplete="off">
+                                <input type="text" id="campoPin4" maxlength="1" style="width: 80px; height: 80px; padding: 15px; background: #1a1a1a; border: 2px solid #e74c3c; border-radius: 8px; color: white; font-size: 36px; text-align: center; box-sizing: border-box; outline: none; font-weight: bold;" autocomplete="off">
                             </div>
 
                             <div id="mensajeErrorPin" style="color: #ff4444; font-size: 12px; margin-bottom: 15px; display: none;"></div>
@@ -1848,7 +1956,10 @@ function cerrarPanelDirecciones() {
 
             // Mostrar ventana y configurar eventos
             const ventana = document.getElementById('ventanaValidacionPin');
-            const campoPin = document.getElementById('campoPin');
+            const campoPin1 = document.getElementById('campoPin1');
+            const campoPin2 = document.getElementById('campoPin2');
+            const campoPin3 = document.getElementById('campoPin3');
+            const campoPin4 = document.getElementById('campoPin4');
             const mensajeError = document.getElementById('mensajeErrorPin');
             const btnValidar = document.getElementById('btnValidarPin');
             const btnCancelar = document.getElementById('btnCancelarPin');
@@ -1857,17 +1968,45 @@ function cerrarPanelDirecciones() {
             ventanaPinActiva = true;
 
             // Limpiar campos anteriores
-            campoPin.value = '';
+            campoPin1.value = '';
+            campoPin2.value = '';
+            campoPin3.value = '';
+            campoPin4.value = '';
             mensajeError.style.display = 'none';
             mensajeError.textContent = '';
             ventana.style.display = 'flex';
 
+            // ✅ Configurar navegación automática entre campos
+            const setupCampoNavigation = (campoActual, campoSiguiente) => {
+                campoActual.addEventListener('input', (e) => {
+                    if (e.target.value.length === 1 && campoSiguiente) {
+                        campoSiguiente.focus();
+                    }
+                });
+                
+                campoActual.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && e.target.value === '' && campoSiguiente) {
+                        // Permitir retroceder al campo anterior
+                        const campos = [campoPin1, campoPin2, campoPin3, campoPin4];
+                        const indiceActual = campos.indexOf(campoActual);
+                        if (indiceActual > 0) {
+                            campos[indiceActual - 1].focus();
+                        }
+                    }
+                });
+            };
+
+            setupCampoNavigation(campoPin1, campoPin2);
+            setupCampoNavigation(campoPin2, campoPin3);
+            setupCampoNavigation(campoPin3, campoPin4);
+            setupCampoNavigation(campoPin4, null);
+
             // Configurar eventos
             const manejarValidacion = () => {
-                const pinIngresado = campoPin.value.trim();
+                const pinIngresado = campoPin1.value + campoPin2.value + campoPin3.value + campoPin4.value;
                 
-                if (!pinIngresado) {
-                    mensajeError.textContent = "Por favor, ingresa el PIN";
+                if (pinIngresado.length !== 4) {
+                    mensajeError.textContent = "Por favor, ingresa los 4 dígitos del PIN";
                     mensajeError.style.display = 'block';
                     return;
                 }
@@ -1898,8 +2037,11 @@ function cerrarPanelDirecciones() {
                 } else {
                     mensajeError.textContent = "PIN incorrecto. Por favor, verifica e intenta nuevamente.";
                     mensajeError.style.display = 'block';
-                    campoPin.value = '';
-                    campoPin.focus();
+                    campoPin1.value = '';
+                    campoPin2.value = '';
+                    campoPin3.value = '';
+                    campoPin4.value = '';
+                    campoPin1.focus();
                 }
             };
 
@@ -1913,11 +2055,13 @@ function cerrarPanelDirecciones() {
             btnValidar.addEventListener('click', manejarValidacion);
             btnCancelar.addEventListener('click', manejarCancelacion);
             
-            // Permitir enviar con Enter
-            campoPin.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    manejarValidacion();
-                }
+            // Permitir enviar con Enter en cualquier campo
+            [campoPin1, campoPin2, campoPin3, campoPin4].forEach(campo => {
+                campo.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        manejarValidacion();
+                    }
+                });
             });
 
             // Cerrar al hacer clic fuera
@@ -1927,8 +2071,8 @@ function cerrarPanelDirecciones() {
                 }
             });
 
-            // Enfocar campo de PIN
-            setTimeout(() => campoPin.focus(), 100);
+            // Enfocar primer campo de PIN
+            setTimeout(() => campoPin1.focus(), 100);
         }
 
         function actualizarEstadoPedido(idPedido, nuevoEstado) {
@@ -1957,7 +2101,7 @@ function cerrarPanelDirecciones() {
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `action=aceptarPedido&id=${idPedido}` 
                 });
-              //  alert("¡Pedido aceptado! Ya lo tienes marcado en tu mapa.");
+            //  alert("¡Pedido aceptado! Ya lo tienes marcado en tu mapa.");
             } catch (error) {
                 alert("Error al aceptar. Intenta de nuevo.");
                 marcadorO.setMap(null);
