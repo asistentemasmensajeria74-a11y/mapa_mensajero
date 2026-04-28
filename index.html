@@ -954,7 +954,18 @@ async function cargarDireccionesPorRuta(numeroRuta) {
             new Sortable(lista, {
                 animation: 150,
                 ghostClass: 'arrastrando',
-                handle: '.icono-arrastre'
+                handle: '.icono-arrastre',
+                // ✅ CONFIGURACIÓN PARA MÓVIL
+                forceFallback: false,
+                fallbackTolerance: 3,
+                scroll: true,
+                scrollSensitivity: 30,
+                scrollSpeed: 10,
+                // ✅ MEJORAR DETECCIÓN TÁCTIL
+                delay: 100,
+                delayOnTouchStart: true,
+                // ✅ EVITAR CONFLICTOS CON MAPA
+                preventOnFilter: false
             });
 
         } else {
