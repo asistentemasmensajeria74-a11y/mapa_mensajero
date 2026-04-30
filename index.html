@@ -74,7 +74,7 @@
         }
 
         .btn-recargar:hover {
-            background: #e0a800;
+            transform: scale(1.05);
         }
 
         .btn-ruta {
@@ -247,6 +247,7 @@
             }
         }
 
+        
         /* Estilo normal del marcador */
         .marcador-normal {
             background-color: #2196F3;
@@ -339,6 +340,7 @@
         let directionsRenderer;
         let resultadoDatos;
         let marcadorSeleccionado = null;
+let circuloActivo = null;
         let watchId = null;
         let marcadorMiUbicacion = null;
         let indiceSiguientePunto = 0;
@@ -939,6 +941,9 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                     cerrarPanelDirecciones();
                     cerrarPanelEntregados();
                     cerrarTodosInfowindows();
+
+                    // ✅ Eliminar círculo activo de servicio rápido
+                    eliminarCirculoActivo();
 
                     if (marcadorSeleccionado) {
                         marcadorSeleccionado.setMap(null);
@@ -1619,8 +1624,11 @@ function cerrarPanelDirecciones() {
                 const contenido = document.getElementById('infoFijoContenido');
                 const botones = document.getElementById('infoFijoBotones');
                 
-                titulo.innerHTML = `<span style="color: #2ecc71;">📍 ORIGEN</span> - ${pedido.nombreRemitente || 'Sin nombre'}`;
-                contenido.innerHTML = generarContenidoInfowindowVerde(pedido).replace(/<div[^>]*>.*?<\/div>/s, ''); // Extraer solo el contenido
+                titulo.innerHTML = `<span style="color: #2ecc71;">📍 ORIGEN</span> - ${pedido.origenCalle}, ${pedido.origenColonia}`;
+                contenido.innerHTML = `
+                    <p><strong>🎯 Va a:</strong> ${pedido.destinoCalle}, ${pedido.destinoColonia}</p>
+                    <p><strong>👤 Entrega:</strong> ${pedido.nombreRemitente || 'Sin nombre'}</p>
+                `;
                 botones.innerHTML = `
                     <a href="tel:${pedido.telRemitente || ''}" style="color: #007bff; font-size: 30px;" title="Llamar">
                         <i class="fas fa-phone"></i>
@@ -1638,6 +1646,9 @@ function cerrarPanelDirecciones() {
                 
                 // ✅ ABRIR PANEL FIJO
                 contenedor.style.display = 'block';
+                
+                // ✅ Crear círculo en base del marcador activo
+                crearCirculoActivo(marcadorOrigen);
             });
 
             marcadorDestino.addListener('click', function() {
@@ -1663,14 +1674,11 @@ function cerrarPanelDirecciones() {
                 const botonEntregadoStyle = botonEntregadoDisabled ? 'background: #6c757d; cursor: not-allowed;' : 'background: #e74c3c; cursor: pointer;';
                 const botonEntregadoTitle = botonEntregadoDisabled ? 'Primero debe marcar como recolectado' : 'Marcar como entregado';
                 
-                titulo.innerHTML = `<span style="color: #e74c3c;">📍 DESTINO</span> - ${pedido.nombreDestinatario || 'Sin nombre'}`;
+                titulo.innerHTML = `<span style="color: #e74c3c;">📍 DESTINO</span> - ${pedido.destinoCalle}, ${pedido.destinoColonia}`;
                 contenido.innerHTML = `
-                    <p><strong>📍 Aquí:</strong> ${pedido.destinoCalle}, ${pedido.destinoColonia}</p>
                     <p><strong>🏠 Viene de:</strong> ${pedido.origenCalle}, ${pedido.origenColonia}</p>
-                    <p><strong>👤 Nombre:</strong> ${pedido.nombreDestinatario || 'Sin nombre'}</p>
-                    <p><strong>📞 Teléfono:</strong> ${pedido.telDestinatario || 'N/A'}</p>
-                    <p><strong>🆔 ID Pedido:</strong> ${pedido.id}</p>
-                    <p><strong>📦 Estado:</strong> ${estado}</p>
+                    <p><strong>👤 Recibe:</strong> ${pedido.nombreDestinatario || 'Sin nombre'}</p>
+                    
                 `;
                 botones.innerHTML = `
                     <a href="tel:${pedido.telDestinatario || ''}" style="color: #007bff; font-size: 30px;" title="Llamar">
@@ -1689,6 +1697,9 @@ function cerrarPanelDirecciones() {
                 
                 // ✅ ABRIR PANEL FIJO
                 contenedor.style.display = 'block';
+                
+                // ✅ Crear círculo en base del marcador activo
+                crearCirculoActivo(marcadorDestino);
             });
 
             // ✅ ALMACENAR MARCADORES PARA ACTUALIZACIÓN INTELIGENTE
@@ -2016,6 +2027,15 @@ function cerrarPanelDirecciones() {
                 marcadorInfo.marcadorOrigen.setMap(null);
             }
             
+            // ✅ Cerrar panel y eliminar círculo activo
+            ocultarContenedorInfoFijo();
+            
+            // ✅ Eliminar marcadorSeleccionado (globo azul) si existe
+            if (marcadorSeleccionado) {
+                marcadorSeleccionado.setMap(null);
+                marcadorSeleccionado = null;
+            }
+            
             // Actualizar el marcadorInfo para eliminar solo el origen
             marcadoresPedidos.set(idPedido.toString(), {
                 marcadorOrigen: null,
@@ -2141,6 +2161,15 @@ function cerrarPanelDirecciones() {
                     // ✅ Eliminar completamente del mapa de marcadores
                     marcadoresPedidos.delete(idPedido);
                     
+                    // ✅ Cerrar panel y eliminar círculo activo
+                    ocultarContenedorInfoFijo();
+                    
+                    // ✅ Eliminar marcadorSeleccionado (globo azul) si existe
+                    if (marcadorSeleccionado) {
+                        marcadorSeleccionado.setMap(null);
+                        marcadorSeleccionado = null;
+                    }
+                    
                     // Actualizar estado a ENTREGADO
                     actualizarEstadoPedido(idPedido, 'ENTREGADO');
                     // ✅ Sin alerta para operación más rápida
@@ -2242,6 +2271,49 @@ function cerrarPanelDirecciones() {
             const contenedor = document.getElementById('contenedorInfoFijo');
             if (contenedor) {
                 contenedor.style.display = 'none';
+            }
+            
+            // ✅ Eliminar círculo activo
+            eliminarCirculoActivo();
+            
+            // ✅ Eliminar marcadorSeleccionado (globo azul) si existe
+            if (marcadorSeleccionado) {
+                marcadorSeleccionado.setMap(null);
+                marcadorSeleccionado = null;
+            }
+        }
+
+        // ✅ FUNCIONES PARA CÍRCULO DE MARCADOR ACTIVO (SVG FIJO)
+        function crearCirculoActivo(marcador) {
+            eliminarCirculoActivo(); // Eliminar círculo anterior si existe
+            
+            const posicion = marcador.getPosition();
+            
+            // Crear círculo SVG como marcador temporal (tamaño fijo con zoom)
+            circuloActivo = new google.maps.Marker({
+                position: posicion,
+                map: mapa,
+                zIndex: 9997, // Debajo de marcadores nuevos (9999) pero arriba de existentes
+                icon: {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="10" cy="10" r="9" fill="#e74c3c" stroke="#ffffff" stroke-width="2"/>
+                        </svg>
+                    `),
+                    scaledSize: new google.maps.Size(20, 20),
+                    anchor: new google.maps.Point(10, 10)
+                },
+                clickable: false
+            });
+            
+            console.log("✅ Círculo SVG creado en base del marcador (tamaño fijo)");
+        }
+
+        function eliminarCirculoActivo() {
+            if (circuloActivo) {
+                circuloActivo.setMap(null);
+                circuloActivo = null;
+                console.log("✅ Círculo SVG eliminado");
             }
         }
 
