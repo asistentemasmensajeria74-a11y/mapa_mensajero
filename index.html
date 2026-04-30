@@ -558,14 +558,17 @@ async function cargarRutas() {
             botonRutaSiguiente.id = "btnRutaSiguiente";
             mapa.getDiv().appendChild(botonRutaSiguiente);
             botonRutaSiguiente.addEventListener("click", () => {
+                console.log("🚀 Click en botón de ruta - Iniciando proceso...");
                 let destino = null;
-                let tipoDestino = ""; // Para saber de dónde viene el destino
+                let tipoDestino = "";
                 
                 // ✅ VERIFICAR SI HAY MARCADOR DE RUTA SELECCIONADO
                 if (marcadorSeleccionado) {
+                    console.log("✅ MarcadorSeleccionado encontrado:", marcadorSeleccionado.nguia);
                     const envio = resultadoDatos.datos.find(d => String(d.nguia).trim() === String(marcadorSeleccionado.nguia).trim());
                     
                     if (!envio ||!envio.ruta1 ||!envio.ruta1.includes(',')) {
+                        console.error("❌ Marcador sin coordenadas válidas");
                         alert("El marcador seleccionado no tiene coordenadas válidas.");
                         return;
                     }
@@ -573,9 +576,11 @@ async function cargarRutas() {
                     const [latDestino, lngDestino] = envio.ruta1.split(',').map(coord => parseFloat(coord.trim()));
                     destino = new google.maps.LatLng(latDestino, lngDestino);
                     tipoDestino = "ruta";
+                    console.log("✅ Destino desde marcadorSeleccionado:", destino);
                     
                 } else {
                     // ✅ VERIFICAR SI HAY INFOWINDOW DE PEDIDO ACTIVO
+                    console.log("🔍 Buscando infowindow activo...");
                     let pedidoActivo = null;
                     marcadoresPedidos.forEach((marcadorInfo) => {
                         if (marcadorInfo.infowindowOrigen && marcadorInfo.infowindowOrigen.getMap()) {
@@ -585,6 +590,7 @@ async function cargarRutas() {
                             );
                             pedidoActivo = marcadorInfo.datos;
                             tipoDestino = "pedido-origen";
+                            console.log("✅ Destino desde infowindow origen:", destino);
                             return;
                         }
                         if (marcadorInfo.infowindowDestino && marcadorInfo.infowindowDestino.getMap()) {
@@ -594,15 +600,19 @@ async function cargarRutas() {
                             );
                             pedidoActivo = marcadorInfo.datos;
                             tipoDestino = "pedido-destino";
+                            console.log("✅ Destino desde infowindow destino:", destino);
                             return;
                         }
                     });
                     
                     if (!destino) {
+                        console.error("❌ No se encontró destino activo");
                         alert("Primero abre un marcador (globo) de una dirección o un infowindow de pedido para saber a dónde ir.");
                         return;
                     }
                 }
+                
+                console.log("🎯 Destino final:", destino, "Tipo:", tipoDestino);
 
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
@@ -655,8 +665,10 @@ async function cargarRutas() {
         }
 
         function centrarYSeguirUbicacion() {
+            console.log("📍 Iniciando centrarYSeguirUbicacion...");
             if (navigator.geolocation) {
                 if (watchId) {
+                    console.log("🔄 Limpiando watch anterior:", watchId);
                     navigator.geolocation.clearWatch(watchId);
                     watchId = null;
                 }
@@ -667,12 +679,14 @@ async function cargarRutas() {
                             lat: posicion.coords.latitude,
                             lng: posicion.coords.longitude
                         };
+                        console.log("✅ Ubicación inicial obtenida:", miUbicacion);
 
                         mapa.setCenter(miUbicacion);
                         mapa.setZoom(15);
 
                         if (marcadorMiUbicacion) {
                             // ✅ Actualizar marcador existente y asegurarse que sea azul
+                            console.log("🔄 Actualizando marcador GPS existente");
                             marcadorMiUbicacion.setPosition(miUbicacion);
                             marcadorMiUbicacion.setIcon({
                                 path: google.maps.SymbolPath.CIRCLE,
@@ -684,6 +698,7 @@ async function cargarRutas() {
                             marcadorMiUbicacion.setTitle("Mi ubicación");
                         } else {
                             // ✅ Crear nuevo marcador azul
+                            console.log("🆕 Creando nuevo marcador GPS");
                             marcadorMiUbicacion = new google.maps.Marker({
                                 position: miUbicacion,
                                 map: mapa,
@@ -704,9 +719,11 @@ async function cargarRutas() {
                                     lat: posicionSeguimiento.coords.latitude,
                                     lng: posicionSeguimiento.coords.longitude
                                 };
+                                console.log("🔄 GPS actualizado:", ubicacionActual);
 
                                 if (marcadorMiUbicacion) {
                                     marcadorMiUbicacion.setPosition(ubicacionActual);
+                                    console.log("✅ Marcador GPS movido a nueva posición");
                                 }
 
                                 actualizarRutaRecorrida(ubicacionActual);
@@ -754,9 +771,11 @@ async function cargarRutas() {
             }
         }
 
-        // ✅ FUNCIÓN CORREGIDA: AHORA SÍ BORRA LA RUTA CONFORME AVANZAS
+        // ✅ FUNCIÓN MEJORADA: BORRADO DE RUTA MÁS CONFIABLE
         function actualizarRutaRecorrida(ubicacionActual) {
+            console.log("🛣️ Actualizando ruta recorrida...");
             if (!rutaCompleta || rutaCompleta.length === 0) {
+                console.log("❌ No hay ruta completa definida");
                 if (directionsRenderer) directionsRenderer.setMap(null);
                 return;
             }
@@ -765,6 +784,7 @@ async function cargarRutas() {
             let distanciaMinima = Infinity;
             const posicionActual = new google.maps.LatLng(ubicacionActual.lat, ubicacionActual.lng);
 
+            // ✅ Encontrar punto más cercano en la ruta
             rutaCompleta.forEach((punto, indice) => {
                 const posicionPunto = new google.maps.LatLng(punto.lat, punto.lng);
                 const distancia = google.maps.geometry.spherical.computeDistanceBetween(posicionActual, posicionPunto);
@@ -775,11 +795,16 @@ async function cargarRutas() {
                 }
             });
 
-            if (indiceMasCercano!== -1 && indiceMasCercano > indicePuntoActual && distanciaMinima <= UMBRAL_DISTANCIA) {
+            console.log("🎯 Punto más cercano:", indiceMasCercano, "Distancia:", distanciaMinima.toFixed(2) + "m");
+
+            // ✅ Verificar si avanzamos y estamos dentro del umbral
+            if (indiceMasCercano !== -1 && indiceMasCercano > indicePuntoActual && distanciaMinima <= UMBRAL_DISTANCIA) {
+                console.log("✅ Avanzando en la ruta - Índice anterior:", indicePuntoActual, "Nuevo:", indiceMasCercano);
                 indicePuntoActual = indiceMasCercano;
                 const puntosRestantes = rutaCompleta.slice(indicePuntoActual + 1);
 
                 if (puntosRestantes.length > 0) {
+                    console.log("📍 Puntos restantes:", puntosRestantes.length);
                     const directionsService = new google.maps.DirectionsService();
                     const origen = posicionActual;
                     const destino = new google.maps.LatLng(puntosRestantes[puntosRestantes.length - 1].lat, puntosRestantes[puntosRestantes.length - 1].lng);
@@ -954,18 +979,7 @@ async function cargarDireccionesPorRuta(numeroRuta) {
             new Sortable(lista, {
                 animation: 150,
                 ghostClass: 'arrastrando',
-                handle: '.icono-arrastre',
-                // ✅ CONFIGURACIÓN PARA MÓVIL
-                forceFallback: false,
-                fallbackTolerance: 3,
-                scroll: true,
-                scrollSensitivity: 30,
-                scrollSpeed: 10,
-                // ✅ MEJORAR DETECCIÓN TÁCTIL
-                delay: 100,
-                delayOnTouchStart: true,
-                // ✅ EVITAR CONFLICTOS CON MAPA
-                preventOnFilter: false
+                handle: '.icono-arrastre'
             });
 
         } else {
