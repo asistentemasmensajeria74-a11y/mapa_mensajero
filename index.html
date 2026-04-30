@@ -774,25 +774,62 @@ async function cargarRutas() {
                     },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
-            } else {
-                alert("Tu navegador no soporta geolocalización.");
+                        navigator.geolocation.clearWatch(watchId);
+                        watchId = null;
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            },
+            (error) => {
+                let mensaje = "No se pudo obtener tu ubicación. ";
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        mensaje += "Debes dar permiso de ubicación en tu navegador.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        mensaje += "La ubicación no está disponible.";
+                        break;
+                    case error.TIMEOUT:
+                        mensaje += "Se agotó el tiempo de espera.";
+                        break;
+                    }
+                    alert("¡Has llegado a tu destino!");
+                }
             }
         }
 
-        // ✅ FUNCIÓN MEJORADA: BORRADO DE RUTA MÁS CONFIABLE
+        // ✅ FUNCIÓN OPTIMIZADA: BORRADO VISUAL SIN API
         function actualizarRutaRecorrida(ubicacionActual) {
-            console.log("🛣️ Actualizando ruta recorrida...");
+            console.log("🛣️ Actualizando ruta recorrida (sin API)...");
             if (!rutaCompleta || rutaCompleta.length === 0) {
                 console.log("❌ No hay ruta completa definida");
                 if (directionsRenderer) directionsRenderer.setMap(null);
                 return;
             }
 
+            // ✅ Variable para controlar distancia recorrida
+            if (!this.ultimaUbicacion) {
+                this.ultimaUbicacion = ubicacionActual;
+                this.distanciaAcumulada = 0;
+            }
+
+            // ✅ Calcular distancia desde última posición
+            const distanciaDesdeUltima = google.maps.geometry.spherical.computeDistanceBetween(
+                new google.maps.LatLng(this.ultimaUbicacion.lat, this.ultimaUbicacion.lng),
+                new google.maps.LatLng(ubicacionActual.lat, ubicacionActual.lng)
+            );
+
+            this.distanciaAcumulada += distanciaDesdeUltima;
+            console.log("📏 Distancia desde última:", distanciaDesdeUltima.toFixed(2) + "m", "Acumulada:", this.distanciaAcumulada.toFixed(2) + "m");
+
+            // ✅ Actualizar última posición
+            this.ultimaUbicacion = ubicacionActual;
+
+            // ✅ Encontrar punto más cercano en la ruta
             let indiceMasCercano = -1;
             let distanciaMinima = Infinity;
             const posicionActual = new google.maps.LatLng(ubicacionActual.lat, ubicacionActual.lng);
 
-            // ✅ Encontrar punto más cercano en la ruta
             rutaCompleta.forEach((punto, indice) => {
                 const posicionPunto = new google.maps.LatLng(punto.lat, punto.lng);
                 const distancia = google.maps.geometry.spherical.computeDistanceBetween(posicionActual, posicionPunto);
@@ -805,48 +842,42 @@ async function cargarRutas() {
 
             console.log("🎯 Punto más cercano:", indiceMasCercano, "Distancia:", distanciaMinima.toFixed(2) + "m");
 
-            // ✅ Verificar si avanzamos y estamos dentro del umbral
-            if (indiceMasCercano !== -1 && indiceMasCercano > indicePuntoActual && distanciaMinima <= UMBRAL_DISTANCIA) {
-                console.log("✅ Avanzando en la ruta - Índice anterior:", indicePuntoActual, "Nuevo:", indiceMasCercano);
+            // ✅ Borrar cada 5 metros recorridos si avanzamos (SIN LLAMAR API)
+            if (this.distanciaAcumulada >= 5 && indiceMasCercano > indicePuntoActual) {
+                console.log("✅ Borrando segmento visual - Distancia acumulada:", this.distanciaAcumulada.toFixed(2) + "m");
+                this.distanciaAcumulada = 0; // Resetear contador
+                
                 indicePuntoActual = indiceMasCercano;
                 const puntosRestantes = rutaCompleta.slice(indicePuntoActual + 1);
 
                 if (puntosRestantes.length > 0) {
-                    console.log("📍 Puntos restantes:", puntosRestantes.length);
-                    const directionsService = new google.maps.DirectionsService();
-                    const origen = posicionActual;
-                    const destino = new google.maps.LatLng(puntosRestantes[puntosRestantes.length - 1].lat, puntosRestantes[puntosRestantes.length - 1].lng);
-                    const waypoints = puntosRestantes.slice(0, -1).map(punto => ({
-                        location: new google.maps.LatLng(punto.lat, punto.lng),
-                        stopover: false
-                    }));
-
-                    directionsService.route({
-                        origin: origen,
-                        destination: destino,
-                        waypoints: waypoints,
-                        travelMode: google.maps.TravelMode.DRIVING
-                    }, (resultado, status) => {
-                        if (status === google.maps.DirectionsStatus.OK) {
-                            directionsRenderer.setDirections(resultado);
-                            rutaCompleta = resultado.routes[0].overview_path.map(punto => ({
-                                lat: punto.lat(),
-                                lng: punto.lng()
-                            }));
-                            indicePuntoActual = 0;
-                        }
-                    });
-                } else {
-                    // ✅ YA LLEGASTE: BORRA TODO
-                    directionsRenderer.setDirections({routes: []});
-                    directionsRenderer.setMap(null);
-                    rutaCompleta = [];
-                    indicePuntoActual = -1;
-                    if (watchId) {
-                        navigator.geolocation.clearWatch(watchId);
-                        watchId = null;
+                    console.log("📍 Puntos restantes:", puntosRestantes.length, "(borrado visual, sin API)");
+                    
+                    // ✅ BORRADO VISUAL: Solo ocultar parte recorrida sin llamar a API
+                    if (directionsRenderer && directionsRenderer.getDirections()) {
+                        const directions = directionsRenderer.getDirections();
+                        const route = directions.routes[0];
+                        const legs = route.legs[0];
+                        
+                        // ✅ Crear nueva ruta visual solo con puntos restantes
+                        const nuevaRuta = {
+                            routes: [{
+                                legs: [{
+                                    start_address: legs.start_address,
+                                    end_address: legs.end_address,
+                                    start_location: legs.start_location,
+                                    end_location: legs.end_location,
+                                    steps: legs.steps.slice(indicePuntoActual)
+                                }]
+                            }]
+                        };
+                        
+                        directionsRenderer.setDirections(nuevaRuta);
+                        console.log("✅ Ruta visual actualizada sin API");
                     }
-                    alert("¡Has llegado a tu destino!");
+                } else {
+                    console.log("🏁 Llegaste al destino");
+                    if (directionsRenderer) directionsRenderer.setMap(null);
                 }
             }
         }
