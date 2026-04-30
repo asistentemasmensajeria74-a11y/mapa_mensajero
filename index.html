@@ -1636,7 +1636,7 @@ function cerrarPanelDirecciones() {
                     <button onclick="marcarRecolectado('${pedido.id}')" style="background: #28a745; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px;" title="Marcar como recolectado">
                         <i class="fas fa-check"></i> Recolectado
                     </button>
-                    <button onclick="abrirEnGoogleMaps(${pedido.destinoLat}, ${pedido.destinoLng})" style="background: #ff6b35; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 16px;" title="Navegar con Google Maps">
+                    <button onclick="abrirEnGoogleMaps(${pedido.origenLat}, ${pedido.origenLng})" style="background: #ff6b35; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 16px;" title="Navegar con Google Maps">
                         🚘
                     </button>
                     <a href="https://wa.me/${pedido.telRemitente || ''}?text=${encodeURIComponent('Su paquete ha sido recolectado y será entregado en ' + (parseInt(pedido.duracion) + 5) + ' min aproximadamente')}" target="_blank" style="color: #25d366; font-size: 30px;" title="WhatsApp">
