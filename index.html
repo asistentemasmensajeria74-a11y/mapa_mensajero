@@ -774,31 +774,12 @@ async function cargarRutas() {
                     },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
-                        navigator.geolocation.clearWatch(watchId);
-                        watchId = null;
-                    },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-            },
-            (error) => {
-                let mensaje = "No se pudo obtener tu ubicación. ";
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        mensaje += "Debes dar permiso de ubicación en tu navegador.";
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        mensaje += "La ubicación no está disponible.";
-                        break;
-                    case error.TIMEOUT:
-                        mensaje += "Se agotó el tiempo de espera.";
-                        break;
-                    }
-                    alert("¡Has llegado a tu destino!");
-                }
+            } else {
+                alert("Tu navegador no soporta geolocalización.");
             }
         }
 
-        // ✅ FUNCIÓN OPTIMIZADA: BORRADO VISUAL SIN API
+        // ✅ FUNCIÓN OPTIMIZADA: BORRADO CADA 5 METROS SIN LLAMADAS A API
         function actualizarRutaRecorrida(ubicacionActual) {
             console.log("🛣️ Actualizando ruta recorrida (sin API)...");
             if (!rutaCompleta || rutaCompleta.length === 0) {
