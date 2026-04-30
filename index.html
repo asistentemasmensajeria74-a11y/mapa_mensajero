@@ -828,13 +828,14 @@ async function cargarRutas() {
                 console.log("✅ Borrando segmento visual - Distancia acumulada:", this.distanciaAcumulada.toFixed(2) + "m");
                 this.distanciaAcumulada = 0; // Resetear contador
                 
-                indicePuntoActual = indiceMasCercano;
+                // ✅ AVANZAR PUNTO POR PUNTO (no saltar al más cercano)
+                indicePuntoActual++;
                 const puntosRestantes = rutaCompleta.slice(indicePuntoActual + 1);
 
                 if (puntosRestantes.length > 0) {
-                    console.log("📍 Puntos restantes:", puntosRestantes.length, "(borrado visual, sin API)");
+                    console.log("📍 Puntos restantes:", puntosRestantes.length, "(borrado gradual, sin API)");
                     
-                    // ✅ BORRADO VISUAL: Solo ocultar parte recorrida sin llamar a API
+                    // ✅ BORRADO VISUAL GRADUAL: Solo ocultar parte recorrida sin llamar a API
                     if (directionsRenderer && directionsRenderer.getDirections()) {
                         const directions = directionsRenderer.getDirections();
                         const route = directions.routes[0];
@@ -854,7 +855,7 @@ async function cargarRutas() {
                         };
                         
                         directionsRenderer.setDirections(nuevaRuta);
-                        console.log("✅ Ruta visual actualizada sin API");
+                        console.log("✅ Ruta visual actualizada gradualmente sin API");
                     }
                 } else {
                     console.log("🏁 Llegaste al destino");
