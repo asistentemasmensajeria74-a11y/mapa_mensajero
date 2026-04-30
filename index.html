@@ -266,43 +266,7 @@
             z-index: 1002;
         }
 
-        /* ✅ Botón flotante para acceso rápido a datos */
-        .btn-flotante-datos {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #ff6b35;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
-            z-index: 1003;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .btn-flotante-datos:hover {
-            background: #e55a2b;
-            transform: scale(1.1);
-        }
-
-        /* ✅ Responsive para móvil */
-        @media (max-width: 768px) {
-            .btn-flotante-datos {
-                bottom: 80px;
-                right: 15px;
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-        }
-    </style>
+            </style>
     <!-- Iconos de Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Librería SortableJS -->
@@ -331,13 +295,9 @@
     <!-- Contenedor del mapa -->
     <div id="mapa"></div>
 
-    <!-- ✅ Botón flotante para acceso rápido a datos del cliente -->
-    <button class="btn-flotante-datos" id="btnFlotanteDatos" onclick="mostrarPanelFlotante(datosClienteActual)" title="Ver datos del cliente">
-        📦
-    </button>
-
-    <!-- Contenedor fijo para la información del punto seleccionado -->
-    <div id="contenedorInfoFijo" style="display: none; position: fixed; top: 0; left: 0; width: 100%; background: #2b2b2b; color: white; z-index: 999; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); box-sizing: border-box;">
+    
+    <!-- Contenedor fijo para la información del punto seleccionado (SERVICIO ENRUTADO) -->
+    <div id="contenedorInfoFijo" style="display: none; position: fixed; top: 10px; left: 10px; width: 350px; background: #2b2b2b; color: white; z-index: 999; padding: 15px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); box-sizing: border-box;">
         <div class="contenedor-titulo-panel">
             <h3 id="infoFijoTitulo" style="color: #f29d00; font-size: 20px; margin: 0;"></h3>
             <button class="btn-cerrar" onclick="ocultarContenedorInfoFijo()" style="background: #4a4a4a;">X</button>
@@ -346,6 +306,7 @@
         <div id="infoFijoBotones" style="display: flex; gap: 10px; justify-content: space-around; margin-top: 15px;"></div>
     </div>
 
+    
     <!-- Contenedor de direcciones -->
     <div class="contenedor-lista" id="panelDirecciones">
 
@@ -381,9 +342,6 @@
         let watchId = null;
         let marcadorMiUbicacion = null;
         let indiceSiguientePunto = 0;
-        
-        // ✅ Variable global para datos del cliente actual
-        let datosClienteActual = null;
         const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbx_aBWgPzdKEWqiEFSuzyYZ95Lvc23ijU8dNqy8eckShQfL1oryFGKx1fIOThhFlXEs/exec";
 
         const MENSAJE_WHATSAPP = "{RECIBE} Su Compra Que Realizo Con {ENVIA} De {CONTENIDO} Por La Cantidad De $ {ACOBRAR}.00 Esta Por llegar a su domicilio";
@@ -1030,8 +988,8 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                             <span class="spinner-icono" id="spinnerTarjeta_${dato.nguia}" style="display: none;"></span>
                             <i class="fas fa-credit-card" id="iconoTarjeta_${dato.nguia}"></i>
                         </button>
-                        <button onclick="abrirEnGoogleMaps(${dato.ruta1 ? dato.ruta1.split(',')[0] : '25.4383'}, ${dato.ruta1 ? dato.ruta1.split(',')[1] : '-100.9764'}, {nguia: '${dato.nguia}', recibe: '${dato.recibe}', direccion: '${dato.direccion}', acobrar: '${dato.acobrar}', telefono: '${dato.telefono}'})" style="background: #ff6b35; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px;" title="Navegar con Google Maps">
-                            <i class="fas fa-location-arrow"></i> 🚐 Navegar
+                        <button onclick="abrirEnGoogleMaps(${dato.ruta1 ? dato.ruta1.split(',')[0] : '25.4383'}, ${dato.ruta1 ? dato.ruta1.split(',')[1] : '-100.9764'})" style="background: #ff6b35; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 16px;" title="Navegar con Google Maps">
+                            🚘
                         </button>
                         <a href="https://wa.me/${dato.telefono}?text=${encodeURIComponent(`${dato.recibe} Su Compra Que Realizo Con ${dato.envia} De ${dato.contenido} Por La Cantidad De $${dato.acobrar}.00 Esta Por llegar a su domicilio`)}" target="_blank" style="color: #25d366; font-size: 30px;" title="WhatsApp">
                             <i class="fab fa-whatsapp"></i>
@@ -1574,6 +1532,9 @@ function cerrarPanelDirecciones() {
                         <button onclick="marcarRecolectado('${pedido.id}')" style="background: #28a745; color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; font-size: 12px;" title="Marcar como recolectado">
                             <i class="fas fa-check"></i> Recolectado
                         </button>
+                        <button onclick="abrirEnGoogleMaps(${pedido.destinoLat}, ${pedido.destinoLng})" style="background: #ff6b35; color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; font-size: 16px;" title="Navegar con Google Maps">
+                            🚘
+                        </button>
                         <a href="https://wa.me/${pedido.telRemitente || ''}?text=${encodeURIComponent('Su paquete ha sido recolectado y será entregado en ' + (parseInt(pedido.duracion) + 5) + ' min aproximadamente')}" target="_blank" style="color: #25d366; font-size: 24px; text-decoration: none;" title="WhatsApp">
                             <i class="fab fa-whatsapp"></i>
                         </a>
@@ -1600,6 +1561,9 @@ function cerrarPanelDirecciones() {
                         </a>
                         <button onclick="mostrarVentanaPin('${pedido.id}', '${pedido.pin || ''}')" ${botonEntregadoDisabled} style="color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; font-size: 12px; ${botonEntregadoStyle}" title="${botonEntregadoTitle}">
                             <i class="fas fa-check"></i> Entregado
+                        </button>
+                        <button onclick="abrirEnGoogleMaps(${pedido.destinoLat}, ${pedido.destinoLng})" style="background: #ff6b35; color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; font-size: 16px;" title="Navegar con Google Maps">
+                            🚘
                         </button>
                         <a href="https://wa.me/${pedido.telDestinatario || ''}" target="_blank" style="color: #25d366; font-size: 24px; text-decoration: none;" title="WhatsApp">
                             <i class="fab fa-whatsapp"></i>
@@ -1638,13 +1602,10 @@ function cerrarPanelDirecciones() {
             });
 
             marcadorOrigen.addListener('click', function() {
-                console.log("🖱️ Click en marcador ORIGEN (mostrarAlertaNuevoPedido) - cerrando panel...");
+                console.log("🖱️ Click en marcador ORIGEN (servicio rápido) - mostrando panel...");
                 
-                // ✅ Cerrar panel fijo
-                const contenedor = document.getElementById('contenedorInfoFijo');
-                if (contenedor) {
-                    contenedor.style.display = 'none';
-                }
+                // ✅ Cerrar otros infowindows
+                cerrarTodosInfowindows();
                 
                 // ✅ Borrar marcadorSeleccionado (globo azul)
                 if (marcadorSeleccionado) {
@@ -1652,18 +1613,38 @@ function cerrarPanelDirecciones() {
                     marcadorSeleccionado = null;
                 }
                 
-                cerrarTodosInfowindowsExcepto(infowindowOrigen);
-                infowindowOrigen.open(mapa, marcadorOrigen);
+                // ✅ Usar panel fijo con contenido del infowindow
+                const contenedor = document.getElementById('contenedorInfoFijo');
+                const titulo = document.getElementById('infoFijoTitulo');
+                const contenido = document.getElementById('infoFijoContenido');
+                const botones = document.getElementById('infoFijoBotones');
+                
+                titulo.innerHTML = `<span style="color: #2ecc71;">📍 ORIGEN</span> - ${pedido.nombreRemitente || 'Sin nombre'}`;
+                contenido.innerHTML = generarContenidoInfowindowVerde(pedido).replace(/<div[^>]*>.*?<\/div>/s, ''); // Extraer solo el contenido
+                botones.innerHTML = `
+                    <a href="tel:${pedido.telRemitente || ''}" style="color: #007bff; font-size: 30px;" title="Llamar">
+                        <i class="fas fa-phone"></i>
+                    </a>
+                    <button onclick="marcarRecolectado('${pedido.id}')" style="background: #28a745; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px;" title="Marcar como recolectado">
+                        <i class="fas fa-check"></i> Recolectado
+                    </button>
+                    <button onclick="abrirEnGoogleMaps(${pedido.destinoLat}, ${pedido.destinoLng})" style="background: #ff6b35; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 16px;" title="Navegar con Google Maps">
+                        🚘
+                    </button>
+                    <a href="https://wa.me/${pedido.telRemitente || ''}?text=${encodeURIComponent('Su paquete ha sido recolectado y será entregado en ' + (parseInt(pedido.duracion) + 5) + ' min aproximadamente')}" target="_blank" style="color: #25d366; font-size: 30px;" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                `;
+                
+                // ✅ ABRIR PANEL FIJO
+                contenedor.style.display = 'block';
             });
 
             marcadorDestino.addListener('click', function() {
-                console.log("🖱️ Click en marcador DESTINO (mostrarAlertaNuevoPedido) - cerrando panel...");
+                console.log("🖱️ Click en marcador DESTINO (servicio rápido) - mostrando panel...");
                 
-                // ✅ Cerrar panel fijo
-                const contenedor = document.getElementById('contenedorInfoFijo');
-                if (contenedor) {
-                    contenedor.style.display = 'none';
-                }
+                // ✅ Cerrar otros infowindows
+                cerrarTodosInfowindows();
                 
                 // ✅ Borrar marcadorSeleccionado (globo azul)
                 if (marcadorSeleccionado) {
@@ -1671,8 +1652,43 @@ function cerrarPanelDirecciones() {
                     marcadorSeleccionado = null;
                 }
                 
-                cerrarTodosInfowindowsExcepto(infowindowDestino);
-                infowindowDestino.open(mapa, marcadorDestino);
+                // ✅ Usar panel fijo con contenido del infowindow
+                const contenedor = document.getElementById('contenedorInfoFijo');
+                const titulo = document.getElementById('infoFijoTitulo');
+                const contenido = document.getElementById('infoFijoContenido');
+                const botones = document.getElementById('infoFijoBotones');
+                
+                const estado = (pedido.estado || '').toUpperCase();
+                const botonEntregadoDisabled = (estado !== 'RECOLECTADO') ? 'disabled' : '';
+                const botonEntregadoStyle = botonEntregadoDisabled ? 'background: #6c757d; cursor: not-allowed;' : 'background: #e74c3c; cursor: pointer;';
+                const botonEntregadoTitle = botonEntregadoDisabled ? 'Primero debe marcar como recolectado' : 'Marcar como entregado';
+                
+                titulo.innerHTML = `<span style="color: #e74c3c;">📍 DESTINO</span> - ${pedido.nombreDestinatario || 'Sin nombre'}`;
+                contenido.innerHTML = `
+                    <p><strong>📍 Aquí:</strong> ${pedido.destinoCalle}, ${pedido.destinoColonia}</p>
+                    <p><strong>🏠 Viene de:</strong> ${pedido.origenCalle}, ${pedido.origenColonia}</p>
+                    <p><strong>👤 Nombre:</strong> ${pedido.nombreDestinatario || 'Sin nombre'}</p>
+                    <p><strong>📞 Teléfono:</strong> ${pedido.telDestinatario || 'N/A'}</p>
+                    <p><strong>🆔 ID Pedido:</strong> ${pedido.id}</p>
+                    <p><strong>📦 Estado:</strong> ${estado}</p>
+                `;
+                botones.innerHTML = `
+                    <a href="tel:${pedido.telDestinatario || ''}" style="color: #007bff; font-size: 30px;" title="Llamar">
+                        <i class="fas fa-phone"></i>
+                    </a>
+                    <button onclick="mostrarVentanaPin('${pedido.id}', '${pedido.pin || ''}')" ${botonEntregadoDisabled} style="color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px; ${botonEntregadoStyle}" title="${botonEntregadoTitle}">
+                        <i class="fas fa-check"></i> Entregado
+                    </button>
+                    <button onclick="abrirEnGoogleMaps(${pedido.destinoLat}, ${pedido.destinoLng})" style="background: #ff6b35; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 16px;" title="Navegar con Google Maps">
+                        🚘
+                    </button>
+                    <a href="https://wa.me/${pedido.telDestinatario || ''}" target="_blank" style="color: #25d366; font-size: 30px;" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                `;
+                
+                // ✅ ABRIR PANEL FIJO
+                contenedor.style.display = 'block';
             });
 
             // ✅ ALMACENAR MARCADORES PARA ACTUALIZACIÓN INTELIGENTE
@@ -2188,18 +2204,9 @@ function cerrarPanelDirecciones() {
             });
         }
 
-        // ✅ FUNCIÓN PARA ABRIR GOOGLE MAPS CON RUTA
-        function abrirEnGoogleMaps(destinoLat, destinoLng, datosCliente = {}) {
-            console.log("🚀 Abriendo Google Maps con ruta...");
-            
-            // ✅ Guardar datos del cliente actual
-            datosClienteActual = datosCliente;
-            
-            // ✅ Mostrar botón flotante
-            const btnFlotante = document.getElementById('btnFlotanteDatos');
-            if (btnFlotante && datosCliente && Object.keys(datosCliente).length > 0) {
-                btnFlotante.style.display = 'flex';
-            }
+        // ✅ FUNCIÓN SIMPLIFICADA PARA ABRIR GOOGLE MAPS CON RUTA
+        function abrirEnGoogleMaps(destinoLat, destinoLng) {
+            console.log("🚘 Abriendo Google Maps con ruta...");
             
             // Obtener ubicación actual
             if (navigator.geolocation) {
@@ -2215,11 +2222,6 @@ function cerrarPanelDirecciones() {
                         
                         // Abrir Google Maps en nueva ventana
                         window.open(url, '_blank');
-                        
-                        // ✅ Mostrar panel flotante con datos del cliente
-                        if (datosCliente && Object.keys(datosCliente).length > 0) {
-                            mostrarPanelFlotante(datosCliente);
-                        }
                     },
                     (error) => {
                         console.error("❌ Error obteniendo ubicación:", error);
@@ -2236,53 +2238,14 @@ function cerrarPanelDirecciones() {
             }
         }
 
-        // ✅ FUNCIÓN PARA MOSTRAR PANEL FLOTANTE CON DATOS
-        function mostrarPanelFlotante(datosCliente) {
-            // Crear panel flotante si no existe
-            if (!document.getElementById('panelFlotanteDatos')) {
-                const panelHTML = `
-                    <div id="panelFlotanteDatos" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background: #2b2b2b; color: white; border-radius: 8px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 9999; border: 2px solid #ff6b35;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <h3 style="margin: 0; color: #ff6b35; font-size: 18px;">📦 Datos del Envío</h3>
-                            <button onclick="cerrarPanelFlotante()" style="background: #4a4a4a; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 16px;">×</button>
-                        </div>
-                        <div id="contenidoPanelFlotante" style="font-size: 14px; line-height: 1.6;">
-                            <!-- Contenido dinámico -->
-                        </div>
-                    </div>
-                `;
-                document.body.insertAdjacentHTML('beforeend', panelHTML);
-            }
-            
-            // Llenar contenido del panel
-            const contenido = `
-                <p><strong>📍 Guía:</strong> ${datosCliente.nguia || 'N/A'}</p>
-                <p><strong>👤 Cliente:</strong> ${datosCliente.recibe || 'N/A'}</p>
-                <p><strong>🏠 Dirección:</strong> ${datosCliente.direccion || 'N/A'}</p>
-                <p><strong>💰 Cobro:</strong> $${datosCliente.acobrar || '0'}</p>
-                <p><strong>📞 Teléfono:</strong> ${datosCliente.telefono || 'N/A'}</p>
-                <div style="margin-top: 15px; display: flex; gap: 10px;">
-                    <a href="tel:${datosCliente.telefono || ''}" style="flex: 1; background: #007bff; color: white; text-decoration: none; padding: 8px; border-radius: 4px; text-align: center;">
-                        📞 Llamar
-                    </a>
-                    <a href="https://wa.me/${datosCliente.telefono || ''}" target="_blank" style="flex: 1; background: #25d366; color: white; text-decoration: none; padding: 8px; border-radius: 4px; text-align: center;">
-                        💬 WhatsApp
-                    </a>
-                </div>
-            `;
-            
-            document.getElementById('contenidoPanelFlotante').innerHTML = contenido;
-            document.getElementById('panelFlotanteDatos').style.display = 'block';
-        }
-
-        // ✅ FUNCIÓN PARA CERRAR PANEL FLOTANTE
-        function cerrarPanelFlotante() {
-            const panel = document.getElementById('panelFlotanteDatos');
-            if (panel) {
-                panel.style.display = 'none';
+        function ocultarContenedorInfoFijo() {
+            const contenedor = document.getElementById('contenedorInfoFijo');
+            if (contenedor) {
+                contenedor.style.display = 'none';
             }
         }
 
+        
         async function aceptarPedido(idPedido, marcadorO, marcadorD) {
             try {
                 await fetch(URL_APPS_SCRIPT, {
