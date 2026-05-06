@@ -1,72 +1,204 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa de Rutas</title>
     <!-- Estilos CSS -->
     <style>
-        * { margin: 0;padding: 0;box-sizing: border-box;font-family: Arial, sans-serif; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
 
-        body {height: 100vh;margin: 0;padding: 0;position: relative; overflow: hidden; }
+        body {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+        }
 
         /* Contenedor del mapa */
-        #mapa {height: 100vh;width: 100%; }
+        #mapa {
+            height: 100vh;
+            width: 100%;
+        }
 
         /* Contenedor fijo - encima del mapa */
-        #contenedorInfoFijo {display: none; position: fixed; top: 0; left: 0; width: 100%; background: #2b2b2b; color: white;
-            z-index: 1001; padding: 15px; box-sizing: border-box; box-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+        #contenedorInfoFijo {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #2b2b2b;
+            color: white;
+            z-index: 1001;
+            padding: 15px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+        }
 
-        #infoFijoTitulo { font-size: 20px; color: #f77b0f; margin: 0; }
+        #infoFijoTitulo {
+            font-size: 20px;
+            color: #f77b0f;
+            margin: 0;
+        }
 
-	#infoFijoTitulo .guia-texto { margin-right: 25px; color: #f29d00; font-size: 25px; }
+        #infoFijoTitulo .guia-texto {
+            margin-right: 25px;
+            color: #f29d00;
+            font-size: 25px;
+        }
 
-        #infoFijoContenido { font-size: 16px; line-height: 1.5; }
+        #infoFijoContenido {
+            font-size: 16px;
+            line-height: 1.5;
+        }
 
-        #infoFijoBotones { display: flex; gap: 10px; justify-content: space-around; margin-top: 15px; }
+        #infoFijoBotones {
+            display: flex;
+            gap: 10px;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
 
-        #infoFijoBotones button, #infoFijoBotones a { padding: 6px 12px; border: none; border-radius: 4px; font-size: 14px;
-            cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+        #infoFijoBotones button,
+        #infoFijoBotones a {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-        .btn-llamar { color: #007bff; background: transparent; font-size: 30px; }
+        .btn-llamar {
+            color: #007bff;
+            background: transparent;
+            font-size: 30px;
+        }
 
-        .btn-entregado { background: #28a745; color: white; }
+        .btn-entregado {
+            background: #28a745;
+            color: white;
+        }
 
-        .btn-visitado { background: #ffc107; color: #212529; }
+        .btn-visitado {
+            background: #ffc107;
+            color: #212529;
+        }
 
-        .btn-tarjeta { background: #6c757d; color: white; }
+        .btn-tarjeta {
+            background: #6c757d;
+            color: white;
+        }
 
-        .btn-whatsapp { color: #25d366; background: transparent; font-size: 30px; }
+        .btn-whatsapp {
+            color: #25d366;
+            background: transparent;
+            font-size: 30px;
+        }
 
-        .btn-cerrar { background: #4a4a4a; color: white; border: none; border-radius: 50%; width: 22px; height: 22px;
-            font-size: 14px; padding: 0; }
+        .btn-cerrar {
+            background: #4a4a4a;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 14px;
+            padding: 0;
+        }
 
         /* Botón de menú hamburguesa */
-        .btn-hamburguesa { position: absolute; bottom: 40px; left: 20px; width: 50px; height: 50px; border-radius: 50%;
-            background: #ffffff; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            z-index: 1002; display: flex; align-items: center; justify-content: center; transition: background 0.3s ease; }
+        .btn-hamburguesa {
+            position: absolute;
+            bottom: 40px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
 
-        .btn-hamburguesa:hover { background: #f8f9fa; }
+        .btn-hamburguesa:hover {
+            background: #f8f9fa;
+        }
 
         /* Menú hamburguesa */
-        .menu-hamburguesa { position: absolute; top: 25px; left: 65px; background: #f8f9fa; border: 1px solid #dee2e6;
-            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); padding: 15px; z-index: 1001; display: none;
-            min-width: 200px; }
+        .menu-hamburguesa {
+            position: absolute;
+            top: 25px;
+            left: 65px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            z-index: 1001;
+            display: none;
+            min-width: 200px;
+        }
 
-        .controles-superiores { display: flex; flex-direction: column; gap: 10px; }
+        .controles-superiores {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-        #selectorRuta { padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; width: 100%; }
+        #selectorRuta {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+        }
 
         /* Botones generales */
-        button { padding: 8px 16px; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: background 0.3s ease; width: 100%; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+        }
 
-        .btn-cargar { background: #007bff; color: white; }
+        .btn-cargar {
+            background: #007bff;
+            color: white;
+        }
 
-        .btn-cargar:hover { background: #0056b3; }
+        .btn-cargar:hover {
+            background: #0056b3;
+        }
 
-        .btn-generar { background: #28a745; color: white; }
+        .btn-generar {
+            background: #28a745;
+            color: white;
+        }
 
-        .btn-generar:hover { background: #218838;}
+        .btn-generar:hover {
+            background: #218838;
+        }
 
         .btn-recargar {
             background: #ffc107;
@@ -95,25 +227,25 @@
             background: #5a32a3;
         }
 
-/* Contenedor de la lista de direcciones */
-.contenedor-lista {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    width: 350px;
-    max-height: calc(100vh - 120px);
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    padding: 15px;
-    z-index: 999;
-    display: none;
-    box-sizing: border-box;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-      
+        /* Contenedor de la lista de direcciones */
+        .contenedor-lista {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 350px;
+            max-height: calc(100vh - 120px);
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            z-index: 999;
+            display: none;
+            box-sizing: border-box;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
 
         @media (max-width: 768px) {
             .contenedor-lista {
@@ -195,8 +327,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Ajuste para el contenedor fijo */
@@ -235,7 +372,8 @@
         }
 
         /* Ajuste extra para el contenido de las direcciones */
-        #listaDirecciones, #contenidoEntregados {
+        #listaDirecciones,
+        #contenidoEntregados {
             padding-left: 10px;
             padding-right: 10px;
         }
@@ -247,7 +385,7 @@
             }
         }
 
-        
+
         /* Estilo normal del marcador */
         .marcador-normal {
             background-color: #2196F3;
@@ -266,721 +404,826 @@
             height: 20px;
             z-index: 1002;
         }
-
-            </style>
+    </style>
     <!-- Iconos de Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Librería SortableJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 
-    <!-- Botón de menú hamburguesa -->
-    <button class="btn-hamburguesa" onclick="toggleMenu()">
-        <i class="fas fa-bars"></i>
-    </button>
+<!-- Botón de menú hamburguesa -->
+<button class="btn-hamburguesa" onclick="toggleMenu()">
+    <i class="fas fa-bars"></i>
+</button>
 
-    <!-- Menú hamburguesa -->
-    <div class="menu-hamburguesa" id="menuHamburguesa">
-        <div class="controles-superiores">
-            <select id="selectorRuta">
-                <option value="">Ruta</option>
-                <option value="1">Ruta 1</option>
-                <option value="2">Ruta 2</option>
-            </select>
-            <button class="btn-generar" onclick="togglePanelEntregados()">Entregados</button>
-            <button class="btn-recargar" onclick="recargarRutaCompleta()">Recargar</button>
-            <button class="btn-direcciones" onclick="togglePanelDirecciones()">Direcciones</button>
-            <!-- ✅ Botón GPS comentado como solicitó el usuario -->
-            <!-- <button class="btn-ruta" onclick="centrarYSeguirUbicacion()" style="background: #2196F3;">📍 Mi Ubicación</button> -->
-        </div>
+<!-- Menú hamburguesa -->
+<div class="menu-hamburguesa" id="menuHamburguesa">
+    <div class="controles-superiores">
+        <select id="selectorRuta">
+            <option value="">Ruta</option>
+            <option value="1">Ruta 1</option>
+            <option value="2">Ruta 2</option>
+        </select>
+        <button class="btn-generar" onclick="togglePanelEntregados()">Entregados</button>
+        <button class="btn-recargar" onclick="recargarRutaCompleta()">Recargar</button>
+        <button class="btn-direcciones" onclick="togglePanelDirecciones()">Direcciones</button>
+        <!-- ✅ Botón GPS comentado como solicitó el usuario -->
+        <!-- <button class="btn-ruta" onclick="centrarYSeguirUbicacion()" style="background: #2196F3;">📍 Mi Ubicación</button> -->
     </div>
+</div>
 
-    <!-- Contenedor del mapa -->
-    <div id="mapa"></div>
+<!-- Contenedor del mapa -->
+<div id="mapa"></div>
 
-    
-    <!-- Contenedor fijo para la información del punto seleccionado (SERVICIO ENRUTADO) -->
-    <div id="contenedorInfoFijo" style="display: none; position: fixed; top: 10px; left: 10px; width: 350px; background: #2b2b2b; color: white; z-index: 999; padding: 15px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); box-sizing: border-box;">
-        <div class="contenedor-titulo-panel">
-            <h3 id="infoFijoTitulo" style="color: #f29d00; font-size: 20px; margin: 0;"></h3>
-            <button class="btn-cerrar" onclick="ocultarContenedorInfoFijo()" style="background: #4a4a4a;">X</button>
-        </div>
-        <div id="infoFijoContenido" style="font-size: 16px; line-height: 1.5;"></div>
-        <div id="infoFijoBotones" style="display: flex; gap: 10px; justify-content: space-around; margin-top: 15px;"></div>
+
+<!-- Contenedor fijo para la información del punto seleccionado (SERVICIO ENRUTADO) -->
+<div id="contenedorInfoFijo"
+    style="display: none; position: fixed; top: 10px; left: 10px; width: 350px; background: #2b2b2b; color: white; z-index: 999; padding: 15px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); box-sizing: border-box;">
+    <div class="contenedor-titulo-panel">
+        <h3 id="infoFijoTitulo" style="color: #f29d00; font-size: 20px; margin: 0;"></h3>
+        <button class="btn-cerrar" onclick="ocultarContenedorInfoFijo()" style="background: #4a4a4a;">X</button>
     </div>
+    <div id="infoFijoContenido" style="font-size: 16px; line-height: 1.5;"></div>
+    <div id="infoFijoBotones" style="display: flex; gap: 10px; justify-content: space-around; margin-top: 15px;"></div>
+</div>
 
-    
-    <!-- Contenedor de direcciones -->
-    <div class="contenedor-lista" id="panelDirecciones">
 
-        <div class="contenedor-titulo-panel">
-            <h3>Direcciones de la Ruta</h3>
-            <button class="btn-cerrar" onclick="cerrarVentana(this.closest('.contenedor-lista'))">X</button>
-        </div>
-        <ul id="listaDirecciones"></ul>
+<!-- Contenedor de direcciones -->
+<div class="contenedor-lista" id="panelDirecciones">
+
+    <div class="contenedor-titulo-panel">
+        <h3>Direcciones de la Ruta</h3>
+        <button class="btn-cerrar" onclick="cerrarVentana(this.closest('.contenedor-lista'))">X</button>
     </div>
+    <ul id="listaDirecciones"></ul>
+</div>
 
-    <!-- Contenedor de entregados -->
-    <div class="contenedor-lista" id="panelEntregados" style="display: none;">
-        <div class="contenedor-titulo-panel">
-            <h3>Entregados Del Dia</h3>
-            <button class="btn-cerrar" onclick="cerrarVentana(this.closest('.contenedor-lista'))">X</button>
-        </div>
-        <div id="contenidoEntregados"></div>
+<!-- Contenedor de entregados -->
+<div class="contenedor-lista" id="panelEntregados" style="display: none;">
+    <div class="contenedor-titulo-panel">
+        <h3>Entregados Del Dia</h3>
+        <button class="btn-cerrar" onclick="cerrarVentana(this.closest('.contenedor-lista'))">X</button>
     </div>
+    <div id="contenidoEntregados"></div>
+</div>
 
-    <!-- Script de Google Maps CON librería de Geometry -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjwIYlkQQCbqguGflc3tQifzE2onneqco&libraries=geometry&callback=initMap" async defer></script>
+<!-- Script de Google Maps CON librería de Geometry -->
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjwIYlkQQCbqguGflc3tQifzE2onneqco&libraries=geometry&callback=initMap"
+    async defer></script>
 
-    <!-- Código JavaScript -->
-    <script>
-        let rutaCompleta = [];
-        let indicePuntoActual = 0;
-        let mapa;
-        let marcadores = [];
-        let infowindowActual;
-        let directionsRenderer;
-        let resultadoDatos;
-        let marcadorSeleccionado = null;
-let circuloActivo = null;
-        let watchId = null;
-        let marcadorMiUbicacion = null;
-        let indiceSiguientePunto = 0;
-        const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbx_aBWgPzdKEWqiEFSuzyYZ95Lvc23ijU8dNqy8eckShQfL1oryFGKx1fIOThhFlXEs/exec";
+<!-- Código JavaScript -->
+<script>
+    let rutaCompleta = [];
+    let indicePuntoActual = 0;
+    let mapa;
+    let marcadores = [];
+    let infowindowActual;
+    let directionsRenderer;
+    // ..... VARIABLES CRÍTICAS RESTAURADAS - NECESARIAS PARA FUNCIONAMIENTO
+    // ..... lineaRutaVisual: Controla la línea visual de la ruta para borrado suave
+    let lineaRutaVisual = null;
+    // ..... ubicacionGPSActual: Cachea la última posición GPS para optimizar botón de ruta
+    let ubicacionGPSActual = null;
+    // ..... calculandoRuta: Evita múltiples llamadas simultáneas al botón de ruta
+    let calculandoRuta = false;
+    let resultadoDatos;
+    let marcadorSeleccionado = null;
+    let circuloActivo = null;
+    let watchId = null;
+    let marcadorMiUbicacion = null;
+    let indiceSiguientePunto = 0;
+    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbx_aBWgPzdKEWqiEFSuzyYZ95Lvc23ijU8dNqy8eckShQfL1oryFGKx1fIOThhFlXEs/exec";
 
-        const MENSAJE_WHATSAPP = "{RECIBE} Su Compra Que Realizo Con {ENVIA} De {CONTENIDO} Por La Cantidad De $ {ACOBRAR}.00 Esta Por llegar a su domicilio";
+    const MENSAJE_WHATSAPP = "{RECIBE} Su Compra Que Realizo Con {ENVIA} De {CONTENIDO} Por La Cantidad De $ {ACOBRAR}.00 Esta Por llegar a su domicilio";
 
-        const UMBRAL_DISTANCIA = 15;
-        
-        // ✅ NUEVAS VARIABLES PARA PEDIDOS
-        let intervaloChequeoPedidos = null;
-        let idsPedidosYaMostrados = [];
-        
-        // ✅ VARIABLES PARA ACTUALIZACIÓN INTELIGENTE
-        let marcadoresPedidos = new Map(); // idPedido -> {marcadorOrigen, marcadorDestino, datos, infowindows}
-        let intervaloActualizacionDatos = null;
-        let ultimaActualizacion = null;
-        
-        // ✅ VARIABLE PARA CONTROLAR VENTANA DE PIN
-        let ventanaPinActiva = false;
+    const UMBRAL_DISTANCIA = 15;
 
-        function initMap() {
-            // ✅ 1. Primero crear mapa con ubicación por defecto para que cargue rápido
-            const saltillo = { lat: 25.4383, lng: -100.9764 };
-            mapa = new google.maps.Map(document.getElementById("mapa"), {
-                zoom: 12,
-                center: saltillo,
-                mapTypeControl: false,
-                streetViewControl: true,
-                fullscreenControl: false
-            });
-            
-            // ✅ 2. Obtener GPS real primero, luego crear marcador
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const miUbicacion = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        
-                        // Actualizar mapa a ubicación real
-                        mapa.setCenter(miUbicacion);
-                        mapa.setZoom(15);
-                        
-                        // ✅ 3. Crear marcador azul solo con ubicación real
-                        if (marcadorMiUbicacion) {
-                            marcadorMiUbicacion.setPosition(miUbicacion);
-                            marcadorMiUbicacion.setIcon({
-                                path: google.maps.SymbolPath.CIRCLE,
-                                fillColor: "blue",
-                                fillOpacity: 1,
-                                strokeWeight: 0,
-                                scale: 8
-                            });
-                            marcadorMiUbicacion.setTitle("Mi ubicación");
-                        } else {
-                            marcadorMiUbicacion = new google.maps.Marker({
-                                position: miUbicacion,
-                                map: mapa,
-                                title: "Mi ubicación",
-                                icon: {
-                                    path: google.maps.SymbolPath.CIRCLE,
-                                    fillColor: "blue",
-                                    fillOpacity: 1,
-                                    strokeWeight: 0,
-                                    scale: 8
-                                }
-                            });
-                        }
-                        
-                        console.log("✅ GPS obtenido y mapa centrado en ubicación real");
-                    },
-                    (error) => {
-                        console.warn("GPS no disponible, usando ubicación por defecto:", error.message);
-                        
-                        // ✅ Si GPS falla, NO crear marcador automáticamente
-                        // El marcador se creará solo cuando el usuario presione el botón GPS
-                        console.log("📍 GPS falló, esperando acción del usuario con botón GPS");
-                    },
-                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-                );
-            } else {
-                // ✅ Si navegador no soporta geolocalización
-                console.warn("Navegador no soporta geolocalización");
-                console.log("📍 GPS no soportado, esperando acción del usuario con botón GPS");
-            }
-            
-            // ✅ 4. Continuar con inicialización del sistema
-            continuarInicializacion();
-        }
-        
-        function continuarInicializacion() {
-            directionsRenderer = new google.maps.DirectionsRenderer({
-                map: mapa,
-                draggable: false,
-                suppressMarkers: true,
-                suppressInfoWindows: true
-            });
+    // ✅ NUEVAS VARIABLES PARA PEDIDOS
+    let intervaloChequeoPedidos = null;
+    let idsPedidosYaMostrados = [];
 
-            cargarRutas();
+    // ✅ VARIABLES PARA ACTUALIZACIÓN INTELIGENTE
+    let marcadoresPedidos = new Map(); // idPedido -> {marcadorOrigen, marcadorDestino, datos, infowindows}
+    let intervaloActualizacionDatos = null;
+    let ultimaActualizacion = null;
 
-            document.getElementById("selectorRuta").addEventListener("change", function() {
-                const rutaSeleccionada = this.value;
-                if (rutaSeleccionada) {
-                    generarCoordenadasRuta();
-                    cargarDireccionesPorRuta(rutaSeleccionada);
-                } else {
-                    document.getElementById('listaDirecciones').innerHTML = '';
-                    marcadores.forEach(m => m.setMap(null));
-                    marcadores = [];
-                    if (directionsRenderer) directionsRenderer.setMap(null);
-                    resultadoDatos = null;
-                }
-            });
+    // ✅ VARIABLE PARA CONTROLAR VENTANA DE PIN
+    let ventanaPinActiva = false;
 
-            google.maps.event.addListenerOnce(mapa, 'idle', function() {
-                agregarBotonesControl();
-            });
-            
-            // ✅ INICIA LA ESCUCHA DE PEDIDOS NUEVOS
-            iniciarEscuchaDePedidos();
-            
-            // ✅ CARGA PEDIDOS EXISTENTES AL INICIAR
-            cargarPedidosExistentes();
-            
-            // ✅ INICIA LA ACTUALIZACIÓN INTELIGENTE DE DATOS
-            iniciarActualizacionInteligente();
-        }
+    function initMap() {
+        // ✅ 1. Primero crear mapa con ubicación por defecto para que cargue rápido
+        const saltillo = { lat: 25.4383, lng: -100.9764 };
+        mapa = new google.maps.Map(document.getElementById("mapa"), {
+            zoom: 12,
+            center: saltillo,
+            mapTypeControl: false,
+            streetViewControl: true,
+            fullscreenControl: false
+        });
 
-async function cargarRutas() {
-    const selector = document.getElementById("selectorRuta");
-    
-    try {
-        console.log("Intentando conectar a:", URL_APPS_SCRIPT + "?action=obtenerDirecciones");
-        
-        const respuesta = await fetch(URL_APPS_SCRIPT + "?action=obtenerDirecciones");
-        
-        console.log("Respuesta recibida:", respuesta.status, respuesta.statusText);
-        
-        const resultado = await respuesta.json();
-        
-        console.log("Datos del Apps Script:", resultado);
+        // ✅ 2. Obtener GPS real primero, luego crear marcador
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const miUbicacion = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
 
-        if (resultado.success) {
-            selector.innerHTML = '<option value="">Selecciona una ruta</option><option value="1">Ruta 1 (Por defecto)</option>';
-            
-            resultado.rutas.forEach(ruta => {
-                const option = document.createElement("option");
-                option.value = ruta.id;
-                option.textContent = `Ruta ${ruta.id}`;
-                selector.appendChild(option);
-            });
+                    // Actualizar mapa a ubicación real
+                    mapa.setCenter(miUbicacion);
+                    mapa.setZoom(15);
 
-            selector.value = "1";
-            generarCoordenadasRuta();
-            cargarDireccionesPorRuta("1");
-        } else {
-            console.error("Error en resultado:", resultado.message);
-            selector.value = "1";
-            generarCoordenadasRuta();
-            cargarDireccionesPorRuta("1");
-        }
-    } catch (error) {
-        console.error("Error en cargarRutas:", error);
-        console.error("Stack:", error.stack);
-        
-        alert("No se pudo conectar con la base de datos. Se mostrará la ruta por defecto.\n\nError: " + error.message);
-        
-        selector.value = "1";
-        generarCoordenadasRuta();
-        cargarDireccionesPorRuta("1");
-    }
-}
-
-        function agregarBotonesControl() {
-            // Botón para centrar en mi ubicación
-            const botonCentrar = document.createElement("button");
-            botonCentrar.className = "boton-mapa";
-            botonCentrar.innerHTML = '<span style="display: inline-block; transform: rotateX(180deg); font-size: 24px; filter: hue-rotate(240deg) saturate(150%) brightness(60%);">🩸</span>';
-            botonCentrar.style.position = "absolute";
-            botonCentrar.style.bottom = "100px";
-            botonCentrar.style.left = "15px";
-            botonCentrar.style.width = "50px";
-            botonCentrar.style.height = "50px";
-            botonCentrar.style.borderRadius = "50%";
-            botonCentrar.style.background = "#ffffff";
-            botonCentrar.style.border = "none";
-            botonCentrar.style.fontSize = "24px";
-            botonCentrar.style.cursor = "pointer";
-            botonCentrar.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
-            botonCentrar.style.zIndex = "1000";
-            botonCentrar.style.display = "flex";
-            botonCentrar.style.alignItems = "center";
-            botonCentrar.style.justifyContent = "center";
-            botonCentrar.title = "Centrar en mi ubicación";
-            botonCentrar.addEventListener("click", centrarYSeguirUbicacion);
-            mapa.getDiv().appendChild(botonCentrar);
-
-            // Botón para ruta al siguiente punto
-            const botonRutaSiguiente = document.createElement("button");
-            botonRutaSiguiente.className = "boton-mapa";
-            botonRutaSiguiente.innerHTML = '<i class="fas fa-location-arrow" style="color: #007bff; font-size: 24px;"></i>';
-            botonRutaSiguiente.style.position = "absolute";
-            botonRutaSiguiente.style.bottom = "160px";
-            botonRutaSiguiente.style.left = "15px";
-            botonRutaSiguiente.style.width = "50px";
-            botonRutaSiguiente.style.height = "50px";
-            botonRutaSiguiente.style.borderRadius = "50%";
-            botonRutaSiguiente.style.background = "#ffffff";
-            botonRutaSiguiente.style.border = "none";
-            botonRutaSiguiente.style.fontSize = "24px";
-            botonRutaSiguiente.style.cursor = "pointer";
-            botonRutaSiguiente.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
-            botonRutaSiguiente.style.zIndex = "1000";
-            botonRutaSiguiente.style.display = "flex";
-            botonRutaSiguiente.style.alignItems = "center";
-            botonRutaSiguiente.style.justifyContent = "center";
-            botonRutaSiguiente.title = "Ruta al punto seleccionado";
-            botonRutaSiguiente.id = "btnRutaSiguiente";
-            mapa.getDiv().appendChild(botonRutaSiguiente);
-            botonRutaSiguiente.addEventListener("click", () => {
-                console.log("🚀 Click en botón de ruta - Iniciando proceso...");
-                let destino = null;
-                let tipoDestino = "";
-                
-                // ✅ VERIFICAR SI HAY MARCADOR DE RUTA SELECCIONADO
-                if (marcadorSeleccionado) {
-                    console.log("✅ MarcadorSeleccionado encontrado:", marcadorSeleccionado.nguia);
-                    const envio = resultadoDatos.datos.find(d => String(d.nguia).trim() === String(marcadorSeleccionado.nguia).trim());
-                    
-                    if (!envio ||!envio.ruta1 ||!envio.ruta1.includes(',')) {
-                        console.error("❌ Marcador sin coordenadas válidas");
-                        alert("El marcador seleccionado no tiene coordenadas válidas.");
-                        return;
-                    }
-                    
-                    const [latDestino, lngDestino] = envio.ruta1.split(',').map(coord => parseFloat(coord.trim()));
-                    destino = new google.maps.LatLng(latDestino, lngDestino);
-                    tipoDestino = "ruta";
-                    console.log("✅ Destino desde marcadorSeleccionado:", destino);
-                    
-                } else {
-                    // ✅ VERIFICAR SI HAY INFOWINDOW DE PEDIDO ACTIVO
-                    console.log("🔍 Buscando infowindow activo...");
-                    let pedidoActivo = null;
-                    marcadoresPedidos.forEach((marcadorInfo) => {
-                        if (marcadorInfo.infowindowOrigen && marcadorInfo.infowindowOrigen.getMap()) {
-                            destino = new google.maps.LatLng(
-                                parseFloat(marcadorInfo.datos.origenLat),
-                                parseFloat(marcadorInfo.datos.origenLng)
-                            );
-                            pedidoActivo = marcadorInfo.datos;
-                            tipoDestino = "pedido-origen";
-                            console.log("✅ Destino desde infowindow origen:", destino);
-                            return;
-                        }
-                        if (marcadorInfo.infowindowDestino && marcadorInfo.infowindowDestino.getMap()) {
-                            destino = new google.maps.LatLng(
-                                parseFloat(marcadorInfo.datos.destinoLat),
-                                parseFloat(marcadorInfo.datos.destinoLng)
-                            );
-                            pedidoActivo = marcadorInfo.datos;
-                            tipoDestino = "pedido-destino";
-                            console.log("✅ Destino desde infowindow destino:", destino);
-                            return;
-                        }
-                    });
-                    
-                    if (!destino) {
-                        console.error("❌ No se encontró destino activo");
-                        alert("Primero abre un marcador (globo) de una dirección o un infowindow de pedido para saber a dónde ir.");
-                        return;
-                    }
-                }
-                
-                console.log("🎯 Destino final:", destino, "Tipo:", tipoDestino);
-
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (posicion) => {
-                            const miUbicacion = new google.maps.LatLng(posicion.coords.latitude, posicion.coords.longitude);
-
-                            const directionsService = new google.maps.DirectionsService();
-
-                            directionsRenderer.setOptions({
-                                polylineOptions: {
-                                    strokeColor: "#4285F4",
-                                    strokeWeight: 5,
-                                    strokeOpacity: 0.8
-                                }
-                            });
-                            directionsRenderer.setMap(mapa);
-
-                            const request = {
-                                origin: miUbicacion,
-                                destination: destino,
-                                travelMode: google.maps.TravelMode.DRIVING
-                            };
-
-                            directionsService.route(request, (result, status) => {
-                                if (status === google.maps.DirectionsStatus.OK) {
-                                    directionsRenderer.setDirections(result);
-
-                                    rutaCompleta = result.routes[0].overview_path.map(punto => ({
-                                        lat: punto.lat(),
-                                        lng: punto.lng()
-                                    }));
-
-                                    indicePuntoActual = 0;
-
-                                    console.log("Ruta guardada con", rutaCompleta.length, "puntos");
-                                } else {
-                                    alert("Error al calcular la ruta: " + status);
-                                }
-                            });
-                        },
-                        (error) => {
-                            alert("No se pudo obtener tu ubicación: " + error.message);
-                        },
-                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                    );
-                } else {
-                    alert("Tu navegador no soporta geolocalización.");
-                }
-            });
-        }
-
-        function centrarYSeguirUbicacion() {
-            console.log("📍 Iniciando centrarYSeguirUbicacion...");
-            if (navigator.geolocation) {
-                if (watchId) {
-                    console.log("🔄 Limpiando watch anterior:", watchId);
-                    navigator.geolocation.clearWatch(watchId);
-                    watchId = null;
-                }
-
-                navigator.geolocation.getCurrentPosition(
-                    (posicion) => {
-                        const miUbicacion = {
-                            lat: posicion.coords.latitude,
-                            lng: posicion.coords.longitude
-                        };
-                        console.log("✅ Ubicación inicial obtenida:", miUbicacion);
-
-                        mapa.setCenter(miUbicacion);
-                        mapa.setZoom(15);
-
-                        if (marcadorMiUbicacion) {
-                            // ✅ Actualizar marcador existente con icono más visible
-                            console.log("🔄 Actualizando marcador GPS existente");
-                            marcadorMiUbicacion.setPosition(miUbicacion);
-                            marcadorMiUbicacion.setIcon({
+                    // ✅ 3. Crear marcador GPS con movimiento y centrado
+                    if (marcadorMiUbicacion) {
+                        marcadorMiUbicacion.setPosition(miUbicacion);
+                        marcadorMiUbicacion.setIcon({
+                            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="12" r="8" fill="#003d82" stroke="#002855" stroke-width="2"/>
+                                    <circle cx="12" cy="12" r="3" fill="white"/>
+                                </svg>
+                            `),
+                            scaledSize: new google.maps.Size(24, 24),
+                            anchor: new google.maps.Point(12, 12)
+                        });
+                        marcadorMiUbicacion.setTitle("Mi ubicación");
+                        marcadorMiUbicacion.setZIndex(9999);
+                    } else {
+                        marcadorMiUbicacion = new google.maps.Marker({
+                            position: miUbicacion,
+                            map: mapa,
+                            title: "Mi ubicación",
+                            icon: {
                                 url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                                     <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="12" cy="12" r="8" fill="#2196F3" stroke="#1976D2" stroke-width="2"/>
+                                        <circle cx="12" cy="12" r="8" fill="#003d82" stroke="#002855" stroke-width="2"/>
                                         <circle cx="12" cy="12" r="3" fill="white"/>
                                     </svg>
                                 `),
                                 scaledSize: new google.maps.Size(24, 24),
                                 anchor: new google.maps.Point(12, 12)
-                            });
-                            marcadorMiUbicacion.setTitle("Mi ubicación");
-                            marcadorMiUbicacion.setZIndex(9999);
-                        } else {
-                            // ✅ Crear nuevo marcador GPS más visible
-                            console.log("🆕 Creando nuevo marcador GPS");
-                            marcadorMiUbicacion = new google.maps.Marker({
-                                position: miUbicacion,
-                                map: mapa,
-                                title: "Mi ubicación",
-                                icon: {
-                                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                                        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="12" cy="12" r="8" fill="#2196F3" stroke="#1976D2" stroke-width="2"/>
-                                            <circle cx="12" cy="12" r="3" fill="white"/>
-                                        </svg>
-                                    `),
-                                    scaledSize: new google.maps.Size(24, 24),
-                                    anchor: new google.maps.Point(12, 12)
-                                },
-                                zIndex: 9999
-                            });
-                        }
-
-                        watchId = navigator.geolocation.watchPosition(
-                            (posicionSeguimiento) => {
-                                const ubicacionActual = {
-                                    lat: posicionSeguimiento.coords.latitude,
-                                    lng: posicionSeguimiento.coords.longitude
-                                };
-                                console.log("🔄 GPS actualizado:", ubicacionActual);
-
-                                if (marcadorMiUbicacion) {
-                                    marcadorMiUbicacion.setPosition(ubicacionActual);
-                                    console.log("✅ Marcador GPS movido a nueva posición");
-                                }
-
-                                actualizarRutaRecorrida(ubicacionActual);
                             },
-                            (error) => {
-                                console.error("Error en el seguimiento:", error);
-                                let mensaje = "Error en el seguimiento de ubicación: ";
-                                switch(error.code) {
-                                    case error.PERMISSION_DENIED:
-                                        mensaje += "Debes dar permiso de ubicación en tu navegador.";
-                                        break;
-                                    case error.POSITION_UNAVAILABLE:
-                                        mensaje += "La ubicación no está disponible.";
-                                        break;
-                                    case error.TIMEOUT:
-                                        mensaje += "Se agotó el tiempo de espera.";
-                                        break;
-                                }
-                                alert(mensaje);
-                                navigator.geolocation.clearWatch(watchId);
-                                watchId = null;
-                            },
-                            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                        );
-                    },
-                    (error) => {
-                        let mensaje = "No se pudo obtener tu ubicación. ";
-                        switch(error.code) {
-                            case error.PERMISSION_DENIED:
-                                mensaje += "Debes dar permiso de ubicación en tu navegador.";
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                mensaje += "La ubicación no está disponible.";
-                                break;
-                            case error.TIMEOUT:
-                                mensaje += "Se agotó el tiempo de espera.";
-                                break;
-                        }
-                        alert(mensaje);
-                    },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-            } else {
-                alert("Tu navegador no soporta geolocalización.");
-            }
+                            zIndex: 9999
+                        });
+                    }
+
+                    // ✅ Iniciar seguimiento GPS para que el marcador se mueva
+                    if (watchId) {
+                        navigator.geolocation.clearWatch(watchId);
+                    }
+                    
+                    watchId = navigator.geolocation.watchPosition(
+                        (posicionSeguimiento) => {
+                            const ubicacionActual = {
+                                lat: posicionSeguimiento.coords.latitude,
+                                lng: posicionSeguimiento.coords.longitude
+                            };
+                            console.log("🔄 GPS actualizado desde initMap:", ubicacionActual);
+
+                            // ..... CACHEAR POSICIÓN GPS PARA OPTIMIZAR BOTÓN DE RUTA
+                            ubicacionGPSActual = ubicacionActual;
+
+                            if (marcadorMiUbicacion) {
+                                marcadorMiUbicacion.setPosition(ubicacionActual);
+                                console.log("✅ Marcador GPS movido a nueva posición");
+                            }
+
+                            actualizarRutaRecorrida(ubicacionActual);
+                        },
+                        (error) => {
+                            console.error("Error en el seguimiento:", error);
+                        },
+                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                    );
+
+                    console.log("✅ GPS obtenido y mapa centrado en ubicación real");
+                },
+                (error) => {
+                    // manus corrigio: Mejorada la gestion de errores de GPS para permitir reintentos
+                    console.warn("GPS no disponible en primer intento, usando ubicación por defecto:", error.message);
+                    console.log("📍 GPS falló en initMap, el usuario puede presionar el botón de globo para intentar de nuevo");
+                },
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            );
+        } else {
+            // manus corrigio: Mejorada la gestion cuando el navegador no soporta geolocalización
+            console.warn("Navegador no soporta geolocalización");
+            console.log("📍 GPS no soportado en este navegador. El usuario puede intentar con el botón de globo.");
         }
 
-        // ✅ FUNCIÓN OPTIMIZADA: BORRADO CADA 5 METROS SIN LLAMADAS A API
-        function actualizarRutaRecorrida(ubicacionActual) {
-            console.log("🛣️ Actualizando ruta recorrida (sin API)...");
-            if (!rutaCompleta || rutaCompleta.length === 0) {
-                console.log("❌ No hay ruta completa definida");
+        // ✅ 4. Continuar con inicialización del sistema
+        continuarInicializacion();
+    }
+
+    // ..... FUNCIÓN SIMPLIFICADA PARA BOTÓN DE CENTRAR - SIN DUPLICAR GPS
+function centrarYSeguirUbicacion() {
+    console.log("📍 Botón de centrar presionado - Recentrando mapa en ubicación actual");
+    if (navigator.geolocation && marcadorMiUbicacion) {
+        // ..... OBTENER POSICIÓN ACTUAL RÁPIDO SIN NUEVO SEGUIMIENTO
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const miUbicacion = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                
+                // ..... SOLO CENTRAR MAPA Y ACTUALIZAR MARCADOR EXISTENTE
+                mapa.setCenter(miUbicacion);
+                mapa.setZoom(15);
+                marcadorMiUbicacion.setPosition(miUbicacion);
+                
+                // ..... CACHEAR NUEVA POSICIÓN PARA BOTÓN DE RUTA
+                ubicacionGPSActual = miUbicacion;
+                
+                console.log("✅ Mapa centrado en ubicación actual:", miUbicacion);
+            },
+            (error) => {
+                console.error("Error obteniendo ubicación para centrar:", error);
+                alert("No se pudo obtener tu ubicación para centrar el mapa.");
+            },
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        );
+    } else {
+        console.warn("⚠️ No hay marcador GPS o geolocalización no disponible");
+        alert("Primero espera a que el GPS se inicie automáticamente o recarga la página.");
+    }
+}
+
+    function continuarInicializacion() {
+        directionsRenderer = new google.maps.DirectionsRenderer({
+            map: mapa,
+            draggable: false,
+            suppressMarkers: true,
+            suppressInfoWindows: true
+        });
+
+        cargarRutas();
+
+        // ..... GPS YA SE INICIÓ EN initMap - NO ES NECESARIO VOLVER A LLAMARLO
+        // ..... El GPS ya está activo desde initMap, el marcador ya existe y el seguimiento ya funciona
+
+        document.getElementById("selectorRuta").addEventListener("change", function () {
+            const rutaSeleccionada = this.value;
+            if (rutaSeleccionada) {
+                generarCoordenadasRuta();
+                cargarDireccionesPorRuta(rutaSeleccionada);
+            } else {
+                document.getElementById('listaDirecciones').innerHTML = '';
+                marcadores.forEach(m => m.setMap(null));
+                marcadores = [];
                 if (directionsRenderer) directionsRenderer.setMap(null);
+                resultadoDatos = null;
+            }
+        });
+
+        google.maps.event.addListenerOnce(mapa, 'idle', function () {
+            agregarBotonesControl();
+        });
+
+        // ✅ INICIA LA ESCUCHA DE PEDIDOS NUEVOS
+        iniciarEscuchaDePedidos();
+
+        // ✅ CARGA PEDIDOS EXISTENTES AL INICIAR
+        cargarPedidosExistentes();
+
+        // ✅ INICIA LA ACTUALIZACIÓN INTELIGENTE DE DATOS
+        iniciarActualizacionInteligente();
+    }
+
+    async function cargarRutas() {
+        const selector = document.getElementById("selectorRuta");
+
+        try {
+            console.log("Intentando conectar a:", URL_APPS_SCRIPT + "?action=obtenerDirecciones");
+
+            const respuesta = await fetch(URL_APPS_SCRIPT + "?action=obtenerDirecciones");
+
+            console.log("Respuesta recibida:", respuesta.status, respuesta.statusText);
+
+            const resultado = await respuesta.json();
+
+            console.log("Datos del Apps Script:", resultado);
+
+            if (resultado.success) {
+                selector.innerHTML = '<option value="">Selecciona una ruta</option><option value="1">Ruta 1 (Por defecto)</option>';
+
+                resultado.rutas.forEach(ruta => {
+                    const option = document.createElement("option");
+                    option.value = ruta.id;
+                    option.textContent = `Ruta ${ruta.id}`;
+                    selector.appendChild(option);
+                });
+
+                selector.value = "1";
+                generarCoordenadasRuta();
+                cargarDireccionesPorRuta("1");
+            } else {
+                console.error("Error en resultado:", resultado.message);
+                selector.value = "1";
+                generarCoordenadasRuta();
+                cargarDireccionesPorRuta("1");
+            }
+        } catch (error) {
+            console.error("Error en cargarRutas:", error);
+            console.error("Stack:", error.stack);
+
+            alert("No se pudo conectar con la base de datos. Se mostrará la ruta por defecto.\n\nError: " + error.message);
+
+            selector.value = "1";
+            generarCoordenadasRuta();
+            cargarDireccionesPorRuta("1");
+        }
+    }
+
+    function agregarBotonesControl() {
+        // Botón para centrar en mi ubicación
+        const botonCentrar = document.createElement("button");
+        botonCentrar.className = "boton-mapa";
+        botonCentrar.innerHTML = '<span style="display: inline-block; transform: rotateX(180deg); font-size: 24px; filter: hue-rotate(240deg) saturate(150%) brightness(60%);">🩸</span>';
+        botonCentrar.style.position = "absolute";
+        botonCentrar.style.bottom = "100px";
+        botonCentrar.style.left = "15px";
+        botonCentrar.style.width = "50px";
+        botonCentrar.style.height = "50px";
+        botonCentrar.style.borderRadius = "50%";
+        botonCentrar.style.background = "#ffffff";
+        botonCentrar.style.border = "none";
+        botonCentrar.style.fontSize = "24px";
+        botonCentrar.style.cursor = "pointer";
+        botonCentrar.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
+        botonCentrar.style.zIndex = "1000";
+        botonCentrar.style.display = "flex";
+        botonCentrar.style.alignItems = "center";
+        botonCentrar.style.justifyContent = "center";
+        botonCentrar.title = "Centrar en mi ubicación";
+        botonCentrar.addEventListener("click", centrarYSeguirUbicacion);
+        mapa.getDiv().appendChild(botonCentrar);
+
+        // Botón para ruta al siguiente punto
+        const botonRutaSiguiente = document.createElement("button");
+        botonRutaSiguiente.className = "boton-mapa";
+        botonRutaSiguiente.innerHTML = '<i class="fas fa-location-arrow" style="color: #007bff; font-size: 24px;"></i>';
+        botonRutaSiguiente.style.position = "absolute";
+        botonRutaSiguiente.style.bottom = "160px";
+        botonRutaSiguiente.style.left = "15px";
+        botonRutaSiguiente.style.width = "50px";
+        botonRutaSiguiente.style.height = "50px";
+        botonRutaSiguiente.style.borderRadius = "50%";
+        botonRutaSiguiente.style.background = "#ffffff";
+        botonRutaSiguiente.style.border = "none";
+        botonRutaSiguiente.style.fontSize = "24px";
+        botonRutaSiguiente.style.cursor = "pointer";
+        botonRutaSiguiente.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
+        botonRutaSiguiente.style.zIndex = "1000";
+        botonRutaSiguiente.style.display = "flex";
+        botonRutaSiguiente.style.alignItems = "center";
+        botonRutaSiguiente.style.justifyContent = "center";
+        botonRutaSiguiente.title = "Ruta al punto seleccionado";
+        botonRutaSiguiente.id = "btnRutaSiguiente";
+        mapa.getDiv().appendChild(botonRutaSiguiente);
+        botonRutaSiguiente.addEventListener("click", () => {
+            // ..... EVITAR MÚLTIPLES LLAMADAS SIMULTÁNEAS AL BOTÓN DE RUTA
+            if (calculandoRuta) {
+                console.log("⏳ Ya se está calculando una ruta, espera a que termine...");
                 return;
             }
 
-            // ✅ Variable para controlar distancia recorrida
-            if (!this.ultimaUbicacion) {
-                this.ultimaUbicacion = ubicacionActual;
-                this.distanciaAcumulada = 0;
-            }
+            console.log("🚀 Click en botón de ruta - Iniciando proceso...");
+            let destino = null;
+            let tipoDestino = "";
 
-            // ✅ Calcular distancia desde última posición
-            const distanciaDesdeUltima = google.maps.geometry.spherical.computeDistanceBetween(
-                new google.maps.LatLng(this.ultimaUbicacion.lat, this.ultimaUbicacion.lng),
-                new google.maps.LatLng(ubicacionActual.lat, ubicacionActual.lng)
-            );
+            // ✅ VERIFICAR SI HAY MARCADOR DE RUTA SELECCIONADO
+            if (marcadorSeleccionado) {
+                console.log("✅ MarcadorSeleccionado encontrado:", marcadorSeleccionado.nguia);
+                const envio = resultadoDatos.datos.find(d => String(d.nguia).trim() === String(marcadorSeleccionado.nguia).trim());
 
-            this.distanciaAcumulada += distanciaDesdeUltima;
-            console.log("📏 Distancia desde última:", distanciaDesdeUltima.toFixed(2) + "m", "Acumulada:", this.distanciaAcumulada.toFixed(2) + "m");
-
-            // ✅ Actualizar última posición
-            this.ultimaUbicacion = ubicacionActual;
-
-            // ✅ Encontrar punto más cercano en la ruta
-            let indiceMasCercano = -1;
-            let distanciaMinima = Infinity;
-            const posicionActual = new google.maps.LatLng(ubicacionActual.lat, ubicacionActual.lng);
-
-            rutaCompleta.forEach((punto, indice) => {
-                const posicionPunto = new google.maps.LatLng(punto.lat, punto.lng);
-                const distancia = google.maps.geometry.spherical.computeDistanceBetween(posicionActual, posicionPunto);
-
-                if (distancia < distanciaMinima) {
-                    distanciaMinima = distancia;
-                    indiceMasCercano = indice;
+                if (!envio || !envio.ruta1 || !envio.ruta1.includes(',')) {
+                    console.error("❌ Marcador sin coordenadas válidas");
+                    alert("El marcador seleccionado no tiene coordenadas válidas.");
+                    return;
                 }
-            });
 
-            console.log("🎯 Punto más cercano:", indiceMasCercano, "Distancia:", distanciaMinima.toFixed(2) + "m");
+                const [latDestino, lngDestino] = envio.ruta1.split(',').map(coord => parseFloat(coord.trim()));
+                destino = new google.maps.LatLng(latDestino, lngDestino);
+                tipoDestino = "ruta";
+                console.log("✅ Destino desde marcadorSeleccionado:", destino);
 
-            // ✅ Borrar cada 5 metros recorridos si avanzamos (SIN LLAMAR API)
-            if (this.distanciaAcumulada >= 5 && indiceMasCercano > indicePuntoActual) {
-                console.log("✅ Borrando segmento visual - Distancia acumulada:", this.distanciaAcumulada.toFixed(2) + "m");
-                this.distanciaAcumulada = 0; // Resetear contador
+            } else {
+                // ✅ VERIFICAR SI HAY INFOWINDOW DE PEDIDO ACTIVO O MARCADOR SELECCIONADO
+                console.log("🔍 Buscando marcador de pedido activo...");
+                let pedidoActivo = null;
+                let marcadorPedidoEncontrado = false;
                 
-                // ✅ AVANZAR PUNTO POR PUNTO (no saltar al más cercano)
-                indicePuntoActual++;
-                const puntosRestantes = rutaCompleta.slice(indicePuntoActual + 1);
-
-                if (puntosRestantes.length > 0) {
-                    console.log("📍 Puntos restantes:", puntosRestantes.length, "(borrado gradual, sin API)");
-                    
-                    // ✅ BORRADO VISUAL GRADUAL: Solo ocultar parte recorrida sin llamar a API
-                    if (directionsRenderer && directionsRenderer.getDirections()) {
-                        const directions = directionsRenderer.getDirections();
-                        const route = directions.routes[0];
-                        const legs = route.legs[0];
-                        
-                        // ✅ Crear nueva ruta visual solo con puntos restantes
-                        const nuevaRuta = {
-                            routes: [{
-                                legs: [{
-                                    start_address: legs.start_address,
-                                    end_address: legs.end_address,
-                                    start_location: legs.start_location,
-                                    end_location: legs.end_location,
-                                    steps: legs.steps.slice(indicePuntoActual)
-                                }]
-                            }]
-                        };
-                        
-                        directionsRenderer.setDirections(nuevaRuta);
-                        console.log("✅ Ruta visual actualizada gradualmente sin API");
+                // ..... PRIMERO BUSCAR INFOWINDOWS ABIERTOS (lógica original)
+                marcadoresPedidos.forEach((marcadorInfo) => {
+                    if (marcadorInfo.infowindowOrigen && marcadorInfo.infowindowOrigen.getMap()) {
+                        destino = new google.maps.LatLng(
+                            parseFloat(marcadorInfo.datos.origenLat),
+                            parseFloat(marcadorInfo.datos.origenLng)
+                        );
+                        pedidoActivo = marcadorInfo.datos;
+                        tipoDestino = "pedido-origen";
+                        marcadorPedidoEncontrado = true;
+                        console.log("✅ Destino desde infowindow origen:", destino);
+                        return;
                     }
-                } else {
-                    console.log("🏁 Llegaste al destino");
-                    if (directionsRenderer) directionsRenderer.setMap(null);
+                    if (marcadorInfo.infowindowDestino && marcadorInfo.infowindowDestino.getMap()) {
+                        destino = new google.maps.LatLng(
+                            parseFloat(marcadorInfo.datos.destinoLat),
+                            parseFloat(marcadorInfo.datos.destinoLng)
+                        );
+                        pedidoActivo = marcadorInfo.datos;
+                        tipoDestino = "pedido-destino";
+                        marcadorPedidoEncontrado = true;
+                        console.log("✅ Destino desde infowindow destino:", destino);
+                        return;
+                    }
+                });
+                
+                // ..... SI NO HAY INFOWINDOW ABIERTO, BUSCAR ÚLTIMO MARCADOR CLICKEADO
+                if (!marcadorPedidoEncontrado) {
+                    console.log("🔍 No hay infowindow abierto, buscando último marcador de pedido clickeado...");
+                    
+                    // ..... BUSCAR EN CADA MARCADOR DE PEDIDO SI TIENE DATOS DE ÚLTIMO CLIC
+                    marcadoresPedidos.forEach((marcadorInfo) => {
+                        if (marcadorInfo.ultimoClick) {
+                            console.log("🎯 Marcador de pedido clickeado encontrado:", marcadorInfo.datos.id);
+                            
+                            // ..... USAR ORIGEN O DESTINO SEGÚN CUÁL SE CLICKEÓ ÚLTIMO
+                            if (marcadorInfo.ultimoClick === 'origen') {
+                                destino = new google.maps.LatLng(
+                                    parseFloat(marcadorInfo.datos.origenLat),
+                                    parseFloat(marcadorInfo.datos.origenLng)
+                                );
+                                tipoDestino = "pedido-origen";
+                                console.log("✅ Destino desde marcador origen clickeado:", destino);
+                            } else if (marcadorInfo.ultimoClick === 'destino') {
+                                destino = new google.maps.LatLng(
+                                    parseFloat(marcadorInfo.datos.destinoLat),
+                                    parseFloat(marcadorInfo.datos.destinoLng)
+                                );
+                                tipoDestino = "pedido-destino";
+                                console.log("✅ Destino desde marcador destino clickeado:", destino);
+                            }
+                            marcadorPedidoEncontrado = true;
+                            return;
+                        }
+                    });
+                }
+
+                if (!destino) {
+                    console.error("❌ No se encontró destino activo");
+                    alert("Para crear una ruta:\n• Abre un marcador circular (globo) de dirección, O\n• Haz clic en un marcador rojo/verde, O\n• Abre el infowindow de un pedido");
+                    return;
                 }
             }
-        }
 
-async function cargarDireccionesPorRuta(numeroRuta) {
-    if (!numeroRuta) {
-        document.getElementById('listaDirecciones').innerHTML = '';
-        marcadores.forEach(m => m.setMap(null));
-        marcadores = [];
-        if (directionsRenderer) directionsRenderer.setMap(null);
-        resultadoDatos = null;
-        return;
+            console.log("🎯 Destino final:", destino, "Tipo:", tipoDestino);
+
+            // ..... USAR GPS CACHEADO PARA RAPIDEZ (EVITA NUEVA SOLICITUD GPS)
+            if (ubicacionGPSActual) {
+                calculandoRuta = true;
+                botonRutaSiguiente.style.opacity = "0.6";
+                botonRutaSiguiente.style.cursor = "wait";
+                
+                console.log("🚀 Usando GPS cacheado para cálculo rápido de ruta...");
+                const miUbicacion = new google.maps.LatLng(ubicacionGPSActual.lat, ubicacionGPSActual.lng);
+                const directionsService = new google.maps.DirectionsService();
+
+                // ..... CONFIGURAR DIRECTIONS RENDERER CON LÍNEA VISIBLE
+                directionsRenderer.setOptions({
+                    polylineOptions: {
+                        strokeColor: "#4285F4",
+                        strokeWeight: 5,
+                        strokeOpacity: 0.8
+                    }
+                });
+                directionsRenderer.setMap(mapa);
+
+                const request = {
+                    origin: miUbicacion,
+                    destination: destino,
+                    travelMode: google.maps.TravelMode.DRIVING
+                };
+
+                directionsService.route(request, (result, status) => {
+                    calculandoRuta = false;
+                    botonRutaSiguiente.style.opacity = "1";
+                    botonRutaSiguiente.style.cursor = "pointer";
+
+                    if (status === google.maps.DirectionsStatus.OK) {
+                        directionsRenderer.setDirections(result);
+
+                        // ..... CREAR POLYLINE VISUAL PARA BORRADO SUAVE
+                        if (lineaRutaVisual) lineaRutaVisual.setMap(null);
+                        
+                        const route = result.routes[0];
+                        lineaRutaVisual = new google.maps.Polyline({
+                            path: route.overview_path,
+                            geodesic: true,
+                            strokeColor: '#4285F4',
+                            strokeOpacity: 0.8,
+                            strokeWeight: 6,
+                            map: mapa
+                        });
+
+                        rutaCompleta = route.overview_path.map(punto => ({
+                            lat: punto.lat(),
+                            lng: punto.lng()
+                        }));
+
+                        indicePuntoActual = 0;
+                        
+                        // ..... RESETEAR VARIABLES DE CONTROL DE BORRADO
+                        this.distanciaAcumuladaTrimming = 0;
+                        this.ultimaUbicacionTrimming = null;
+
+                        console.log("✅ Ruta calculada RAPIDAMENTE con", rutaCompleta.length, "puntos");
+                    } else {
+                        alert("Error al calcular la ruta: " + status);
+                    }
+                });
+            } else {
+                // ..... FALLBACK: OBTENER NUEVA POSICIÓN GPS SI NO HAY CACHE
+                console.log("⚠️ Ubicación GPS no cacheada, obteniendo una nueva...");
+                alert("Esperando ubicación GPS... Intenta de nuevo en un momento.");
+            }
+        });
     }
 
-    try {
-        const respuesta = await fetch(URL_APPS_SCRIPT, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `action=obtenerDirecciones&ruta=${encodeURIComponent(numeroRuta)}` 
-        });
-        const resultado = await respuesta.json();
-        resultadoDatos = resultado;
+    // ..... FUNCIÓN RESTAURADA - NECESARIA PARA BOTÓN DE CENTRAR GPS
+    function centrarYSeguirUbicacion() {
+        console.log("📍 Iniciando centrarYSeguirUbicacion...");
+        if (navigator.geolocation) {
+            // ..... LIMPIAR WATCH ANTERIOR PARA EVITAR DUPLICADOS
+            if (watchId) {
+                console.log("🔄 Limpiando watch anterior:", watchId);
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
 
-        if (resultado.success) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const miUbicacion = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    console.log("✅ Ubicación inicial obtenida:", miUbicacion);
+
+                    // ..... CENTRAR MAPA EN UBICACIÓN ACTUAL
+                    mapa.setCenter(miUbicacion);
+                    mapa.setZoom(15);
+
+                    // ..... ACTUALIZAR O CREAR MARCADOR GPS
+                    if (marcadorMiUbicacion) {
+                        console.log("🔄 Actualizando marcador GPS existente");
+                        marcadorMiUbicacion.setPosition(miUbicacion);
+                        marcadorMiUbicacion.setTitle("Mi ubicación");
+                        marcadorMiUbicacion.setZIndex(9999);
+                    } else {
+                        console.log("🆕 Creando nuevo marcador GPS");
+                        marcadorMiUbicacion = new google.maps.Marker({
+                            position: miUbicacion,
+                            map: mapa,
+                            title: "Mi ubicación",
+                            icon: {
+                                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="8" fill="#003d82" stroke="#002855" stroke-width="2"/>
+                                        <circle cx="12" cy="12" r="3" fill="white"/>
+                                    </svg>
+                                `),
+                                scaledSize: new google.maps.Size(24, 24),
+                                anchor: new google.maps.Point(12, 12)
+                            },
+                            zIndex: 9999
+                        });
+                    }
+
+                    // ..... INICIAR SEGUIMIENTO GPS CONTINUO
+                    watchId = navigator.geolocation.watchPosition(
+                        (posicionSeguimiento) => {
+                            const ubicacionActual = {
+                                lat: posicionSeguimiento.coords.latitude,
+                                lng: posicionSeguimiento.coords.longitude
+                            };
+                            console.log("🔄 GPS actualizado:", ubicacionActual);
+
+                            // ..... CACHEAR POSICIÓN PARA BOTÓN DE RUTA
+                            ubicacionGPSActual = ubicacionActual;
+
+                            if (marcadorMiUbicacion) {
+                                marcadorMiUbicacion.setPosition(ubicacionActual);
+                                console.log("✅ Marcador GPS movido a nueva posición");
+                            }
+
+                            actualizarRutaRecorrida(ubicacionActual);
+                        },
+                        (error) => {
+                            console.error("Error en el seguimiento:", error);
+                            let mensaje = "Error en el seguimiento de ubicación: ";
+                            switch(error.code) {
+                                case error.PERMISSION_DENIED:
+                                    mensaje += "Debes dar permiso de ubicación en tu navegador.";
+                                    break;
+                                case error.POSITION_UNAVAILABLE:
+                                    mensaje += "La ubicación no está disponible.";
+                                    break;
+                                case error.TIMEOUT:
+                                    mensaje += "Se agotó el tiempo de espera.";
+                                    break;
+                            }
+                            alert(mensaje);
+                            navigator.geolocation.clearWatch(watchId);
+                            watchId = null;
+                        },
+                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                    );
+                },
+                (error) => {
+                    let mensaje = "No se pudo obtener tu ubicación. ";
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            mensaje += "Debes dar permiso de ubicación en tu navegador.";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            mensaje += "La ubicación no está disponible.";
+                            break;
+                        case error.TIMEOUT:
+                            mensaje += "Se agotó el tiempo de espera.";
+                            break;
+                    }
+                    alert(mensaje);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        } else {
+            alert("Tu navegador no soporta geolocalización.");
+        }
+    }
+
+    // ..... FUNCIÓN ORIGINAL RESTAURADA - BORRADO SUAVE CADA 5 METROS USANDO POLYLINE
+    function actualizarRutaRecorrida(ubicacionActual) {
+        if (!lineaRutaVisual) return;
+
+        const path = lineaRutaVisual.getPath();
+        if (path.getLength() < 2) return;
+
+        // ..... INICIALIZAR VARIABLES DE CONTROL SI NO EXISTEN
+        if (typeof this.distanciaAcumuladaTrimming === 'undefined') {
+            this.distanciaAcumuladaTrimming = 0;
+            this.ultimaUbicacionTrimming = ubicacionActual;
+        }
+
+        // ..... CALCULAR DISTANCIA RECORRIDA DESDE EL ÚLTIMO RECORTE
+        const dist = google.maps.geometry.spherical.computeDistanceBetween(
+            new google.maps.LatLng(this.ultimaUbicacionTrimming.lat, this.ultimaUbicacionTrimming.lng),
+            new google.maps.LatLng(ubicacionActual.lat, ubicacionActual.lng)
+        );
+
+        this.distanciaAcumuladaTrimming += dist;
+        this.ultimaUbicacionTrimming = ubicacionActual;
+
+        // ..... SOLO PROCESAR SI HEMOS AVANZADO AL MENOS 5 METROS
+        if (this.distanciaAcumuladaTrimming >= 5) {
+            this.distanciaAcumuladaTrimming = 0;
+            const posActual = new google.maps.LatLng(ubicacionActual.lat, ubicacionActual.lng);
+            
+            let indiceMasCercano = 0;
+            let minDist = Infinity;
+
+            // ..... BUSCAR EL PUNTO MÁS CERCANO EN LA POLILÍNEA
+            for (let i = 0; i < path.getLength(); i++) {
+                const d = google.maps.geometry.spherical.computeDistanceBetween(posActual, path.getAt(i));
+                if (d < minDist) {
+                    minDist = d;
+                    indiceMasCercano = i;
+                }
+            }
+
+            // ..... SI EL PUNTO MÁS CERCANO NO ES EL INICIO, RECORTAR LA LÍNEA
+            if (indiceMasCercano > 0) {
+                // ..... ELIMINAR TODOS LOS PUNTOS ANTERIORES AL MÁS CERCANO
+                for (let i = 0; i < indiceMasCercano; i++) {
+                    path.removeAt(0);
+                }
+                console.log("✂️ Ruta recortada suavemente: " + indiceMasCercano + " puntos eliminados.");
+            }
+        }
+    }
+
+    async function cargarDireccionesPorRuta(numeroRuta) {
+        if (!numeroRuta) {
+            document.getElementById('listaDirecciones').innerHTML = '';
             marcadores.forEach(m => m.setMap(null));
             marcadores = [];
             if (directionsRenderer) directionsRenderer.setMap(null);
+            resultadoDatos = null;
+            return;
+        }
 
-            const lista = document.getElementById('listaDirecciones');
-            lista.innerHTML = '';
+        try {
+            const respuesta = await fetch(URL_APPS_SCRIPT, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `action=obtenerDirecciones&ruta=${encodeURIComponent(numeroRuta)}`
+            });
+            const resultado = await respuesta.json();
+            resultadoDatos = resultado;
 
-            resultado.datos.forEach((dato, index) => {
-                const li = document.createElement('li');
-                li.className = 'direccion-item';
-                li.innerHTML = `
+            if (resultado.success) {
+                marcadores.forEach(m => m.setMap(null));
+                marcadores = [];
+                if (directionsRenderer) directionsRenderer.setMap(null);
+
+                const lista = document.getElementById('listaDirecciones');
+                lista.innerHTML = '';
+
+                resultado.datos.forEach((dato, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'direccion-item';
+                    li.innerHTML = `
                     <span class="icono-arrastre">☰</span>
                     <span class="texto-direccion">${index + 1}. Guía ${dato.nguia} - ${dato.recibe} - ${dato.direccion}</span>
                 `;
-                lista.appendChild(li);
+                    lista.appendChild(li);
 
-                let posicion;
-                if (dato.ruta1 && dato.ruta1.includes(',')) {
-                    const [lat, lng] = dato.ruta1.split(',').map(coord => parseFloat(coord.trim()));
-                    posicion = { lat, lng };
-                } else {
-                    posicion = { lat: 25.4383, lng: -100.9764 };
-                }
+                    let posicion;
+                    if (dato.ruta1 && dato.ruta1.includes(',')) {
+                        const [lat, lng] = dato.ruta1.split(',').map(coord => parseFloat(coord.trim()));
+                        posicion = { lat, lng };
+                    } else {
+                        posicion = { lat: 25.4383, lng: -100.9764 };
+                    }
 
-                let colorMarcador = "red";
-                if (dato.estado === "ENTREGADO") colorMarcador = "green";
-                if (dato.estado === "VISITADO") colorMarcador = "yellow";
+                    let colorMarcador = "red";
+                    if (dato.estado === "ENTREGADO") colorMarcador = "green";
+                    if (dato.estado === "VISITADO") colorMarcador = "yellow";
 
-                const marcador = new google.maps.Marker({
-                    position: posicion,
-                    map: mapa,
-                    title: `Guía ${dato.nguia} - ${dato.envia}`,
-                    icon: {
-                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                    const marcador = new google.maps.Marker({
+                        position: posicion,
+                        map: mapa,
+                        title: `Guía ${dato.nguia} - ${dato.envia}`,
+                        icon: {
+                            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="12" cy="12" r="10" fill="${colorMarcador}" stroke="white" stroke-width="2"/>
                                 <text x="12" y="16" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">${index + 1}</text>
                             </svg>
                         `),
-                        scaledSize: new google.maps.Size(24, 24)
-                    }
-                });
-                marcador.nguia = dato.nguia;
-                marcador.datoCompleto = dato;
-                marcador.colorBase = colorMarcador;
-                marcador.index = index;
-
-                marcador.addListener('click', function() {
-                    // ✅ Cerrar todo antes de abrir panel fijo
-                    cerrarPanelDirecciones();
-                    cerrarPanelEntregados();
-                    cerrarTodosInfowindows();
-
-                    // ✅ Eliminar círculo activo de servicio rápido
-                    eliminarCirculoActivo();
-
-                    if (marcadorSeleccionado) {
-                        marcadorSeleccionado.setMap(null);
-                    }
-
-                    marcadorSeleccionado = new google.maps.Marker({
-                        position: this.getPosition(),
-                        map: mapa,
-                        icon: {
-                            url: 'https://maps.gstatic.com/mapfiles/markers2/marker.png',
-                            scaledSize: new google.maps.Size(18, 32),
-                            origin: new google.maps.Point(0, 0),
-                            anchor: new google.maps.Point(10, 42)
-                        },
-                        zIndex: 1000
+                            scaledSize: new google.maps.Size(24, 24)
+                        }
                     });
+                    marcador.nguia = dato.nguia;
+                    marcador.datoCompleto = dato;
+                    marcador.colorBase = colorMarcador;
+                    marcador.index = index;
 
-                    marcadorSeleccionado.marcadorOriginal = this;
-                    marcadorSeleccionado.nguia = dato.nguia;
+                    marcador.addListener('click', function () {
+                        // ✅ Cerrar todo antes de abrir panel fijo
+                        cerrarPanelDirecciones();
+                        cerrarPanelEntregados();
+                        cerrarTodosInfowindows();
 
-                    const contenedor = document.getElementById('contenedorInfoFijo');
-                    const titulo = contenedor.querySelector('#infoFijoTitulo');
-                    const contenido = contenedor.querySelector('#infoFijoContenido');
-                    const botones = contenedor.querySelector('#infoFijoBotones');
+                        // ✅ Eliminar círculo activo de servicio rápido
+                        eliminarCirculoActivo();
 
-                    titulo.innerHTML = `<span class="guia-texto">${dato.nguia}</span><span class="envia-texto">${dato.envia}</span>`;
+                        if (marcadorSeleccionado) {
+                            marcadorSeleccionado.setMap(null);
+                        }
 
-                    contenido.innerHTML = `
+                        marcadorSeleccionado = new google.maps.Marker({
+                            position: this.getPosition(),
+                            map: mapa,
+                            icon: {
+                                url: 'https://maps.gstatic.com/mapfiles/markers2/marker.png',
+                                scaledSize: new google.maps.Size(18, 32),
+                                origin: new google.maps.Point(0, 0),
+                                anchor: new google.maps.Point(10, 42)
+                            },
+                            zIndex: 1000
+                        });
+
+                        marcadorSeleccionado.marcadorOriginal = this;
+                        marcadorSeleccionado.nguia = dato.nguia;
+
+                        const contenedor = document.getElementById('contenedorInfoFijo');
+                        const titulo = contenedor.querySelector('#infoFijoTitulo');
+                        const contenido = contenedor.querySelector('#infoFijoContenido');
+                        const botones = contenedor.querySelector('#infoFijoBotones');
+
+                        titulo.innerHTML = `<span class="guia-texto">${dato.nguia}</span><span class="envia-texto">${dato.envia}</span>`;
+
+                        contenido.innerHTML = `
                         <p><strong>🙎‍♀️ </strong> ${dato.recibe}</p>
                         <p><strong>📌 </strong> ${dato.direccion}</p>
                         <p><strong>⤴️ </strong> ${dato.referencia}</p>
                         <p><strong>🫙 </strong> ${dato.contenido} | <strong>💰 </strong> $${dato.acobrar}</p>
                     `;
 
-                    botones.innerHTML = `
+                        botones.innerHTML = `
                         <a href="tel:${dato.telefono}" style="color: #007bff; font-size: 30px;" title="Llamar">
                             <i class="fas fa-phone"></i>
                         </a>
@@ -1003,58 +1246,222 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                         </a>
                     `;
 
-                    contenedor.style.display = 'block';
-                    mapa.panTo(this.getPosition());
+                        contenedor.style.display = 'block';
+                        mapa.panTo(this.getPosition());
+                    });
+
+                    marcadores.push(marcador);
                 });
 
-                marcadores.push(marcador);
-            });
+                new Sortable(lista, {
+                    animation: 150,
+                    ghostClass: 'arrastrando',
+                    handle: '.icono-arrastre'
+                });
 
-            new Sortable(lista, {
-                animation: 150,
-                ghostClass: 'arrastrando',
-                handle: '.icono-arrastre'
-            });
-
-        } else {
-            alert("Error al cargar direcciones: " + resultado.message);
+            } else {
+                alert("Error al cargar direcciones: " + resultado.message);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("No se pudo conectar con la base de datos.");
         }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("No se pudo conectar con la base de datos.");
     }
-}
 
-        function ocultarContenedorInfoFijo() {
-            const contenedor = document.getElementById('contenedorInfoFijo');
-            contenedor.style.display = 'none';
-            if (marcadorSeleccionado) {
-                marcadorSeleccionado.setMap(null);
-                marcadorSeleccionado = null;
-            }
-            if (infowindowActual) {
-                infowindowActual.close();
-                infowindowActual = null;
-            }
+    function ocultarContenedorInfoFijo() {
+        const contenedor = document.getElementById('contenedorInfoFijo');
+        contenedor.style.display = 'none';
+        if (marcadorSeleccionado) {
+            marcadorSeleccionado.setMap(null);
+            marcadorSeleccionado = null;
+        }
+        if (infowindowActual) {
+            infowindowActual.close();
+            infowindowActual = null;
+        }
+    }
+
+    // ✅ FUNCIÓN CORREGIDA: AHORA SÍ BORRA LOS MARCADORES DESPUÉS DEL 3RO
+    async function actualizarEstado(nguia, nuevoEstado) {
+        let btn, spinner, icono;
+        if (nuevoEstado === 'ENTREGADO') {
+            btn = document.getElementById(`btnEntregado_${nguia}`);
+            spinner = document.getElementById(`spinnerEntregado_${nguia}`);
+            icono = document.getElementById(`iconoEntregado_${nguia}`);
         }
 
-// ✅ FUNCIÓN CORREGIDA: AHORA SÍ BORRA LOS MARCADORES DESPUÉS DEL 3RO
-        async function actualizarEstado(nguia, nuevoEstado) {
-            let btn, spinner, icono;
-            if (nuevoEstado === 'ENTREGADO') {
-                btn = document.getElementById(`btnEntregado_${nguia}`);
-                spinner = document.getElementById(`spinnerEntregado_${nguia}`);
-                icono = document.getElementById(`iconoEntregado_${nguia}`);
+        if (nuevoEstado === 'ENTREGADO' && btn?.dataset.cargando === "true") return;
+
+        if (nuevoEstado === 'ENTREGADO' && btn) {
+            btn.dataset.cargando = "true";
+            icono.style.display = 'none';
+            spinner.style.display = 'inline-block';
+            btn.disabled = true;
+        }
+
+        try {
+            const envio = resultadoDatos.datos.find(d => String(d.nguia).trim() === String(nguia).trim());
+            if (!envio) {
+                alert("No se encontró el envío con NGUIA: " + nguia);
+                return;
             }
 
-            if (nuevoEstado === 'ENTREGADO' && btn?.dataset.cargando === "true") return;
+            let total = 0;
+            const tipoPago = "EFECTIVO";
+            let fechaFormato = new Date().toLocaleDateString('es-ES');
+            let horaFormato = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            let localizacionEnt = "";
 
+            function obtenerUbicacion() {
+                return new Promise((resolve, reject) => {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => resolve(`${position.coords.latitude}, ${position.coords.longitude}`),
+                            (error) => reject(error),
+                            { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+                        );
+                    } else {
+                        reject(new Error("Tu navegador no soporta geolocalización"));
+                    }
+                });
+            }
+
+            if (nuevoEstado === "VISITADO") {
+                const ventana = document.getElementById('ventanaRazonEntrega');
+                const campoRazon = document.getElementById('campoRazon');
+                const mensajeError = document.getElementById('mensajeError');
+                const btnEnviar = document.getElementById('btnEnviarRazon');
+                const btnCancelar = document.getElementById('btnCancelarRazon');
+
+                campoRazon.value = '';
+                mensajeError.textContent = '';
+                ventana.style.display = 'flex';
+
+                const manejarEnvio = async () => {
+                    const razon = campoRazon.value.trim();
+                    if (!razon || razon.length < 8 || razon.split('').every(c => c === razon) || !/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(razon)) {
+                        mensajeError.textContent = "Escribe una razón válida de al menos 8 caracteres.";
+                        return;
+                    }
+                    ventana.style.display = 'none';
+                    btnEnviar.removeEventListener('click', manejarEnvio);
+                    btnCancelar.removeEventListener('click', manejarCancelacion);
+                    try { localizacionEnt = await obtenerUbicacion(); } catch (error) { alert("No se pudo obtener tu ubicación: " + error.message); }
+                    await procesarActualizacion(razon);
+                };
+                const manejarCancelacion = () => {
+                    ventana.style.display = 'none';
+                    btnEnviar.removeEventListener('click', manejarEnvio);
+                    btnCancelar.removeEventListener('click', manejarCancelacion);
+                };
+                btnEnviar.addEventListener('click', manejarEnvio);
+                btnCancelar.addEventListener('click', manejarCancelacion);
+                return;
+            }
+
+            try { localizacionEnt = await obtenerUbicacion(); } catch (error) { alert("No se pudo obtener tu ubicación: " + error.message); }
+            await procesarActualizacion();
+
+            async function procesarActualizacion(razonEntrega = null) {
+                try {
+                    let bodyParams = "";
+                    if (nuevoEstado === "VISITADO") {
+                        const notaFinal = razonEntrega || "¿Por qué no se realizó la entrega?";
+                        bodyParams = `action=actualizarEstado&nguia=${encodeURIComponent(nguia)}&estado=${encodeURIComponent(nuevoEstado)}&nota_1=${encodeURIComponent(notaFinal)}&localizacion_1=${encodeURIComponent(localizacionEnt)}&fecha_hora_1=${encodeURIComponent(horaFormato + ', ' + fechaFormato)}`;
+                    } else if (nuevoEstado === "ENTREGADO") {
+                        const acobrar = parseFloat(envio.acobrar) || 0;
+                        const extra = parseFloat(envio.extra) || 0;
+                        total = acobrar - extra;
+                        bodyParams = `action=actualizarEstado&nguia=${encodeURIComponent(nguia)}&estado=${encodeURIComponent(nuevoEstado)}&total=${encodeURIComponent(total)}&tipo_pago=${encodeURIComponent(tipoPago)}&fecha_ent=${encodeURIComponent(fechaFormato)}&hora_ent=${encodeURIComponent(horaFormato)}&localizacion_ent=${encodeURIComponent(localizacionEnt)}`;
+                    }
+
+                    const respuesta = await fetch(URL_APPS_SCRIPT, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: bodyParams
+                    });
+                    const resultado = await respuesta.json();
+
+                    if (resultado.success) {
+                        // ✅ CORRECCIÓN CLAVE: BUSCAR Y BORRAR EL MARCADOR ORIGINAL DEL ARRAY
+                        const indiceMarcador = marcadores.findIndex(m => String(m.nguia).trim() === String(nguia).trim());
+                        if (indiceMarcador !== -1) {
+                            const marcadorABorrar = marcadores[indiceMarcador];
+
+                            if (nuevoEstado === "ENTREGADO") {
+                                marcadorABorrar.setMap(null); // Quita del mapa
+                                marcadores.splice(indiceMarcador, 1); // Quita del array
+
+                                // Quitar de la lista lateral
+                                const lista = document.getElementById('listaDirecciones');
+                                const items = lista.getElementsByClassName('direccion-item');
+                                for (let i = 0; i < items.length; i++) {
+                                    if (items[i].textContent.includes(`Guía ${nguia}`)) {
+                                        lista.removeChild(items[i]);
+                                        break;
+                                    }
+                                }
+                            } else if (nuevoEstado === "VISITADO") {
+                                marcadorABorrar.setIcon({
+                                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                                            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <circle cx="12" cy="12" r="10" fill="#ffc107" stroke="white" stroke-width="2"/>
+                                                <text x="12" y="16" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">${marcadorABorrar.index + 1}</text>
+                                            </svg>
+                                        `),
+                                    scaledSize: new google.maps.Size(24, 24)
+                                });
+                            }
+                        }
+
+                        // ✅ LIMPIAR TODO LO SELECCIONADO
+                        if (infowindowActual) {
+                            infowindowActual.close();
+                            infowindowActual = null;
+                        }
+                        ocultarContenedorInfoFijo();
+
+                    } else {
+                        alert("Error al actualizar: " + resultado.message);
+                    }
+                } catch (error) {
+                    console.error("Error en envío de datos:", error);
+                    alert("No se pudo actualizar el estado. Error: " + error.message);
+                }
+            }
+        } catch (error) {
+            console.error("Error general:", error);
+            alert("Error: " + error.message);
+        } finally {
             if (nuevoEstado === 'ENTREGADO' && btn) {
-                btn.dataset.cargando = "true";
-                icono.style.display = 'none';
-                spinner.style.display = 'inline-block';
-                btn.disabled = true;
+                btn.dataset.cargando = "false";
+                spinner.style.display = 'none';
+                icono.style.display = 'inline-block';
+                btn.disabled = false;
             }
+        }
+    }
+
+    async function actualizarEstadoConCero(nguia) {
+        const modal = document.getElementById('ventanaConfirmacionPago');
+        const btnAceptar = document.getElementById('btnAceptarConfirmacion');
+        const btnCancelar = document.getElementById('btnCancelarConfirmacion');
+
+        modal.style.display = 'flex';
+
+        async function ejecutarProceso() {
+            modal.style.display = 'none';
+
+            const btnTarjeta = document.getElementById(`btnTarjeta_${nguia}`);
+            const spinnerTarjeta = document.getElementById(`spinnerTarjeta_${nguia}`);
+            const iconoTarjeta = document.getElementById(`iconoTarjeta_${nguia}`);
+
+            if (btnTarjeta.dataset.cargando === "true") return;
+
+            btnTarjeta.dataset.cargando = "true";
+            iconoTarjeta.style.display = 'none';
+            spinnerTarjeta.style.display = 'inline-block';
+            btnTarjeta.disabled = true;
 
             try {
                 const envio = resultadoDatos.datos.find(d => String(d.nguia).trim() === String(nguia).trim());
@@ -1063,8 +1470,6 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                     return;
                 }
 
-                let total = 0;
-                const tipoPago = "EFECTIVO";
                 let fechaFormato = new Date().toLocaleDateString('es-ES');
                 let horaFormato = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
                 let localizacionEnt = "";
@@ -1083,315 +1488,153 @@ async function cargarDireccionesPorRuta(numeroRuta) {
                     });
                 }
 
-                if (nuevoEstado === "VISITADO") {
-                    const ventana = document.getElementById('ventanaRazonEntrega');
-                    const campoRazon = document.getElementById('campoRazon');
-                    const mensajeError = document.getElementById('mensajeError');
-                    const btnEnviar = document.getElementById('btnEnviarRazon');
-                    const btnCancelar = document.getElementById('btnCancelarRazon');
-
-                    campoRazon.value = '';
-                    mensajeError.textContent = '';
-                    ventana.style.display = 'flex';
-
-                    const manejarEnvio = async () => {
-                        const razon = campoRazon.value.trim();
-                        if (!razon || razon.length < 8 || razon.split('').every(c => c === razon) ||!/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(razon)) {
-                            mensajeError.textContent = "Escribe una razón válida de al menos 8 caracteres.";
-                            return;
-                        }
-                        ventana.style.display = 'none';
-                        btnEnviar.removeEventListener('click', manejarEnvio);
-                        btnCancelar.removeEventListener('click', manejarCancelacion);
-                        try { localizacionEnt = await obtenerUbicacion(); } catch (error) { alert("No se pudo obtener tu ubicación: " + error.message); }
-                        await procesarActualizacion(razon);
-                    };
-                    const manejarCancelacion = () => {
-                        ventana.style.display = 'none';
-                        btnEnviar.removeEventListener('click', manejarEnvio);
-                        btnCancelar.removeEventListener('click', manejarCancelacion);
-                    };
-                    btnEnviar.addEventListener('click', manejarEnvio);
-                    btnCancelar.addEventListener('click', manejarCancelacion);
-                    return;
-                }
-
                 try { localizacionEnt = await obtenerUbicacion(); } catch (error) { alert("No se pudo obtener tu ubicación: " + error.message); }
-                await procesarActualizacion();
 
-                async function procesarActualizacion(razonEntrega = null) {
-                    try {
-                        let bodyParams = "";
-                        if (nuevoEstado === "VISITADO") {
-                            const notaFinal = razonEntrega || "¿Por qué no se realizó la entrega?";
-                            bodyParams = `action=actualizarEstado&nguia=${encodeURIComponent(nguia)}&estado=${encodeURIComponent(nuevoEstado)}&nota_1=${encodeURIComponent(notaFinal)}&localizacion_1=${encodeURIComponent(localizacionEnt)}&fecha_hora_1=${encodeURIComponent(horaFormato + ', ' + fechaFormato)}`;
-                        } else if (nuevoEstado === "ENTREGADO") {
-                            const acobrar = parseFloat(envio.acobrar) || 0;
-                            const extra = parseFloat(envio.extra) || 0;
-                            total = acobrar - extra;
-                            bodyParams = `action=actualizarEstado&nguia=${encodeURIComponent(nguia)}&estado=${encodeURIComponent(nuevoEstado)}&total=${encodeURIComponent(total)}&tipo_pago=${encodeURIComponent(tipoPago)}&fecha_ent=${encodeURIComponent(fechaFormato)}&hora_ent=${encodeURIComponent(horaFormato)}&localizacion_ent=${encodeURIComponent(localizacionEnt)}`;
-                        }
+                const bodyParams = `action=actualizarEstadoPagoVendedor&nguia=${encodeURIComponent(nguia)}&estado=${encodeURIComponent('ENTREGADO')}&fecha_ent=${encodeURIComponent(fechaFormato)}&hora_ent=${encodeURIComponent(horaFormato)}&localizacion_ent=${encodeURIComponent(localizacionEnt)}`;
 
-                        const respuesta = await fetch(URL_APPS_SCRIPT, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                            body: bodyParams
-                        });
-                        const resultado = await respuesta.json();
-
-                        if (resultado.success) {
-                            // ✅ CORRECCIÓN CLAVE: BUSCAR Y BORRAR EL MARCADOR ORIGINAL DEL ARRAY
-                            const indiceMarcador = marcadores.findIndex(m => String(m.nguia).trim() === String(nguia).trim());
-                            if (indiceMarcador!== -1) {
-                                const marcadorABorrar = marcadores[indiceMarcador];
-
-                                if (nuevoEstado === "ENTREGADO") {
-                                    marcadorABorrar.setMap(null); // Quita del mapa
-                                    marcadores.splice(indiceMarcador, 1); // Quita del array
-
-                                    // Quitar de la lista lateral
-                                    const lista = document.getElementById('listaDirecciones');
-                                    const items = lista.getElementsByClassName('direccion-item');
-                                    for (let i = 0; i < items.length; i++) {
-                                        if (items[i].textContent.includes(`Guía ${nguia}`)) {
-                                            lista.removeChild(items[i]);
-                                            break;
-                                        }
-                                    }
-                                } else if (nuevoEstado === "VISITADO") {
-                                    marcadorABorrar.setIcon({
-                                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                                            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <circle cx="12" cy="12" r="10" fill="#ffc107" stroke="white" stroke-width="2"/>
-                                                <text x="12" y="16" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">${marcadorABorrar.index + 1}</text>
-                                            </svg>
-                                        `),
-                                        scaledSize: new google.maps.Size(24, 24)
-                                    });
-                                }
-                            }
-
-                            // ✅ LIMPIAR TODO LO SELECCIONADO
-                            if (infowindowActual) {
-                                infowindowActual.close();
-                                infowindowActual = null;
-                            }
-                            ocultarContenedorInfoFijo();
-
-                        } else {
-                            alert("Error al actualizar: " + resultado.message);
-                        }
-                    } catch (error) {
-                        console.error("Error en envío de datos:", error);
-                        alert("No se pudo actualizar el estado. Error: " + error.message);
-                    }
-                }
-            } catch (error) {
-                console.error("Error general:", error);
-                alert("Error: " + error.message);
-            } finally {
-                if (nuevoEstado === 'ENTREGADO' && btn) {
-                    btn.dataset.cargando = "false";
-                    spinner.style.display = 'none';
-                    icono.style.display = 'inline-block';
-                    btn.disabled = false;
-                }
-            }
-        }
-
-        async function actualizarEstadoConCero(nguia) {
-            const modal = document.getElementById('ventanaConfirmacionPago');
-            const btnAceptar = document.getElementById('btnAceptarConfirmacion');
-            const btnCancelar = document.getElementById('btnCancelarConfirmacion');
-
-            modal.style.display = 'flex';
-
-            async function ejecutarProceso() {
-                modal.style.display = 'none';
-
-                const btnTarjeta = document.getElementById(`btnTarjeta_${nguia}`);
-                const spinnerTarjeta = document.getElementById(`spinnerTarjeta_${nguia}`);
-                const iconoTarjeta = document.getElementById(`iconoTarjeta_${nguia}`);
-
-                if (btnTarjeta.dataset.cargando === "true") return;
-
-                btnTarjeta.dataset.cargando = "true";
-                iconoTarjeta.style.display = 'none';
-                spinnerTarjeta.style.display = 'inline-block';
-                btnTarjeta.disabled = true;
-
-                try {
-                    const envio = resultadoDatos.datos.find(d => String(d.nguia).trim() === String(nguia).trim());
-                    if (!envio) {
-                        alert("No se encontró el envío con NGUIA: " + nguia);
-                        return;
-                    }
-
-                    let fechaFormato = new Date().toLocaleDateString('es-ES');
-                    let horaFormato = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-                    let localizacionEnt = "";
-
-                    function obtenerUbicacion() {
-                        return new Promise((resolve, reject) => {
-                            if (navigator.geolocation) {
-                                navigator.geolocation.getCurrentPosition(
-                                    (position) => resolve(`${position.coords.latitude}, ${position.coords.longitude}`),
-                                    (error) => reject(error),
-                                    { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
-                                );
-                            } else {
-                                reject(new Error("Tu navegador no soporta geolocalización"));
-                            }
-                        });
-                    }
-
-                    try { localizacionEnt = await obtenerUbicacion(); } catch (error) { alert("No se pudo obtener tu ubicación: " + error.message); }
-
-                    const bodyParams = `action=actualizarEstadoPagoVendedor&nguia=${encodeURIComponent(nguia)}&estado=${encodeURIComponent('ENTREGADO')}&fecha_ent=${encodeURIComponent(fechaFormato)}&hora_ent=${encodeURIComponent(horaFormato)}&localizacion_ent=${encodeURIComponent(localizacionEnt)}`;
-
-                    const respuesta = await fetch(URL_APPS_SCRIPT, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body: bodyParams
-                    });
-                    const resultado = await respuesta.json();
-
-                    if (resultado.success) {
-                        const indiceMarcador = marcadores.findIndex(m => String(m.nguia).trim() === String(nguia).trim());
-                        if (indiceMarcador!== -1) {
-                            marcadores[indiceMarcador].setMap(null);
-                            marcadores.splice(indiceMarcador, 1);
-
-                            if (infowindowActual) {
-                                infowindowActual.close();
-                                infowindowActual = null;
-                            }
-                            ocultarContenedorInfoFijo();
-
-                            setTimeout(() => {
-                                const lista = document.getElementById('listaDirecciones');
-                                const items = lista.getElementsByClassName('direccion-item');
-                                for (let i = 0; i < items.length; i++) {
-                                    if (items[i].textContent.includes(`Guía ${nguia}`)) {
-                                        lista.removeChild(items[i]);
-                                        break;
-                                    }
-                                }
-                            }, 800);
-                        }
-                    } else {
-                        alert("Error al actualizar: " + resultado.message);
-                    }
-
-                } catch (error) {
-                    console.error("Error en envío de datos:", error);
-                    alert("No se pudo actualizar el estado. Error: " + error.message);
-                } finally {
-                    btnTarjeta.dataset.cargando = "false";
-                    spinnerTarjeta.style.display = 'none';
-                    iconoTarjeta.style.display = 'inline-block';
-                    btnTarjeta.disabled = false;
-                }
-            }
-
-            btnAceptar.onclick = ejecutarProceso;
-            btnCancelar.onclick = () => { modal.style.display = 'none'; };
-            modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
-        }
-
-        async function generarCoordenadasRuta() {
-            const rutaSeleccionada = document.getElementById('selectorRuta').value;
-            if (!rutaSeleccionada) {
-                alert("Por favor, selecciona una ruta primero.");
-                return;
-            }
-
-            try {
                 const respuesta = await fetch(URL_APPS_SCRIPT, {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: `action=generarCoordenadas&idRuta=${encodeURIComponent(rutaSeleccionada)}` 
+                    body: bodyParams
                 });
                 const resultado = await respuesta.json();
 
                 if (resultado.success) {
-                    cargarDireccionesPorRuta(rutaSeleccionada);
+                    const indiceMarcador = marcadores.findIndex(m => String(m.nguia).trim() === String(nguia).trim());
+                    if (indiceMarcador !== -1) {
+                        marcadores[indiceMarcador].setMap(null);
+                        marcadores.splice(indiceMarcador, 1);
+
+                        if (infowindowActual) {
+                            infowindowActual.close();
+                            infowindowActual = null;
+                        }
+                        ocultarContenedorInfoFijo();
+
+                        setTimeout(() => {
+                            const lista = document.getElementById('listaDirecciones');
+                            const items = lista.getElementsByClassName('direccion-item');
+                            for (let i = 0; i < items.length; i++) {
+                                if (items[i].textContent.includes(`Guía ${nguia}`)) {
+                                    lista.removeChild(items[i]);
+                                    break;
+                                }
+                            }
+                        }, 800);
+                    }
                 } else {
-                    alert("Error al generar coordenadas: " + resultado.message);
+                    alert("Error al actualizar: " + resultado.message);
                 }
+
             } catch (error) {
-                console.error("Error:", error);
-                alert("No se pudo generar las coordenadas.");
+                console.error("Error en envío de datos:", error);
+                alert("No se pudo actualizar el estado. Error: " + error.message);
+            } finally {
+                btnTarjeta.dataset.cargando = "false";
+                spinnerTarjeta.style.display = 'none';
+                iconoTarjeta.style.display = 'inline-block';
+                btnTarjeta.disabled = false;
             }
         }
 
-        function recargarRutaCompleta() {
-            const rutaActual = document.getElementById('selectorRuta').value;
-            if (rutaActual) {
-                cargarDireccionesPorRuta(rutaActual);
-            } else {
-                alert("Por favor, selecciona una ruta primero.");
-            }
-        }
-
-function togglePanelDirecciones() {
-    const panelDirecciones = document.getElementById('panelDirecciones');
-    const panelEntregados = document.getElementById('panelEntregados');
-
-    if (panelDirecciones.style.display === 'none' || panelDirecciones.style.display === '') {
-        panelEntregados.style.display = 'none';
-        panelDirecciones.style.display = 'block';
-    } else {
-        panelDirecciones.style.display = 'none';
+        btnAceptar.onclick = ejecutarProceso;
+        btnCancelar.onclick = () => { modal.style.display = 'none'; };
+        modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
     }
-    cerrarMenuHamburguesa();
-}
 
-        async function togglePanelEntregados() {
-            const panelEntregados = document.getElementById('panelEntregados');
-            const panelDirecciones = document.querySelector('.contenedor-lista');
-            const contenidoEntregados = document.getElementById('contenidoEntregados');
+    async function generarCoordenadasRuta() {
+        const rutaSeleccionada = document.getElementById('selectorRuta').value;
+        if (!rutaSeleccionada) {
+            alert("Por favor, selecciona una ruta primero.");
+            return;
+        }
 
-            if (panelEntregados.style.display === 'none' || panelEntregados.style.display === '') {
-                panelDirecciones.style.display = 'none';
-                cerrarMenuHamburguesa();
+        try {
+            const respuesta = await fetch(URL_APPS_SCRIPT, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `action=generarCoordenadas&idRuta=${encodeURIComponent(rutaSeleccionada)}`
+            });
+            const resultado = await respuesta.json();
 
-                const rutaSeleccionada = document.getElementById("selectorRuta").value;
-                if (!rutaSeleccionada) {
-                    contenidoEntregados.innerHTML = '<p>Selecciona una ruta primero.</p>';
-                    panelEntregados.style.display = 'block';
-                    return;
-                }
+            if (resultado.success) {
+                cargarDireccionesPorRuta(rutaSeleccionada);
+            } else {
+                alert("Error al generar coordenadas: " + resultado.message);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("No se pudo generar las coordenadas.");
+        }
+    }
 
-                try {
-                    contenidoEntregados.innerHTML = '<p>Cargando datos...</p>';
-                    panelEntregados.style.display = 'block';
+    function recargarRutaCompleta() {
+        const rutaActual = document.getElementById('selectorRuta').value;
+        if (rutaActual) {
+            cargarDireccionesPorRuta(rutaActual);
+        } else {
+            alert("Por favor, selecciona una ruta primero.");
+        }
+    }
 
-                    const respuesta = await fetch(URL_APPS_SCRIPT, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body: `action=obtenerEntregadosCadaRuta&ruta=${encodeURIComponent(rutaSeleccionada)}` 
-                    });
-                    const resultado = await respuesta.json();
+    function togglePanelDirecciones() {
+        const panelDirecciones = document.getElementById('panelDirecciones');
+        const panelEntregados = document.getElementById('panelEntregados');
 
-                    if (!resultado.success) {
-                        contenidoEntregados.innerHTML = `<p>Error: ${resultado.message}</p>`;
+        if (panelDirecciones.style.display === 'none' || panelDirecciones.style.display === '') {
+            panelEntregados.style.display = 'none';
+            panelDirecciones.style.display = 'block';
+        } else {
+            panelDirecciones.style.display = 'none';
+        }
+        cerrarMenuHamburguesa();
+    }
+
+    async function togglePanelEntregados() {
+        const panelEntregados = document.getElementById('panelEntregados');
+        const panelDirecciones = document.querySelector('.contenedor-lista');
+        const contenidoEntregados = document.getElementById('contenidoEntregados');
+
+        if (panelEntregados.style.display === 'none' || panelEntregados.style.display === '') {
+            panelDirecciones.style.display = 'none';
+            cerrarMenuHamburguesa();
+
+            const rutaSeleccionada = document.getElementById("selectorRuta").value;
+            if (!rutaSeleccionada) {
+                contenidoEntregados.innerHTML = '<p>Selecciona una ruta primero.</p>';
+                panelEntregados.style.display = 'block';
+                return;
+            }
+
+            try {
+                contenidoEntregados.innerHTML = '<p>Cargando datos...</p>';
+                panelEntregados.style.display = 'block';
+
+                const respuesta = await fetch(URL_APPS_SCRIPT, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `action=obtenerEntregadosCadaRuta&ruta=${encodeURIComponent(rutaSeleccionada)}`
+                });
+                const resultado = await respuesta.json();
+
+                if (!resultado.success) {
+                    contenidoEntregados.innerHTML = `<p>Error: ${resultado.message}</p>`;
+                } else {
+                    let contenidoHTML = '';
+                    let totalCobrado = 0;
+
+                    if (resultado.datos.length === 0) {
+                        contenidoHTML += '<p>No hay entregas registradas como "ENTREGADO" aún.</p>';
                     } else {
-                        let contenidoHTML = '';
-                        let totalCobrado = 0;
+                        resultado.datos.forEach(dato => {
+                            const guia = dato.nguia || 'Sin guía';
+                            const recibe = dato.recibe || 'Sin nombre';
+                            const direccion = dato.direccion || 'Sin dirección';
+                            const cobro = parseFloat(dato.acobrar) || 0;
 
-                        if (resultado.datos.length === 0) {
-                            contenidoHTML += '<p>No hay entregas registradas como "ENTREGADO" aún.</p>';
-                        } else {
-                            resultado.datos.forEach(dato => {
-                                const guia = dato.nguia || 'Sin guía';
-                                const recibe = dato.recibe || 'Sin nombre';
-                                const direccion = dato.direccion || 'Sin dirección';
-                                const cobro = parseFloat(dato.acobrar) || 0;
+                            totalCobrado += cobro;
 
-                                totalCobrado += cobro;
-
-                                contenidoHTML += `
+                            contenidoHTML += `
                                     <div class="direccion-item" style="cursor: default; background: #e8f5e9;">
                                         <span class="texto-direccion">
                                             📦 Guía ${guia} - ${recibe}<br>
@@ -1400,68 +1643,68 @@ function togglePanelDirecciones() {
                                         </span>
                                     </div>
                                 `;
-                            });
+                        });
 
-                            contenidoHTML += `
+                        contenidoHTML += `
                                 <div style="margin-top: 15px; padding: 10px; font-weight: bold; font-size: 1.1em; text-align: right; border-top: 2px solid #ccc; background: white; border-radius: 4px;">
                                     Total Cobrado: $${totalCobrado.toFixed(2)}
                                 </div>
                             `;
-                        }
-
-                        contenidoEntregados.innerHTML = contenidoHTML;
                     }
-                } catch (error) {
-                    contenidoEntregados.innerHTML = `<p>Error al conectar: ${error.message}</p>`;
+
+                    contenidoEntregados.innerHTML = contenidoHTML;
                 }
-
-            } else {
-                panelEntregados.style.display = 'none';
+            } catch (error) {
+                contenidoEntregados.innerHTML = `<p>Error al conectar: ${error.message}</p>`;
             }
+
+        } else {
+            panelEntregados.style.display = 'none';
         }
+    }
 
-function cerrarPanelDirecciones() {
-    const panel = document.getElementById('panelDirecciones');
-    if (panel) panel.style.display = 'none';
-}
+    function cerrarPanelDirecciones() {
+        const panel = document.getElementById('panelDirecciones');
+        if (panel) panel.style.display = 'none';
+    }
 
-        function cerrarPanelEntregados() {
-    const panel = document.getElementById('panelEntregados');
-    if (panel) panel.style.display = 'none';
+    function cerrarPanelEntregados() {
+        const panel = document.getElementById('panelEntregados');
+        if (panel) panel.style.display = 'none';
+    }
+
+    function cerrarVentana(ventana) {
+        ventana.style.display = 'none';
+    }
+
+    function toggleMenu() {
+        ocultarContenedorInfoFijo();
+        const menu = document.getElementById('menuHamburguesa');
+        if (menu.style.display === 'none' || menu.style.display === '') {
+            menu.style.display = 'block';
+        } else {
+            menu.style.display = 'none';
         }
+    }
 
-        function cerrarVentana(ventana) {
-            ventana.style.display = 'none';
+    function cerrarMenuHamburguesa() {
+        const menu = document.getElementById('menuHamburguesa');
+        if (menu && menu.style.display === 'block') {
+            menu.style.display = 'none';
         }
+    }
 
-        function toggleMenu() {
-            ocultarContenedorInfoFijo();
-            const menu = document.getElementById('menuHamburguesa');
-            if (menu.style.display === 'none' || menu.style.display === '') {
-                menu.style.display = 'block';
-            } else {
-                menu.style.display = 'none';
-            }
+    document.addEventListener('click', function (event) {
+        const menu = document.getElementById('menuHamburguesa');
+        const botonMenu = document.querySelector('.btn-hamburguesa');
+
+        if (!menu.contains(event.target) && !botonMenu.contains(event.target)) {
+            cerrarMenuHamburguesa();
         }
+    });
 
-        function cerrarMenuHamburguesa() {
-            const menu = document.getElementById('menuHamburguesa');
-            if (menu && menu.style.display === 'block') {
-                menu.style.display = 'none';
-            }
-        }
-
-        document.addEventListener('click', function(event) {
-            const menu = document.getElementById('menuHamburguesa');
-            const botonMenu = document.querySelector('.btn-hamburguesa');
-
-            if (!menu.contains(event.target) &&!botonMenu.contains(event.target)) {
-                cerrarMenuHamburguesa();
-            }
-        });
-
-        if (!document.getElementById('ventanaRazonEntrega')) {
-            const ventanaHTML = `
+    if (!document.getElementById('ventanaRazonEntrega')) {
+        const ventanaHTML = `
                 <div id="ventanaRazonEntrega" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;">
                     <div style="background: #2b2b2b; padding: 20px; border-radius: 8px; width: 100%; max-width: 450px; border: 1px solid #2da42d; box-shadow: 0 2px 10px rgba(0,0,0,0.5);">
                         <h3 style="margin-top: 0; margin-bottom: 15px; color: #2da42d; text-align: center; font-size: 20px;">¿Por qué no se entregó el envío?</h3>
@@ -1479,11 +1722,11 @@ function cerrarPanelDirecciones() {
                     </div>
                 </div>
             `;
-            document.body.insertAdjacentHTML('beforeend', ventanaHTML);
-        }
+        document.body.insertAdjacentHTML('beforeend', ventanaHTML);
+    }
 
-        if (!document.getElementById('ventanaConfirmacionPago')) {
-            const ventanaConfirmacionHTML = `
+    if (!document.getElementById('ventanaConfirmacionPago')) {
+        const ventanaConfirmacionHTML = `
                 <div id="ventanaConfirmacionPago" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;">
                     <div style="background: #2b2b2b; padding: 20px; border-radius: 8px; width: 100%; max-width: 450px; border: 1px solid #2da42d; box-shadow: 0 2px 10px rgba(0,0,0,0.5);">
                         <h3 style="margin-top: 0; margin-bottom: 15px; color: #2da42d; text-align: center; font-size: 20px;">Confirmar pago del paquete</h3>
@@ -1499,34 +1742,34 @@ function cerrarPanelDirecciones() {
                     </div>
                 </div>
             `;
-            document.body.insertAdjacentHTML('beforeend', ventanaConfirmacionHTML);
-        }
+        document.body.insertAdjacentHTML('beforeend', ventanaConfirmacionHTML);
+    }
 
-        // ✅ NUEVAS FUNCIONES PARA PEDIDOS EN TIEMPO REAL
-        function iniciarEscuchaDePedidos() {
-            if (intervaloChequeoPedidos) clearInterval(intervaloChequeoPedidos);
+    // ✅ NUEVAS FUNCIONES PARA PEDIDOS EN TIEMPO REAL
+    function iniciarEscuchaDePedidos() {
+        if (intervaloChequeoPedidos) clearInterval(intervaloChequeoPedidos);
 
-            intervaloChequeoPedidos = setInterval(async () => {
-                try {
-                    const resp = await fetch(URL_APPS_SCRIPT + "?action=obtenerPedidosPendientes");
-                    const data = await resp.json();
+        intervaloChequeoPedidos = setInterval(async () => {
+            try {
+                const resp = await fetch(URL_APPS_SCRIPT + "?action=obtenerPedidosPendientes");
+                const data = await resp.json();
 
-                    if (data.success && data.pedidos.length > 0) {
-                        data.pedidos.forEach(pedido => {
-                            if (!idsPedidosYaMostrados.includes(pedido.id)) {
-                                mostrarAlertaNuevoPedido(pedido);
-                                idsPedidosYaMostrados.push(pedido.id);
-                            }
-                        });
-                    }
-                } catch (error) {
-                    console.log("Buscando pedidos...", error);
+                if (data.success && data.pedidos.length > 0) {
+                    data.pedidos.forEach(pedido => {
+                        if (!idsPedidosYaMostrados.includes(pedido.id)) {
+                            mostrarAlertaNuevoPedido(pedido);
+                            idsPedidosYaMostrados.push(pedido.id);
+                        }
+                    });
                 }
-            }, 10000);
-        }
+            } catch (error) {
+                console.log("Buscando pedidos...", error);
+            }
+        }, 10000);
+    }
 
-        function generarContenidoInfowindowVerde(pedido) {
-            return `
+    function generarContenidoInfowindowVerde(pedido) {
+        return `
                 <div style="padding: 10px; min-width: 250px; font-family: Arial, sans-serif;">
                     <h4 style="margin: 0 0 10px 0; color: #2ecc71; font-size: 16px;">📍 ORIGEN</h4>
                     <p style="margin: 5px 0; font-size: 14px;"><strong>📍 Aquí: </strong> ${pedido.origenCalle}, ${pedido.origenColonia}</p>
@@ -1548,15 +1791,15 @@ function cerrarPanelDirecciones() {
                     </div>
                 </div>
             `;
-        }
+    }
 
-        function generarContenidoInfowindowRojo(pedido) {
-            const estado = (pedido.estado || '').toUpperCase();
-            const botonEntregadoDisabled = (estado !== 'RECOLECTADO') ? 'disabled' : '';
-            const botonEntregadoStyle = botonEntregadoDisabled ? 'background: #6c757d; cursor: not-allowed;' : 'background: #e74c3c; cursor: pointer;';
-            const botonEntregadoTitle = botonEntregadoDisabled ? 'Primero debe marcar como recolectado' : 'Marcar como entregado';
+    function generarContenidoInfowindowRojo(pedido) {
+        const estado = (pedido.estado || '').toUpperCase();
+        const botonEntregadoDisabled = (estado !== 'RECOLECTADO') ? 'disabled' : '';
+        const botonEntregadoStyle = botonEntregadoDisabled ? 'background: #6c757d; cursor: not-allowed;' : 'background: #e74c3c; cursor: pointer;';
+        const botonEntregadoTitle = botonEntregadoDisabled ? 'Primero debe marcar como recolectado' : 'Marcar como entregado';
 
-            return `
+        return `
                 <div style="padding: 10px; min-width: 250px; font-family: Arial, sans-serif;">
                     <h4 style="margin: 0 0 10px 0; color: #e74c3c; font-size: 16px;">📍 DESTINO</h4>
                     <p style="margin: 5px 0; font-size: 14px;"><strong>📍 Aquí: </strong> ${pedido.destinoCalle}, ${pedido.destinoColonia}</p>
@@ -1578,60 +1821,67 @@ function cerrarPanelDirecciones() {
                     </div>
                 </div>
             `;
-        }
+    }
 
-        function mostrarAlertaNuevoPedido(pedido) {
-            new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_5cfcff5b37.mp3').play();
+    function mostrarAlertaNuevoPedido(pedido) {
+        new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_5cfcff5b37.mp3').play();
 
-            const marcadorOrigen = new google.maps.Marker({
-                position: { lat: parseFloat(pedido.origenLat), lng: parseFloat(pedido.origenLng) },
-                map: mapa,
-                title: `NUEVO ORIGEN: ${pedido.origenCalle}`,
-                icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                zIndex: 9999
-            });
+        const marcadorOrigen = new google.maps.Marker({
+            position: { lat: parseFloat(pedido.origenLat), lng: parseFloat(pedido.origenLng) },
+            map: mapa,
+            title: `NUEVO ORIGEN: ${pedido.origenCalle}`,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+            zIndex: 9999
+        });
 
-            const marcadorDestino = new google.maps.Marker({
-                position: { lat: parseFloat(pedido.destinoLat), lng: parseFloat(pedido.destinoLng) },
-                map: mapa,
-                title: `NUEVO DESTINO: ${pedido.destinoCalle}`,
-                icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                zIndex: 9999
-            });
+        const marcadorDestino = new google.maps.Marker({
+            position: { lat: parseFloat(pedido.destinoLat), lng: parseFloat(pedido.destinoLng) },
+            map: mapa,
+            title: `NUEVO DESTINO: ${pedido.destinoCalle}`,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            zIndex: 9999
+        });
 
-            // Agregar infowindows a los marcadores
-            const infowindowOrigen = new google.maps.InfoWindow({
-                content: generarContenidoInfowindowVerde(pedido)
-            });
+        // Agregar infowindows a los marcadores
+        const infowindowOrigen = new google.maps.InfoWindow({
+            content: generarContenidoInfowindowVerde(pedido)
+        });
 
-            const infowindowDestino = new google.maps.InfoWindow({
-                content: generarContenidoInfowindowRojo(pedido)
-            });
+        const infowindowDestino = new google.maps.InfoWindow({
+            content: generarContenidoInfowindowRojo(pedido)
+        });
 
-            marcadorOrigen.addListener('click', function() {
-                console.log("🖱️ Click en marcador ORIGEN (servicio rápido) - mostrando panel...");
-                
-                // ✅ Cerrar otros infowindows
-                cerrarTodosInfowindows();
-                
-                // ✅ Borrar marcadorSeleccionado (globo azul)
-                if (marcadorSeleccionado) {
-                    marcadorSeleccionado.setMap(null);
-                    marcadorSeleccionado = null;
-                }
-                
-                // ✅ Usar panel fijo con contenido del infowindow
-                const contenedor = document.getElementById('contenedorInfoFijo');
-                const titulo = document.getElementById('infoFijoTitulo');
-                const contenido = document.getElementById('infoFijoContenido');
-                const botones = document.getElementById('infoFijoBotones');
-                
-                titulo.innerHTML = `<span style="color: #2ecc71;">📍 ORIGEN</span> - ${pedido.origenCalle}, ${pedido.origenColonia}`;
-                contenido.innerHTML = `
+        marcadorOrigen.addListener('click', function () {
+            console.log("🖱️ Click en marcador ORIGEN (servicio rápido) - mostrando panel...");
+
+            // ..... REGISTRAR CLIC PARA BOTÓN DE RUTA
+            const marcadorInfo = marcadoresPedidos.get(pedido.id);
+            if (marcadorInfo) {
+                marcadorInfo.ultimoClick = 'origen';
+                console.log("📍 Marcador origen clickeado - registrado para botón de ruta");
+            }
+
+            // ✅ Cerrar otros infowindows
+            cerrarTodosInfowindows();
+
+            // ✅ Borrar marcadorSeleccionado (globo azul)
+            if (marcadorSeleccionado) {
+                marcadorSeleccionado.setMap(null);
+                marcadorSeleccionado = null;
+            }
+
+            // ✅ Usar panel fijo con contenido del infowindow
+            const contenedor = document.getElementById('contenedorInfoFijo');
+            const titulo = document.getElementById('infoFijoTitulo');
+            const contenido = document.getElementById('infoFijoContenido');
+            const botones = document.getElementById('infoFijoBotones');
+
+            titulo.innerHTML = `<span style="color: #2ecc71;">📍 ORIGEN</span> - ${pedido.origenCalle}, ${pedido.origenColonia}`;
+            contenido.innerHTML = `
                     <p><strong>🎯 Va a:</strong> ${pedido.destinoCalle}, ${pedido.destinoColonia}</p>
                     <p><strong>👤 Entrega:</strong> ${pedido.nombreRemitente || 'Sin nombre'}</p>
                 `;
-                botones.innerHTML = `
+            botones.innerHTML = `
                     <a href="tel:${pedido.telRemitente || ''}" style="color: #007bff; font-size: 30px;" title="Llamar">
                         <i class="fas fa-phone"></i>
                     </a>
@@ -1645,44 +1895,51 @@ function cerrarPanelDirecciones() {
                         <i class="fab fa-whatsapp"></i>
                     </a>
                 `;
-                
-                // ✅ ABRIR PANEL FIJO
-                contenedor.style.display = 'block';
-                
-                // ✅ Crear círculo en base del marcador activo
-                crearCirculoActivo(marcadorOrigen);
-            });
 
-            marcadorDestino.addListener('click', function() {
-                console.log("🖱️ Click en marcador DESTINO (servicio rápido) - mostrando panel...");
-                
-                // ✅ Cerrar otros infowindows
-                cerrarTodosInfowindows();
-                
-                // ✅ Borrar marcadorSeleccionado (globo azul)
-                if (marcadorSeleccionado) {
-                    marcadorSeleccionado.setMap(null);
-                    marcadorSeleccionado = null;
-                }
-                
-                // ✅ Usar panel fijo con contenido del infowindow
-                const contenedor = document.getElementById('contenedorInfoFijo');
-                const titulo = document.getElementById('infoFijoTitulo');
-                const contenido = document.getElementById('infoFijoContenido');
-                const botones = document.getElementById('infoFijoBotones');
-                
-                const estado = (pedido.estado || '').toUpperCase();
-                const botonEntregadoDisabled = (estado !== 'RECOLECTADO') ? 'disabled' : '';
-                const botonEntregadoStyle = botonEntregadoDisabled ? 'background: #6c757d; cursor: not-allowed;' : 'background: #e74c3c; cursor: pointer;';
-                const botonEntregadoTitle = botonEntregadoDisabled ? 'Primero debe marcar como recolectado' : 'Marcar como entregado';
-                
-                titulo.innerHTML = `<span style="color: #e74c3c;">📍 DESTINO</span> - ${pedido.destinoCalle}, ${pedido.destinoColonia}`;
-                contenido.innerHTML = `
+            // ✅ ABRIR PANEL FIJO
+            contenedor.style.display = 'block';
+
+            // ✅ Crear círculo en base del marcador activo
+            crearCirculoActivo(marcadorOrigen);
+        });
+
+        marcadorDestino.addListener('click', function () {
+            console.log("🖱️ Click en marcador DESTINO (servicio rápido) - mostrando panel...");
+
+            // ..... REGISTRAR CLIC PARA BOTÓN DE RUTA
+            const marcadorInfo = marcadoresPedidos.get(pedido.id);
+            if (marcadorInfo) {
+                marcadorInfo.ultimoClick = 'destino';
+                console.log("📍 Marcador destino clickeado - registrado para botón de ruta");
+            }
+
+            // ✅ Cerrar otros infowindows
+            cerrarTodosInfowindows();
+
+            // ✅ Borrar marcadorSeleccionado (globo azul)
+            if (marcadorSeleccionado) {
+                marcadorSeleccionado.setMap(null);
+                marcadorSeleccionado = null;
+            }
+
+            // ✅ Usar panel fijo con contenido del infowindow
+            const contenedor = document.getElementById('contenedorInfoFijo');
+            const titulo = document.getElementById('infoFijoTitulo');
+            const contenido = document.getElementById('infoFijoContenido');
+            const botones = document.getElementById('infoFijoBotones');
+
+            const estado = (pedido.estado || '').toUpperCase();
+            const botonEntregadoDisabled = (estado !== 'RECOLECTADO') ? 'disabled' : '';
+            const botonEntregadoStyle = botonEntregadoDisabled ? 'background: #6c757d; cursor: not-allowed;' : 'background: #e74c3c; cursor: pointer;';
+            const botonEntregadoTitle = botonEntregadoDisabled ? 'Primero debe marcar como recolectado' : 'Marcar como entregado';
+
+            titulo.innerHTML = `<span style="color: #e74c3c;">📍 DESTINO</span> - ${pedido.destinoCalle}, ${pedido.destinoColonia}`;
+            contenido.innerHTML = `
                     <p><strong>🏠 Viene de:</strong> ${pedido.origenCalle}, ${pedido.origenColonia}</p>
                     <p><strong>👤 Recibe:</strong> ${pedido.nombreDestinatario || 'Sin nombre'}</p>
                     
                 `;
-                botones.innerHTML = `
+            botones.innerHTML = `
                     <a href="tel:${pedido.telDestinatario || ''}" style="color: #007bff; font-size: 30px;" title="Llamar">
                         <i class="fas fa-phone"></i>
                     </a>
@@ -1696,369 +1953,369 @@ function cerrarPanelDirecciones() {
                         <i class="fab fa-whatsapp"></i>
                     </a>
                 `;
-                
-                // ✅ ABRIR PANEL FIJO
-                contenedor.style.display = 'block';
-                
-                // ✅ Crear círculo en base del marcador activo
-                crearCirculoActivo(marcadorDestino);
-            });
 
-            // ✅ ALMACENAR MARCADORES PARA ACTUALIZACIÓN INTELIGENTE
-            marcadoresPedidos.set(pedido.id, {
-                marcadorOrigen: marcadorOrigen,
-                marcadorDestino: marcadorDestino,
-                infowindowOrigen: infowindowOrigen,
-                infowindowDestino: infowindowDestino,
-                datos: pedido
-            });
+            // ✅ ABRIR PANEL FIJO
+            contenedor.style.display = 'block';
 
-            // ✅ Lógica correcta: Solo mostrar confirmación si estado es PENDIENTE
-            if (!pedido.estado || pedido.estado.toUpperCase() === 'PENDIENTE') {
-                if (confirm(`🔔 NUEVO PEDIDO\n\nDe: ${pedido.origenCalle}, ${pedido.origenColonia}\nA: ${pedido.destinoCalle}, ${pedido.destinoColonia}\n\nDistancia: ${pedido.distancia} km | $${pedido.precio}\nRápido: ${pedido.servicioRapido == 'true'? 'Sí' : 'No'}\n\n¿ACEPTAR PEDIDO?`)) {
-                    aceptarPedido(pedido.id, marcadorOrigen, marcadorDestino);
-                } else {
-                    marcadorOrigen.setMap(null);
-                    marcadorDestino.setMap(null);
-                    marcadoresPedidos.delete(pedido.id);
+            // ✅ Crear círculo en base del marcador activo
+            crearCirculoActivo(marcadorDestino);
+        });
+
+        // ✅ ALMACENAR MARCADORES PARA ACTUALIZACIÓN INTELIGENTE
+        marcadoresPedidos.set(pedido.id, {
+            marcadorOrigen: marcadorOrigen,
+            marcadorDestino: marcadorDestino,
+            infowindowOrigen: infowindowOrigen,
+            infowindowDestino: infowindowDestino,
+            datos: pedido
+        });
+
+        // ✅ Lógica correcta: Solo mostrar confirmación si estado es PENDIENTE
+        if (!pedido.estado || pedido.estado.toUpperCase() === 'PENDIENTE') {
+            if (confirm(`🔔 NUEVO PEDIDO\n\nDe: ${pedido.origenCalle}, ${pedido.origenColonia}\nA: ${pedido.destinoCalle}, ${pedido.destinoColonia}\n\nDistancia: ${pedido.distancia} km | $${pedido.precio}\nRápido: ${pedido.servicioRapido == 'true' ? 'Sí' : 'No'}\n\n¿ACEPTAR PEDIDO?`)) {
+                aceptarPedido(pedido.id, marcadorOrigen, marcadorDestino);
+            } else {
+                marcadorOrigen.setMap(null);
+                marcadorDestino.setMap(null);
+                marcadoresPedidos.delete(pedido.id);
+            }
+        } else {
+            // ✅ Pedido ya tiene estado (ACEPTADO, RECOLECTADO, etc.), solo mostrar marcadores
+            console.log(`📍 Pedido ${pedido.id} con estado "${pedido.estado}", mostrando marcadores sin confirmación`);
+        }
+    }
+
+    // ✅ FUNCIÓN PARA CERRAR TODOS LOS INFOWINDOWS
+    function cerrarTodosInfowindows() {
+        marcadoresPedidos.forEach((marcadorInfo) => {
+            if (marcadorInfo.infowindowOrigen) {
+                marcadorInfo.infowindowOrigen.close();
+            }
+            if (marcadorInfo.infowindowDestino) {
+                marcadorInfo.infowindowDestino.close();
+            }
+        });
+    }
+
+    // ✅ FUNCIÓN PARA CERRAR TODOS LOS INFOWINDOWS EXCEPTO UNO
+    function cerrarTodosInfowindowsExcepto(infowindowExcepcion) {
+        marcadoresPedidos.forEach((marcadorInfo) => {
+            if (marcadorInfo.infowindowOrigen && marcadorInfo.infowindowOrigen !== infowindowExcepcion) {
+                marcadorInfo.infowindowOrigen.close();
+            }
+            if (marcadorInfo.infowindowDestino && marcadorInfo.infowindowDestino !== infowindowExcepcion) {
+                marcadorInfo.infowindowDestino.close();
+            }
+        });
+    }
+
+    // ✅ FUNCIÓN PARA CARGAR PEDIDOS EXISTENTES AL INICIAR
+    async function cargarPedidosExistentes() {
+        try {
+            console.log("🔄 Cargando pedidos existentes...");
+
+            const respuesta = await fetch(URL_APPS_SCRIPT + "?action=obtenerPedidosExistentes");
+            const data = await respuesta.json();
+
+            if (data.success && data.pedidos) {
+                let pedidosCargados = 0;
+
+                data.pedidos.forEach(pedido => {
+                    // Excluir pedidos entregados
+                    if (pedido.estado && pedido.estado.toUpperCase() === 'ENTREGADO') {
+                        console.log(`⏭️ Pedido ${pedido.id} omitido (ya entregado)`);
+                        return;
+                    }
+
+                    // Agregar a la lista de IDs ya mostrados para no duplicar
+                    if (!idsPedidosYaMostrados.includes(pedido.id)) {
+                        idsPedidosYaMostrados.push(pedido.id);
+                    }
+
+                    // Crear marcadores para el pedido existente
+                    crearMarcadoresPedidoExistente(pedido);
+                    pedidosCargados++;
+                });
+
+                console.log(`✅ Se cargaron ${pedidosCargados} pedidos existentes`);
+
+                // Si hay pedidos, ajustar vista del mapa
+                if (pedidosCargados > 0) {
+                    ajustarVistaMapaAPedidos();
                 }
             } else {
-                // ✅ Pedido ya tiene estado (ACEPTADO, RECOLECTADO, etc.), solo mostrar marcadores
-                console.log(`📍 Pedido ${pedido.id} con estado "${pedido.estado}", mostrando marcadores sin confirmación`);
+                console.log("ℹ️ No hay pedidos existentes o error:", data.message);
             }
+        } catch (error) {
+            console.error("Error al cargar pedidos existentes:", error);
         }
+    }
 
-        // ✅ FUNCIÓN PARA CERRAR TODOS LOS INFOWINDOWS
-        function cerrarTodosInfowindows() {
-            marcadoresPedidos.forEach((marcadorInfo) => {
-                if (marcadorInfo.infowindowOrigen) {
-                    marcadorInfo.infowindowOrigen.close();
-                }
-                if (marcadorInfo.infowindowDestino) {
-                    marcadorInfo.infowindowDestino.close();
-                }
-            });
-        }
+    // ✅ FUNCIÓN PARA CREAR MARCADORES DE PEDIDOS EXISTENTES
+    function crearMarcadoresPedidoExistente(pedido) {
+        const marcadorOrigen = new google.maps.Marker({
+            position: { lat: parseFloat(pedido.origenLat), lng: parseFloat(pedido.origenLng) },
+            map: mapa,
+            title: `ORIGEN: ${pedido.origenCalle} - ${pedido.nombreRemitente || 'Sin nombre'}`,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+            zIndex: 9998 // Un poco más bajo que los nuevos
+        });
 
-        // ✅ FUNCIÓN PARA CERRAR TODOS LOS INFOWINDOWS EXCEPTO UNO
-        function cerrarTodosInfowindowsExcepto(infowindowExcepcion) {
-            marcadoresPedidos.forEach((marcadorInfo) => {
-                if (marcadorInfo.infowindowOrigen && marcadorInfo.infowindowOrigen !== infowindowExcepcion) {
-                    marcadorInfo.infowindowOrigen.close();
-                }
-                if (marcadorInfo.infowindowDestino && marcadorInfo.infowindowDestino !== infowindowExcepcion) {
-                    marcadorInfo.infowindowDestino.close();
-                }
-            });
-        }
+        const marcadorDestino = new google.maps.Marker({
+            position: { lat: parseFloat(pedido.destinoLat), lng: parseFloat(pedido.destinoLng) },
+            map: mapa,
+            title: `DESTINO: ${pedido.destinoCalle} - ${pedido.nombreDestinatario || 'Sin nombre'}`,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            zIndex: 9998
+        });
 
-        // ✅ FUNCIÓN PARA CARGAR PEDIDOS EXISTENTES AL INICIAR
-        async function cargarPedidosExistentes() {
+        // Agregar infowindows
+        const infowindowOrigen = new google.maps.InfoWindow({
+            content: generarContenidoInfowindowVerde(pedido)
+        });
+
+        const infowindowDestino = new google.maps.InfoWindow({
+            content: generarContenidoInfowindowRojo(pedido)
+        });
+
+        // Eventos click
+        marcadorOrigen.addListener('click', function () {
+            console.log("🖱️ Click en marcador ORIGEN - Iniciando proceso de cierre...");
+            alert("🔴 CLICK EN ORIGEN - Si ves esto, el evento click funciona");
+
+            // ✅ Forzar cierre directo del panel (sin función)
+            const contenedor = document.getElementById('contenedorInfoFijo');
+            console.log("🔍 Buscando contenedor contenedorInfoFijo...");
+            console.log("🔍 Contenedor encontrado:", contenedor);
+
+            if (contenedor) {
+                console.log("✅ Contenedor encontrado, estado actual:", contenedor.style.display);
+                console.log("🔄 Aplicando display = 'none'...");
+                contenedor.style.display = 'none';
+                console.log("✅ Estado después del cambio:", contenedor.style.display);
+
+                // 🔴 CAMBIO VISIBLE DE PRUEBA
+                contenedor.style.backgroundColor = 'red';
+                console.log("🔴 Color cambiado a rojo para prueba visual");
+            } else {
+                console.log("❌ ERROR: No se encontró el contenedor contenedorInfoFijo");
+            }
+
+            console.log("🔄 Cerrando otros infowindows...");
+            cerrarTodosInfowindowsExcepto(infowindowOrigen);
+
+            console.log("🔄 Abriendo infowindow actual...");
+            infowindowOrigen.open(mapa, marcadorOrigen);
+
+            console.log("✅ Proceso completado");
+        });
+
+        // 🔴 PRUEBA: Cambiar color del marcador para confirmar que es el correcto
+        marcadorOrigen.setIcon({
+            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+            scaledSize: new google.maps.Size(32, 32)
+        });
+        console.log("🔴 Marcador origen cambiado a AZUL para prueba visual");
+
+        marcadorDestino.addListener('click', function () {
+            console.log("🖱️ Click en marcador DESTINO - cerrando panel directamente...");
+
+            // ✅ Forzar cierre directo del panel (sin función)
+            const contenedor = document.getElementById('contenedorInfoFijo');
+            if (contenedor) {
+                console.log("✅ Forzando cierre directo del panel");
+                contenedor.style.display = 'none';
+            }
+
+            cerrarTodosInfowindowsExcepto(infowindowDestino);
+            infowindowDestino.open(mapa, marcadorDestino);
+        });
+
+        // Almacenar para actualización inteligente
+        marcadoresPedidos.set(pedido.id, {
+            marcadorOrigen: marcadorOrigen,
+            marcadorDestino: marcadorDestino,
+            infowindowOrigen: infowindowOrigen,
+            infowindowDestino: infowindowDestino,
+            datos: pedido
+        });
+
+        console.log(`📍 Pedido ${pedido.id} cargado en el mapa`);
+    }
+
+    // ✅ FUNCIÓN PARA AJUSTAR VISTA DEL MAPA A TODOS LOS PEDIDOS
+    function ajustarVistaMapaAPedidos() {
+        if (marcadoresPedidos.size === 0) return;
+
+        const bounds = new google.maps.LatLngBounds();
+
+        marcadoresPedidos.forEach(marcadorInfo => {
+            bounds.extend(marcadorInfo.marcadorOrigen.getPosition());
+            bounds.extend(marcadorInfo.marcadorDestino.getPosition());
+        });
+
+        // Ajustar el mapa para mostrar todos los marcadores
+        mapa.fitBounds(bounds);
+
+        // Peño ajuste para que no quede demasiado pegado a los bordes
+        setTimeout(() => {
+            const zoomActual = mapa.getZoom();
+            if (zoomActual > 15) {
+                mapa.setZoom(15);
+            } else if (zoomActual < 12) {
+                mapa.setZoom(12);
+            }
+        }, 500);
+    }
+
+    // ✅ FUNCIÓN DE ACTUALIZACIÓN INTELIGENTE DE DATOS
+    function iniciarActualizacionInteligente() {
+        if (intervaloActualizacionDatos) clearInterval(intervaloActualizacionDatos);
+
+        intervaloActualizacionDatos = setInterval(async () => {
+            if (marcadoresPedidos.size === 0) return; // No actualizar si no hay pedidos activos
+
             try {
-                console.log("🔄 Cargando pedidos existentes...");
-                
-                const respuesta = await fetch(URL_APPS_SCRIPT + "?action=obtenerPedidosExistentes");
+                console.log("🔄 Buscando actualización de pedidos...");
+                // Usar endpoint existente que sabemos funciona
+                const respuesta = await fetch(URL_APPS_SCRIPT + "?action=obtenerPedidosPendientes");
                 const data = await respuesta.json();
 
+                console.log("📊 Respuesta de actualización:", data);
+
                 if (data.success && data.pedidos) {
-                    let pedidosCargados = 0;
-                    
-                    data.pedidos.forEach(pedido => {
-                        // Excluir pedidos entregados
-                        if (pedido.estado && pedido.estado.toUpperCase() === 'ENTREGADO') {
-                            console.log(`⏭️ Pedido ${pedido.id} omitido (ya entregado)`);
-                            return;
+                    console.log(`✅ Encontrados ${data.pedidos.length} pedidos para actualizar`);
+                    data.pedidos.forEach(pedidoActualizado => {
+                        const marcadorInfo = marcadoresPedidos.get(pedidoActualizado.id);
+                        if (marcadorInfo) {
+                            // Verificar si los datos cambiaron (comparación simple)
+                            const datosAnteriores = marcadorInfo.datos;
+                            const hayCambios = JSON.stringify(datosAnteriores) !== JSON.stringify(pedidoActualizado);
+
+                            if (hayCambios) {
+                                // Actualizar infowindows con nuevos datos
+                                marcadorInfo.infowindowOrigen.setContent(generarContenidoInfowindowVerde(pedidoActualizado));
+                                marcadorInfo.infowindowDestino.setContent(generarContenidoInfowindowRojo(pedidoActualizado));
+
+                                // Actualizar datos almacenados
+                                marcadorInfo.datos = pedidoActualizado;
+
+                                console.log(`🔄 Pedido ${pedidoActualizado.id} actualizado`);
+                            }
                         }
-                        
-                        // Agregar a la lista de IDs ya mostrados para no duplicar
-                        if (!idsPedidosYaMostrados.includes(pedido.id)) {
-                            idsPedidosYaMostrados.push(pedido.id);
-                        }
-                        
-                        // Crear marcadores para el pedido existente
-                        crearMarcadoresPedidoExistente(pedido);
-                        pedidosCargados++;
                     });
-                    
-                    console.log(`✅ Se cargaron ${pedidosCargados} pedidos existentes`);
-                    
-                    // Si hay pedidos, ajustar vista del mapa
-                    if (pedidosCargados > 0) {
-                        ajustarVistaMapaAPedidos();
-                    }
+
+                    // Eliminar marcadores de pedidos que ya no están activos o fueron entregados
+                    marcadoresPedidos.forEach((marcadorInfo, idPedido) => {
+                        const sigueActivo = data.pedidos.some(p => p.id === idPedido);
+                        if (!sigueActivo) {
+                            marcadorInfo.marcadorOrigen.setMap(null);
+                            marcadorInfo.marcadorDestino.setMap(null);
+                            marcadoresPedidos.delete(idPedido);
+                            console.log(`🗑️ Pedido ${idPedido} eliminado del mapa`);
+                        }
+                    });
                 } else {
-                    console.log("ℹ️ No hay pedidos existentes o error:", data.message);
+                    console.log("❌ Error en respuesta de actualización:", data);
+                    console.log("🔍 Posibles causas:");
+                    console.log("   - El endpoint 'obtenerTodosPedidosActivos' no existe");
+                    console.log("   - La hoja de cálculo no está sincronizada");
+                    console.log("   - No hay pedidos activos");
                 }
             } catch (error) {
-                console.error("Error al cargar pedidos existentes:", error);
-            }
-        }
+                console.error("❌ Error en actualización inteligente:", error);
+                console.log("🔍 Verificando conexión con Apps Script...");
 
-        // ✅ FUNCIÓN PARA CREAR MARCADORES DE PEDIDOS EXISTENTES
-        function crearMarcadoresPedidoExistente(pedido) {
-            const marcadorOrigen = new google.maps.Marker({
-                position: { lat: parseFloat(pedido.origenLat), lng: parseFloat(pedido.origenLng) },
-                map: mapa,
-                title: `ORIGEN: ${pedido.origenCalle} - ${pedido.nombreRemitente || 'Sin nombre'}`,
-                icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                zIndex: 9998 // Un poco más bajo que los nuevos
-            });
-
-            const marcadorDestino = new google.maps.Marker({
-                position: { lat: parseFloat(pedido.destinoLat), lng: parseFloat(pedido.destinoLng) },
-                map: mapa,
-                title: `DESTINO: ${pedido.destinoCalle} - ${pedido.nombreDestinatario || 'Sin nombre'}`,
-                icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                zIndex: 9998
-            });
-
-            // Agregar infowindows
-            const infowindowOrigen = new google.maps.InfoWindow({
-                content: generarContenidoInfowindowVerde(pedido)
-            });
-
-            const infowindowDestino = new google.maps.InfoWindow({
-                content: generarContenidoInfowindowRojo(pedido)
-            });
-
-            // Eventos click
-            marcadorOrigen.addListener('click', function() {
-                console.log("🖱️ Click en marcador ORIGEN - Iniciando proceso de cierre...");
-                alert("🔴 CLICK EN ORIGEN - Si ves esto, el evento click funciona");
-                
-                // ✅ Forzar cierre directo del panel (sin función)
-                const contenedor = document.getElementById('contenedorInfoFijo');
-                console.log("🔍 Buscando contenedor contenedorInfoFijo...");
-                console.log("🔍 Contenedor encontrado:", contenedor);
-                
-                if (contenedor) {
-                    console.log("✅ Contenedor encontrado, estado actual:", contenedor.style.display);
-                    console.log("🔄 Aplicando display = 'none'...");
-                    contenedor.style.display = 'none';
-                    console.log("✅ Estado después del cambio:", contenedor.style.display);
-                    
-                    // 🔴 CAMBIO VISIBLE DE PRUEBA
-                    contenedor.style.backgroundColor = 'red';
-                    console.log("🔴 Color cambiado a rojo para prueba visual");
-                } else {
-                    console.log("❌ ERROR: No se encontró el contenedor contenedorInfoFijo");
-                }
-                
-                console.log("🔄 Cerrando otros infowindows...");
-                cerrarTodosInfowindowsExcepto(infowindowOrigen);
-                
-                console.log("🔄 Abriendo infowindow actual...");
-                infowindowOrigen.open(mapa, marcadorOrigen);
-                
-                console.log("✅ Proceso completado");
-            });
-
-            // 🔴 PRUEBA: Cambiar color del marcador para confirmar que es el correcto
-            marcadorOrigen.setIcon({
-                url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-                scaledSize: new google.maps.Size(32, 32)
-            });
-            console.log("🔴 Marcador origen cambiado a AZUL para prueba visual");
-
-            marcadorDestino.addListener('click', function() {
-                console.log("🖱️ Click en marcador DESTINO - cerrando panel directamente...");
-                
-                // ✅ Forzar cierre directo del panel (sin función)
-                const contenedor = document.getElementById('contenedorInfoFijo');
-                if (contenedor) {
-                    console.log("✅ Forzando cierre directo del panel");
-                    contenedor.style.display = 'none';
-                }
-                
-                cerrarTodosInfowindowsExcepto(infowindowDestino);
-                infowindowDestino.open(mapa, marcadorDestino);
-            });
-
-            // Almacenar para actualización inteligente
-            marcadoresPedidos.set(pedido.id, {
-                marcadorOrigen: marcadorOrigen,
-                marcadorDestino: marcadorDestino,
-                infowindowOrigen: infowindowOrigen,
-                infowindowDestino: infowindowDestino,
-                datos: pedido
-            });
-
-            console.log(`📍 Pedido ${pedido.id} cargado en el mapa`);
-        }
-
-        // ✅ FUNCIÓN PARA AJUSTAR VISTA DEL MAPA A TODOS LOS PEDIDOS
-        function ajustarVistaMapaAPedidos() {
-            if (marcadoresPedidos.size === 0) return;
-
-            const bounds = new google.maps.LatLngBounds();
-            
-            marcadoresPedidos.forEach(marcadorInfo => {
-                bounds.extend(marcadorInfo.marcadorOrigen.getPosition());
-                bounds.extend(marcadorInfo.marcadorDestino.getPosition());
-            });
-
-            // Ajustar el mapa para mostrar todos los marcadores
-            mapa.fitBounds(bounds);
-            
-            // Peño ajuste para que no quede demasiado pegado a los bordes
-            setTimeout(() => {
-                const zoomActual = mapa.getZoom();
-                if (zoomActual > 15) {
-                    mapa.setZoom(15);
-                } else if (zoomActual < 12) {
-                    mapa.setZoom(12);
-                }
-            }, 500);
-        }
-
-        // ✅ FUNCIÓN DE ACTUALIZACIÓN INTELIGENTE DE DATOS
-        function iniciarActualizacionInteligente() {
-            if (intervaloActualizacionDatos) clearInterval(intervaloActualizacionDatos);
-
-            intervaloActualizacionDatos = setInterval(async () => {
-                if (marcadoresPedidos.size === 0) return; // No actualizar si no hay pedidos activos
-
+                // Intentar con un endpoint básico para verificar conexión
                 try {
-                    console.log("🔄 Buscando actualización de pedidos...");
-                    // Usar endpoint existente que sabemos funciona
-                    const respuesta = await fetch(URL_APPS_SCRIPT + "?action=obtenerPedidosPendientes");
-                    const data = await respuesta.json();
-                    
-                    console.log("📊 Respuesta de actualización:", data);
-
-                    if (data.success && data.pedidos) {
-                        console.log(`✅ Encontrados ${data.pedidos.length} pedidos para actualizar`);
-                        data.pedidos.forEach(pedidoActualizado => {
-                            const marcadorInfo = marcadoresPedidos.get(pedidoActualizado.id);
-                            if (marcadorInfo) {
-                                // Verificar si los datos cambiaron (comparación simple)
-                                const datosAnteriores = marcadorInfo.datos;
-                                const hayCambios = JSON.stringify(datosAnteriores) !== JSON.stringify(pedidoActualizado);
-
-                                if (hayCambios) {
-                                    // Actualizar infowindows con nuevos datos
-                                    marcadorInfo.infowindowOrigen.setContent(generarContenidoInfowindowVerde(pedidoActualizado));
-                                    marcadorInfo.infowindowDestino.setContent(generarContenidoInfowindowRojo(pedidoActualizado));
-                                    
-                                    // Actualizar datos almacenados
-                                    marcadorInfo.datos = pedidoActualizado;
-                                    
-                                    console.log(`🔄 Pedido ${pedidoActualizado.id} actualizado`);
-                                }
-                            }
-                        });
-
-                        // Eliminar marcadores de pedidos que ya no están activos o fueron entregados
-                        marcadoresPedidos.forEach((marcadorInfo, idPedido) => {
-                            const sigueActivo = data.pedidos.some(p => p.id === idPedido);
-                            if (!sigueActivo) {
-                                marcadorInfo.marcadorOrigen.setMap(null);
-                                marcadorInfo.marcadorDestino.setMap(null);
-                                marcadoresPedidos.delete(idPedido);
-                                console.log(`🗑️ Pedido ${idPedido} eliminado del mapa`);
-                            }
-                        });
-                    } else {
-                        console.log("❌ Error en respuesta de actualización:", data);
-                        console.log("🔍 Posibles causas:");
-                        console.log("   - El endpoint 'obtenerTodosPedidosActivos' no existe");
-                        console.log("   - La hoja de cálculo no está sincronizada");
-                        console.log("   - No hay pedidos activos");
-                    }
-                } catch (error) {
-                    console.error("❌ Error en actualización inteligente:", error);
-                    console.log("🔍 Verificando conexión con Apps Script...");
-                    
-                    // Intentar con un endpoint básico para verificar conexión
-                    try {
-                        const testRespuesta = await fetch(URL_APPS_SCRIPT + "?action=obtenerPedidosPendientes");
-                        const testData = await testRespuesta.json();
-                        console.log("✅ Conexión básica funciona:", testData.success);
-                    } catch (testError) {
-                        console.error("❌ Error de conexión básica:", testError);
-                    }
+                    const testRespuesta = await fetch(URL_APPS_SCRIPT + "?action=obtenerPedidosPendientes");
+                    const testData = await testRespuesta.json();
+                    console.log("✅ Conexión básica funciona:", testData.success);
+                } catch (testError) {
+                    console.error("❌ Error de conexión básica:", testError);
                 }
-            }, 3000); // Actualizar cada 3 segundos (más rápido para datos en tiempo real)
+            }
+        }, 3000); // Actualizar cada 3 segundos (más rápido para datos en tiempo real)
+    }
+
+    function marcarRecolectado(idPedido) {
+        // Buscar el pedido en los marcadores existentes
+        let marcadorInfo = marcadoresPedidos.get(idPedido);
+        if (!marcadorInfo) {
+            const idString = idPedido.toString();
+            marcadorInfo = marcadoresPedidos.get(idString);
+        }
+        if (!marcadorInfo) {
+            const idNumber = parseInt(idPedido);
+            marcadorInfo = marcadoresPedidos.get(idNumber);
         }
 
-        function marcarRecolectado(idPedido) {
-            // Buscar el pedido en los marcadores existentes
-            let marcadorInfo = marcadoresPedidos.get(idPedido);
-            if (!marcadorInfo) {
-                const idString = idPedido.toString();
-                marcadorInfo = marcadoresPedidos.get(idString);
-            }
-            if (!marcadorInfo) {
-                const idNumber = parseInt(idPedido);
-                marcadorInfo = marcadoresPedidos.get(idNumber);
-            }
-            
-            if (!marcadorInfo) {
-                console.error("❌ No se encontró el pedido en marcadoresPedidos");
-                alert("No se encontró el pedido");
-                return;
-            }
-            
-            const pedido = marcadorInfo.datos;
-            const mensaje = `Su paquete ha sido recolectado y será entregado en ${parseInt(pedido.duracion) + 5} min aproximadamente`;
-            
-            // Enviar mensaje WhatsApp automáticamente
-            const urlWhatsApp = `https://wa.me/${pedido.telDestinatario || ''}?text=${encodeURIComponent(mensaje)}`;
-            window.open(urlWhatsApp, '_blank');
-            
-            // Actualizar estado en la base de datos
-            actualizarEstadoPedido(idPedido, 'RECOLECTADO');
-            
-            // ✅ Actualizar estado local para activar botón entregado
-            marcadorInfo.datos.estado = 'RECOLECTADO';
-            
-            // ✅ Actualizar contenido del infowindow del destino para activar botón entregado
-            if (marcadorInfo.infowindowDestino) {
-                marcadorInfo.infowindowDestino.setContent(generarContenidoInfowindowRojo(marcadorInfo.datos));
-                // Cerrar infowindow del destino después de actualizar para mejor UX
-                setTimeout(() => {
-                    marcadorInfo.infowindowDestino.close();
-                }, 1000);
-            }
-            
-            // Cerrar infowindows
-            if (marcadorInfo.infowindowOrigen) marcadorInfo.infowindowOrigen.close();
-            
-            // Eliminar el marcador verde (origen)
-            if (marcadorInfo.marcadorOrigen) {
-                marcadorInfo.marcadorOrigen.setMap(null);
-            }
-            
-            // ✅ Cerrar panel y eliminar círculo activo
-            ocultarContenedorInfoFijo();
-            
-            // ✅ Eliminar marcadorSeleccionado (globo azul) si existe
-            if (marcadorSeleccionado) {
-                marcadorSeleccionado.setMap(null);
-                marcadorSeleccionado = null;
-            }
-            
-            // Actualizar el marcadorInfo para eliminar solo el origen
-            marcadoresPedidos.set(idPedido.toString(), {
-                marcadorOrigen: null,
-                marcadorDestino: marcadorInfo.marcadorDestino,
-                infowindowOrigen: null,
-                infowindowDestino: marcadorInfo.infowindowDestino,
-                datos: marcadorInfo.datos
-            });
-            
-            // ✅ Operación completada sin alerta para mayor rapidez
+        if (!marcadorInfo) {
+            console.error("❌ No se encontró el pedido en marcadoresPedidos");
+            alert("No se encontró el pedido");
+            return;
         }
 
-        function mostrarVentanaPin(idPedido, pinCorrecto) {
-            // ✅ Evitar múltiples ventanas abiertas
-            if (ventanaPinActiva) {
-                return;
-            }
-            
-            // Crear ventana modal para validación de PIN si no existe
-            if (!document.getElementById('ventanaValidacionPin')) {
-                const ventanaHTML = `
+        const pedido = marcadorInfo.datos;
+        const mensaje = `Su paquete ha sido recolectado y será entregado en ${parseInt(pedido.duracion) + 5} min aproximadamente`;
+
+        // Enviar mensaje WhatsApp automáticamente
+        const urlWhatsApp = `https://wa.me/${pedido.telDestinatario || ''}?text=${encodeURIComponent(mensaje)}`;
+        window.open(urlWhatsApp, '_blank');
+
+        // Actualizar estado en la base de datos
+        actualizarEstadoPedido(idPedido, 'RECOLECTADO');
+
+        // ✅ Actualizar estado local para activar botón entregado
+        marcadorInfo.datos.estado = 'RECOLECTADO';
+
+        // ✅ Actualizar contenido del infowindow del destino para activar botón entregado
+        if (marcadorInfo.infowindowDestino) {
+            marcadorInfo.infowindowDestino.setContent(generarContenidoInfowindowRojo(marcadorInfo.datos));
+            // Cerrar infowindow del destino después de actualizar para mejor UX
+            setTimeout(() => {
+                marcadorInfo.infowindowDestino.close();
+            }, 1000);
+        }
+
+        // Cerrar infowindows
+        if (marcadorInfo.infowindowOrigen) marcadorInfo.infowindowOrigen.close();
+
+        // Eliminar el marcador verde (origen)
+        if (marcadorInfo.marcadorOrigen) {
+            marcadorInfo.marcadorOrigen.setMap(null);
+        }
+
+        // ✅ Cerrar panel y eliminar círculo activo
+        ocultarContenedorInfoFijo();
+
+        // ✅ Eliminar marcadorSeleccionado (globo azul) si existe
+        if (marcadorSeleccionado) {
+            marcadorSeleccionado.setMap(null);
+            marcadorSeleccionado = null;
+        }
+
+        // Actualizar el marcadorInfo para eliminar solo el origen
+        marcadoresPedidos.set(idPedido.toString(), {
+            marcadorOrigen: null,
+            marcadorDestino: marcadorInfo.marcadorDestino,
+            infowindowOrigen: null,
+            infowindowDestino: marcadorInfo.infowindowDestino,
+            datos: marcadorInfo.datos
+        });
+
+        // ✅ Operación completada sin alerta para mayor rapidez
+    }
+
+    function mostrarVentanaPin(idPedido, pinCorrecto) {
+        // ✅ Evitar múltiples ventanas abiertas
+        if (ventanaPinActiva) {
+            return;
+        }
+
+        // Crear ventana modal para validación de PIN si no existe
+        if (!document.getElementById('ventanaValidacionPin')) {
+            const ventanaHTML = `
                     <div id="ventanaValidacionPin" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;">
                         <div style="background: #2b2b2b; padding: 20px; border-radius: 8px; width: 100%; max-width: 400px; border: 1px solid #e74c3c; box-shadow: 0 2px 10px rgba(0,0,0,0.5);">
                             <h3 style="margin-top: 0; margin-bottom: 15px; color: #e74c3c; text-align: center; font-size: 20px;">🔐 Validación de Entrega</h3>
@@ -2083,145 +2340,145 @@ function cerrarPanelDirecciones() {
                         </div>
                     </div>
                 `;
-                document.body.insertAdjacentHTML('beforeend', ventanaHTML);
+            document.body.insertAdjacentHTML('beforeend', ventanaHTML);
+        }
+
+        // Mostrar ventana y configurar eventos
+        const ventana = document.getElementById('ventanaValidacionPin');
+        const campoPin1 = document.getElementById('campoPin1');
+        const campoPin2 = document.getElementById('campoPin2');
+        const campoPin3 = document.getElementById('campoPin3');
+        const campoPin4 = document.getElementById('campoPin4');
+        const mensajeError = document.getElementById('mensajeErrorPin');
+        const btnValidar = document.getElementById('btnValidarPin');
+        const btnCancelar = document.getElementById('btnCancelarPin');
+
+        // ✅ Marcar ventana como activa
+        ventanaPinActiva = true;
+
+        // Limpiar campos anteriores
+        campoPin1.value = '';
+        campoPin2.value = '';
+        campoPin3.value = '';
+        campoPin4.value = '';
+        mensajeError.style.display = 'none';
+        mensajeError.textContent = '';
+        ventana.style.display = 'flex';
+
+        // ✅ Configurar navegación automática entre campos
+        const setupCampoNavigation = (campoActual, campoSiguiente) => {
+            campoActual.addEventListener('input', (e) => {
+                if (e.target.value.length === 1 && campoSiguiente) {
+                    campoSiguiente.focus();
+                }
+            });
+
+            campoActual.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value === '' && campoSiguiente) {
+                    // Permitir retroceder al campo anterior
+                    const campos = [campoPin1, campoPin2, campoPin3, campoPin4];
+                    const indiceActual = campos.indexOf(campoActual);
+                    if (indiceActual > 0) {
+                        campos[indiceActual - 1].focus();
+                    }
+                }
+            });
+        };
+
+        setupCampoNavigation(campoPin1, campoPin2);
+        setupCampoNavigation(campoPin2, campoPin3);
+        setupCampoNavigation(campoPin3, campoPin4);
+        setupCampoNavigation(campoPin4, null);
+
+        // Configurar eventos
+        const manejarValidacion = () => {
+            const pinIngresado = campoPin1.value + campoPin2.value + campoPin3.value + campoPin4.value;
+
+            if (pinIngresado.length !== 4) {
+                mensajeError.textContent = "Por favor, ingresa los 4 dígitos del PIN";
+                mensajeError.style.display = 'block';
+                return;
             }
 
-            // Mostrar ventana y configurar eventos
-            const ventana = document.getElementById('ventanaValidacionPin');
-            const campoPin1 = document.getElementById('campoPin1');
-            const campoPin2 = document.getElementById('campoPin2');
-            const campoPin3 = document.getElementById('campoPin3');
-            const campoPin4 = document.getElementById('campoPin4');
-            const mensajeError = document.getElementById('mensajeErrorPin');
-            const btnValidar = document.getElementById('btnValidarPin');
-            const btnCancelar = document.getElementById('btnCancelarPin');
-
-            // ✅ Marcar ventana como activa
-            ventanaPinActiva = true;
-
-            // Limpiar campos anteriores
-            campoPin1.value = '';
-            campoPin2.value = '';
-            campoPin3.value = '';
-            campoPin4.value = '';
-            mensajeError.style.display = 'none';
-            mensajeError.textContent = '';
-            ventana.style.display = 'flex';
-
-            // ✅ Configurar navegación automática entre campos
-            const setupCampoNavigation = (campoActual, campoSiguiente) => {
-                campoActual.addEventListener('input', (e) => {
-                    if (e.target.value.length === 1 && campoSiguiente) {
-                        campoSiguiente.focus();
-                    }
-                });
-                
-                campoActual.addEventListener('keydown', (e) => {
-                    if (e.key === 'Backspace' && e.target.value === '' && campoSiguiente) {
-                        // Permitir retroceder al campo anterior
-                        const campos = [campoPin1, campoPin2, campoPin3, campoPin4];
-                        const indiceActual = campos.indexOf(campoActual);
-                        if (indiceActual > 0) {
-                            campos[indiceActual - 1].focus();
-                        }
-                    }
-                });
-            };
-
-            setupCampoNavigation(campoPin1, campoPin2);
-            setupCampoNavigation(campoPin2, campoPin3);
-            setupCampoNavigation(campoPin3, campoPin4);
-            setupCampoNavigation(campoPin4, null);
-
-            // Configurar eventos
-            const manejarValidacion = () => {
-                const pinIngresado = campoPin1.value + campoPin2.value + campoPin3.value + campoPin4.value;
-                
-                if (pinIngresado.length !== 4) {
-                    mensajeError.textContent = "Por favor, ingresa los 4 dígitos del PIN";
-                    mensajeError.style.display = 'block';
-                    return;
-                }
-
-                if (pinIngresado === pinCorrecto.toString()) {
-                    ventana.style.display = 'none';
-                    btnValidar.removeEventListener('click', manejarValidacion);
-                    btnCancelar.removeEventListener('click', manejarCancelacion);
-                    ventanaPinActiva = false; // ✅ Restablecer estado
-                    
-                    // ✅ Buscar y cerrar infowindow del pin rojo
-                    const marcadorInfo = marcadoresPedidos.get(idPedido);
-                    if (marcadorInfo && marcadorInfo.infowindowDestino) {
-                        marcadorInfo.infowindowDestino.close();
-                    }
-                    
-                    // ✅ Eliminar el marcador rojo (destino) del mapa
-                    if (marcadorInfo && marcadorInfo.marcadorDestino) {
-                        marcadorInfo.marcadorDestino.setMap(null);
-                    }
-                    
-                    // ✅ Eliminar completamente del mapa de marcadores
-                    marcadoresPedidos.delete(idPedido);
-                    
-                    // ✅ Cerrar panel y eliminar círculo activo
-                    ocultarContenedorInfoFijo();
-                    
-                    // ✅ Eliminar marcadorSeleccionado (globo azul) si existe
-                    if (marcadorSeleccionado) {
-                        marcadorSeleccionado.setMap(null);
-                        marcadorSeleccionado = null;
-                    }
-                    
-                    // Actualizar estado a ENTREGADO
-                    actualizarEstadoPedido(idPedido, 'ENTREGADO');
-                    // ✅ Sin alerta para operación más rápida
-                } else {
-                    mensajeError.textContent = "PIN incorrecto. Por favor, verifica e intenta nuevamente.";
-                    mensajeError.style.display = 'block';
-                    campoPin1.value = '';
-                    campoPin2.value = '';
-                    campoPin3.value = '';
-                    campoPin4.value = '';
-                    campoPin1.focus();
-                }
-            };
-
-            const manejarCancelacion = () => {
+            if (pinIngresado === pinCorrecto.toString()) {
                 ventana.style.display = 'none';
                 btnValidar.removeEventListener('click', manejarValidacion);
                 btnCancelar.removeEventListener('click', manejarCancelacion);
                 ventanaPinActiva = false; // ✅ Restablecer estado
-            };
 
-            btnValidar.addEventListener('click', manejarValidacion);
-            btnCancelar.addEventListener('click', manejarCancelacion);
-            
-            // Permitir enviar con Enter en cualquier campo
-            [campoPin1, campoPin2, campoPin3, campoPin4].forEach(campo => {
-                campo.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        manejarValidacion();
-                    }
-                });
-            });
+                // ✅ Buscar y cerrar infowindow del pin rojo
+                const marcadorInfo = marcadoresPedidos.get(idPedido);
+                if (marcadorInfo && marcadorInfo.infowindowDestino) {
+                    marcadorInfo.infowindowDestino.close();
+                }
 
-            // Cerrar al hacer clic fuera
-            ventana.addEventListener('click', (e) => {
-                if (e.target === ventana) {
-                    manejarCancelacion();
+                // ✅ Eliminar el marcador rojo (destino) del mapa
+                if (marcadorInfo && marcadorInfo.marcadorDestino) {
+                    marcadorInfo.marcadorDestino.setMap(null);
+                }
+
+                // ✅ Eliminar completamente del mapa de marcadores
+                marcadoresPedidos.delete(idPedido);
+
+                // ✅ Cerrar panel y eliminar círculo activo
+                ocultarContenedorInfoFijo();
+
+                // ✅ Eliminar marcadorSeleccionado (globo azul) si existe
+                if (marcadorSeleccionado) {
+                    marcadorSeleccionado.setMap(null);
+                    marcadorSeleccionado = null;
+                }
+
+                // Actualizar estado a ENTREGADO
+                actualizarEstadoPedido(idPedido, 'ENTREGADO');
+                // ✅ Sin alerta para operación más rápida
+            } else {
+                mensajeError.textContent = "PIN incorrecto. Por favor, verifica e intenta nuevamente.";
+                mensajeError.style.display = 'block';
+                campoPin1.value = '';
+                campoPin2.value = '';
+                campoPin3.value = '';
+                campoPin4.value = '';
+                campoPin1.focus();
+            }
+        };
+
+        const manejarCancelacion = () => {
+            ventana.style.display = 'none';
+            btnValidar.removeEventListener('click', manejarValidacion);
+            btnCancelar.removeEventListener('click', manejarCancelacion);
+            ventanaPinActiva = false; // ✅ Restablecer estado
+        };
+
+        btnValidar.addEventListener('click', manejarValidacion);
+        btnCancelar.addEventListener('click', manejarCancelacion);
+
+        // Permitir enviar con Enter en cualquier campo
+        [campoPin1, campoPin2, campoPin3, campoPin4].forEach(campo => {
+            campo.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    manejarValidacion();
                 }
             });
+        });
 
-            // Enfocar primer campo de PIN
-            setTimeout(() => campoPin1.focus(), 100);
-        }
+        // Cerrar al hacer clic fuera
+        ventana.addEventListener('click', (e) => {
+            if (e.target === ventana) {
+                manejarCancelacion();
+            }
+        });
 
-        function actualizarEstadoPedido(idPedido, nuevoEstado) {
-            fetch(URL_APPS_SCRIPT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `action=actualizarEstadoPedido&id=${idPedido}&estado=${nuevoEstado}` 
-            })
+        // Enfocar primer campo de PIN
+        setTimeout(() => campoPin1.focus(), 100);
+    }
+
+    function actualizarEstadoPedido(idPedido, nuevoEstado) {
+        fetch(URL_APPS_SCRIPT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=actualizarEstadoPedido&id=${idPedido}&estado=${nuevoEstado}`
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -2233,109 +2490,110 @@ function cerrarPanelDirecciones() {
             .catch(error => {
                 console.error("Error en actualización:", error);
             });
+    }
+
+    // ✅ FUNCIÓN SIMPLIFICADA PARA ABRIR GOOGLE MAPS CON RUTA
+    function abrirEnGoogleMaps(destinoLat, destinoLng) {
+        console.log("🚘 Abriendo Google Maps con ruta...");
+
+        // Obtener ubicación actual
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const origenLat = position.coords.latitude;
+                    const origenLng = position.coords.longitude;
+
+                    // Crear URL de Google Maps con ruta
+                    const url = `https://www.google.com/maps/dir/?api=1&origin=${origenLat},${origenLng}&destination=${destinoLat},${destinoLng}`;
+
+                    console.log("📍 URL Google Maps:", url);
+
+                    // Abrir Google Maps en nueva ventana
+                    window.open(url, '_blank');
+                },
+                (error) => {
+                    console.error("❌ Error obteniendo ubicación:", error);
+                    alert("No se pudo obtener tu ubicación. Abriendo Maps solo con destino...");
+
+                    // Abrir Maps solo con destino
+                    const url = `https://www.google.com/maps/search/?api=1&query=${destinoLat},${destinoLng}`;
+                    window.open(url, '_blank');
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        } else {
+            alert("Tu navegador no soporta geolocalización");
+        }
+    }
+
+    function ocultarContenedorInfoFijo() {
+        const contenedor = document.getElementById('contenedorInfoFijo');
+        if (contenedor) {
+            contenedor.style.display = 'none';
         }
 
-        // ✅ FUNCIÓN SIMPLIFICADA PARA ABRIR GOOGLE MAPS CON RUTA
-        function abrirEnGoogleMaps(destinoLat, destinoLng) {
-            console.log("🚘 Abriendo Google Maps con ruta...");
-            
-            // Obtener ubicación actual
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const origenLat = position.coords.latitude;
-                        const origenLng = position.coords.longitude;
-                        
-                        // Crear URL de Google Maps con ruta
-                        const url = `https://www.google.com/maps/dir/?api=1&origin=${origenLat},${origenLng}&destination=${destinoLat},${destinoLng}`;
-                        
-                        console.log("📍 URL Google Maps:", url);
-                        
-                        // Abrir Google Maps en nueva ventana
-                        window.open(url, '_blank');
-                    },
-                    (error) => {
-                        console.error("❌ Error obteniendo ubicación:", error);
-                        alert("No se pudo obtener tu ubicación. Abriendo Maps solo con destino...");
-                        
-                        // Abrir Maps solo con destino
-                        const url = `https://www.google.com/maps/search/?api=1&query=${destinoLat},${destinoLng}`;
-                        window.open(url, '_blank');
-                    },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-            } else {
-                alert("Tu navegador no soporta geolocalización");
-            }
-        }
+        // ✅ Eliminar círculo activo
+        eliminarCirculoActivo();
 
-        function ocultarContenedorInfoFijo() {
-            const contenedor = document.getElementById('contenedorInfoFijo');
-            if (contenedor) {
-                contenedor.style.display = 'none';
-            }
-            
-            // ✅ Eliminar círculo activo
-            eliminarCirculoActivo();
-            
-            // ✅ Eliminar marcadorSeleccionado (globo azul) si existe
-            if (marcadorSeleccionado) {
-                marcadorSeleccionado.setMap(null);
-                marcadorSeleccionado = null;
-            }
+        // ✅ Eliminar marcadorSeleccionado (globo azul) si existe
+        if (marcadorSeleccionado) {
+            marcadorSeleccionado.setMap(null);
+            marcadorSeleccionado = null;
         }
+    }
 
-        // ✅ FUNCIONES PARA CÍRCULO DE MARCADOR ACTIVO (SVG FIJO)
-        function crearCirculoActivo(marcador) {
-            eliminarCirculoActivo(); // Eliminar círculo anterior si existe
-            
-            const posicion = marcador.getPosition();
-            
-            // Crear círculo SVG como marcador temporal (tamaño fijo con zoom)
-            circuloActivo = new google.maps.Marker({
-                position: posicion,
-                map: mapa,
-                zIndex: 9997, // Debajo de marcadores nuevos (9999) pero arriba de existentes
-                icon: {
-                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+    // ✅ FUNCIONES PARA CÍRCULO DE MARCADOR ACTIVO (SVG FIJO)
+    function crearCirculoActivo(marcador) {
+        eliminarCirculoActivo(); // Eliminar círculo anterior si existe
+
+        const posicion = marcador.getPosition();
+
+        // Crear círculo SVG como marcador temporal (tamaño fijo con zoom)
+        circuloActivo = new google.maps.Marker({
+            position: posicion,
+            map: mapa,
+            zIndex: 9997, // Debajo de marcadores nuevos (9999) pero arriba de existentes
+            icon: {
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                         <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="10" cy="10" r="9" fill="#e74c3c" stroke="#ffffff" stroke-width="2"/>
                         </svg>
                     `),
-                    scaledSize: new google.maps.Size(20, 20),
-                    anchor: new google.maps.Point(10, 10)
-                },
-                clickable: false
+                scaledSize: new google.maps.Size(20, 20),
+                anchor: new google.maps.Point(10, 10)
+            },
+            clickable: false
+        });
+
+        console.log("✅ Círculo SVG creado en base del marcador (tamaño fijo)");
+    }
+
+    function eliminarCirculoActivo() {
+        if (circuloActivo) {
+            circuloActivo.setMap(null);
+            circuloActivo = null;
+            console.log("✅ Círculo SVG eliminado");
+        }
+    }
+
+
+    async function aceptarPedido(idPedido, marcadorO, marcadorD) {
+        try {
+            await fetch(URL_APPS_SCRIPT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `action=aceptarPedido&id=${idPedido}`
             });
-            
-            console.log("✅ Círculo SVG creado en base del marcador (tamaño fijo)");
-        }
-
-        function eliminarCirculoActivo() {
-            if (circuloActivo) {
-                circuloActivo.setMap(null);
-                circuloActivo = null;
-                console.log("✅ Círculo SVG eliminado");
-            }
-        }
-
-        
-        async function aceptarPedido(idPedido, marcadorO, marcadorD) {
-            try {
-                await fetch(URL_APPS_SCRIPT, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `action=aceptarPedido&id=${idPedido}` 
-                });
             //  alert("¡Pedido aceptado! Ya lo tienes marcado en tu mapa.");
-            } catch (error) {
-                alert("Error al aceptar. Intenta de nuevo.");
-                marcadorO.setMap(null);
-                marcadorD.setMap(null);
-            }
+        } catch (error) {
+            alert("Error al aceptar. Intenta de nuevo.");
+            marcadorO.setMap(null);
+            marcadorD.setMap(null);
         }
+    }
 
-        window.onload = initMap;
-    </script>
+    window.onload = initMap;
+</script>
 </body>
+
 </html>
